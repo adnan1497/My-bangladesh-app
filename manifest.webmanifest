@@ -1,0 +1,19 @@
+{
+  "name": "আমার বাংলাদেশ",
+  "short_name": "আমার বাংলাদেশ",
+  "description": "বাংলাদেশের নাগরিক সেবা, স্থানীয় তালিকা, রক্তদাতা, চিকিৎসক, নোটিশ, সোশ্যাল ও আরও অনেক কিছু",
+  "lang": "bn",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#061a14",
+  "theme_color": "#061a14",
+  "categories": ["utilities", "lifestyle", "government"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
