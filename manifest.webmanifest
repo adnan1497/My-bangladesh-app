@@ -4,7 +4,7 @@
   "description": "বাংলাদেশের নাগরিক সেবা, স্থানীয় তালিকা, রক্তদাতা, চিকিৎসক, নোটিশ, সোশ্যাল ও আরও অনেক কিছু",
   "lang": "bn",
   "dir": "ltr",
-  "start_url": "./index.html",
+  "start_url": "./MyBangladesh_App.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
