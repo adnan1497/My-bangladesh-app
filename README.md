@@ -1,2 +1,7 @@
-# My-bangladesh-app
-My Bangladesh – Bangladesh information and community app
+# আমার বাংলাদেশ
+
+বাংলাদেশের নাগরিক সেবা, রক্তদাতা, চিকিৎসক, নোটিশ, সামাজিক যোগাযোগ ও আরও অনেক কিছু — এক অ্যাপে।
+
+## 👉 [অ্যাপ খুলুন](MyBangladesh_App.html)
+
+[গোপনীয়তা নীতি](privacy.html)
