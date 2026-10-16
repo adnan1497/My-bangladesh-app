@@ -665,7 +665,7 @@
   <div class="modal-overlay overlay-center" id="donorModal" style="z-index:70">
     <div class="modal-content">
       <div class="modal-header">
-        <div><h3 style="font-size:19px">🩸 রক্তদাতা নিবন্ধন</h3><p style="font-size:11px;color:#6ee7b7">নিজের তথ্য নিজেই যোগ করুন</p></div>
+        <div><h3 style="font-size:19px" id="dnTitle">🩸 রক্তদাতা নিবন্ধন</h3><p style="font-size:11px;color:#6ee7b7" id="dnSub">নিজের তথ্য নিজেই যোগ করুন</p></div>
         <button class="close-btn" onclick="closeModal('donorModal')">✕</button>
       </div>
       <label class="field-label">নাম *</label>
@@ -685,10 +685,10 @@
       <input class="form-field" id="dnLast" type="date">
       <label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:12px;line-height:1.6;color:#a7f3d0">
         <input type="checkbox" id="dnConsent" style="margin-top:4px">
-        <span>আমার নাম, মোবাইল নম্বর, রক্তের গ্রুপ ও এলাকা এই অ্যাপে অন্যদের দেখানোর অনুমতি দিচ্ছি। রক্তের প্রয়োজনে লোকজন আমাকে ফোন করতে পারবে।</span>
+        <span id="dnConsentTx">আমার নাম, মোবাইল নম্বর, রক্তের গ্রুপ ও এলাকা এই অ্যাপে অন্যদের দেখানোর অনুমতি দিচ্ছি। রক্তের প্রয়োজনে লোকজন আমাকে ফোন করতে পারবে।</span>
       </label>
       <div class="notice" id="dnErr" style="display:none;color:#fecaca"></div>
-      <button class="primary-btn" onclick="saveDonor()">নিবন্ধন করুন</button>
+      <button class="primary-btn" id="dnSaveBtn" onclick="saveDonor()">নিবন্ধন করুন</button>
     </div>
   </div>
 
@@ -762,6 +762,7 @@
         <button id="tab_manage" onclick="showAdminTab('manage')">📋 পরিচালনা</button>
         <button id="tab_cover" onclick="showAdminTab('cover')">🧭 এলাকা-ভিত্তিক</button>
         <button id="tab_reg" onclick="showAdminTab('reg')">📝 নিবন্ধন</button>
+        <button id="tab_stats" onclick="showAdminTab('stats')">📊 ভিজিটর</button>
         <button id="tab_backup" onclick="showAdminTab('backup')">💾 ব্যাকআপ</button>
         <button id="tab_msg" onclick="openAdminInbox()">💬 বার্তা <span id="admMsgBadge" style="display:none;background:#ef4444;color:#fff;border-radius:999px;padding:0 6px;font-size:10px;margin-left:3px"></span></button>
       </div>
@@ -837,6 +838,7 @@
       <div id="ad_manage" style="display:none"><div id="adminRecordsList"></div></div>
 
       <div id="ad_reg" style="display:none"></div>
+      <div id="ad_stats" style="display:none"><div id="adStatsBox"></div></div>
       <div id="ad_backup" style="display:none">
         <p class="notice">আপনার লেখা সব তথ্য এই ফোনের ব্রাউজারে জমা থাকে। “এক্সপোর্ট” চেপে টেক্সট কপি করে সুরক্ষিত জায়গায় রাখুন; অন্য ফোনে বা পরে “ইমপোর্ট”-এ বসালে সব ফিরে আসবে।</p>
         <div class="notice">📢 সবার ফোনে দেখাতে: "এক্সপোর্ট" চেপে এই টেক্সট কপি করে Claude-কে দিন; ফাইলের ভেতরে বসিয়ে নতুন ফাইল বানিয়ে দেওয়া হবে। (অনলাইনে স্বয়ংক্রিয়ভাবে যাওয়ার জন্য Firebase লাগবে।)</div>
@@ -934,7 +936,7 @@
       const head=mk('div','background:#3b0f1a;border:1px solid rgba(244,63,94,.5);border-radius:14px;padding:12px;margin-bottom:12px');
       head.appendChild(mk('b','font-size:14px;display:block;color:#fda4af','🩸 রক্তদাতা'));
       head.appendChild(mk('p','font-size:11px;color:#fecdd3;line-height:1.6;margin:4px 0 8px','আপনি রক্তদানে ইচ্ছুক হলে নিজের নাম, নম্বর ও রক্তের গ্রুপ যোগ করুন। প্রয়োজনে মানুষ সরাসরি ফোন করতে পারবে।'));
-      const btn=mk('button','','＋ রক্তদাতা হিসেবে নিবন্ধন করুন');btn.className='primary-btn';btn.style.marginTop='0';btn.onclick=openDonorForm;head.appendChild(btn);
+      const btn=mk('button','','＋ রক্তদাতা হিসেবে নিবন্ধন করুন');btn.className='primary-btn';btn.style.marginTop='0';btn.onclick=()=>openDonorForm();head.appendChild(btn);
       list.appendChild(head);
       const sel=mk('select','width:100%;padding:10px 12px;border-radius:11px;background:#061812;border:1px solid rgba(16,185,129,.55);color:#fff;font-size:13px;margin-bottom:10px');
       const all=document.createElement('option');all.value='';all.textContent='সব রক্তের গ্রুপ';sel.appendChild(all);
@@ -970,7 +972,14 @@
     function dnOnDiv(){fillSelect($('dnDist'),(dnDivObj()||{}).districts,'— জেলা —');fillSelect($('dnUpz'),[],'— উপজেলা —');fillSelect($('dnUn'),[],'— ইউনিয়ন —')}
     function dnOnDist(){fillSelect($('dnUpz'),(dnDistObj()||{}).upazilas,'— উপজেলা —');fillSelect($('dnUn'),[],'— ইউনিয়ন —')}
     function dnOnUpz(){fillSelect($('dnUn'),(dnUpzObj()||{}).unions,'— ইউনিয়ন —')}
-    function openDonorForm(){
+    var dnAdminMode=false;
+    function openDonorForm(adm){
+      dnAdminMode=adm===true;
+      $('donorModal').style.zIndex=dnAdminMode?'95':'70';
+      $('dnTitle').textContent=dnAdminMode?'🩸 রক্তদাতা নিবন্ধন (অ্যাডমিন)':'🩸 রক্তদাতা নিবন্ধন';
+      $('dnSub').textContent=dnAdminMode?'যেকোনো ব্যক্তির পক্ষে রক্তদাতা যোগ করুন':'নিজের তথ্য নিজেই যোগ করুন';
+      $('dnConsentTx').textContent=dnAdminMode?'এই ব্যক্তির সম্মতি নিয়েছি — তাঁর নাম, মোবাইল নম্বর, রক্তের গ্রুপ ও এলাকা অ্যাপে অন্যদের দেখানো যাবে।':'আমার নাম, মোবাইল নম্বর, রক্তের গ্রুপ ও এলাকা এই অ্যাপে অন্যদের দেখানোর অনুমতি দিচ্ছি। রক্তের প্রয়োজনে লোকজন আমাকে ফোন করতে পারবে।';
+      $('dnSaveBtn').textContent=dnAdminMode?'রক্তদাতা যোগ করুন':'নিবন্ধন করুন';
       const g=$('dnGroup');g.innerHTML='';
       const f=document.createElement('option');f.value='';f.textContent='— রক্তের গ্রুপ বাছুন —';g.appendChild(f);
       BLOOD_GROUPS.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;g.appendChild(o)});
@@ -986,16 +995,18 @@
       const name=$('dnName').value.trim();
       const phone=$('dnPhone').value.trim().replace(/[০-৯]/g,d=>'০১২৩৪৫৬৭৮৯'.indexOf(d)).replace(/[\s()\-.]/g,'');
       const group=$('dnGroup').value;
-      if(name.length<2){dnErr('আপনার নাম লিখুন।');return}
+      if(name.length<2){dnErr(dnAdminMode?'ব্যক্তির নাম লিখুন।':'আপনার নাম লিখুন।');return}
       if(!/^\+?[0-9]{7,15}$/.test(phone)){dnErr('সঠিক মোবাইল নম্বর লিখুন।');return}
       if(!BLOOD_GROUPS.includes(group)){dnErr('রক্তের গ্রুপ বাছুন।');return}
       if(!$('dnDiv').value||!$('dnDist').value){dnErr('অন্তত বিভাগ ও জেলা বাছুন, যাতে সঠিক এলাকায় দেখা যায়।');return}
       if(!$('dnConsent').checked){dnErr('তথ্য দেখানোর অনুমতির ঘরে টিক দিন।');return}
       const list=getDonors();
-      if(list.some(d=>d.own&&d.phone===phone)){dnErr('এই নম্বর দিয়ে আগেই নিবন্ধন করা আছে।');return}
-      list.unshift({id:newId(),name:name.slice(0,80),phone,group,address:$('dnAddress').value.trim().slice(0,200),lastDonation:$('dnLast').value||'',location:{division:$('dnDiv').value,district:$('dnDist').value,upazila:$('dnUpz').value||'',union:$('dnUn').value||''},createdAt:new Date().toISOString(),own:true});
+      if(list.some(d=>(dnAdminMode||d.own)&&d.phone===phone)){dnErr('এই নম্বর দিয়ে আগেই নিবন্ধন করা আছে।');return}
+      list.unshift({id:newId(),name:name.slice(0,80),phone,group,address:$('dnAddress').value.trim().slice(0,200),lastDonation:$('dnLast').value||'',location:{division:$('dnDiv').value,district:$('dnDist').value,upazila:$('dnUpz').value||'',union:$('dnUn').value||''},createdAt:new Date().toISOString(),own:!dnAdminMode,byAdmin:dnAdminMode||undefined});
       if(!writeJSON(DONORS_KEY,list))return;
-      closeModal('donorModal');alert('ধন্যবাদ! আপনি রক্তদাতা হিসেবে নিবন্ধিত হয়েছেন।');
+      closeModal('donorModal');
+      if(dnAdminMode){alert('রক্তদাতা যোগ করা হয়েছে: '+name);try{renderAdminRecords()}catch(e){}return}
+      alert('ধন্যবাদ! আপনি রক্তদাতা হিসেবে নিবন্ধিত হয়েছেন।');
       openCategoryModal('blood');
     }
 
@@ -4836,17 +4847,24 @@
       document.getElementById('adminModal').classList.add('active');adSetLoc({...state});showAdminTab('add');try{admBadge()}catch(e){}try{updRegTab()}catch(e){}try{admPollStart()}catch(e){}
     }
     async function adminLogin(){
+      // একটাই লগইন: Supabase জিমেইল-পাসওয়ার্ড (সার্ভার নিজে অ্যাডমিন যাচাই করে)
       let lock=0;try{lock=parseInt(localStorage.getItem('amarAdminLock_v1')||'0',10)}catch(e){}
       if(Date.now()<lock){showAdminErr('অনেকবার ভুল হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।');return;}
-      if(!(window.crypto&&crypto.subtle)){showAdminErr('এই ব্রাউজারে অ্যাডমিন লগইন সমর্থিত নয় (Chrome ব্যবহার করুন)।');return;}
-      const email=document.getElementById('adEmail').value.trim().toLowerCase();
+      const email=document.getElementById('adEmail').value.trim();
       const pw=document.getElementById('adPw').value;
-      let ok=false;try{ok=(await deriveHash(email,pw,ADMIN_CRED.s,ADMIN_CRED.i))===ADMIN_CRED.h}catch(e){}
-      if(!ok){
-        try{let n=parseInt(localStorage.getItem('amarAdminFail_v1')||'0',10)+1;localStorage.setItem('amarAdminFail_v1',String(n));if(n>=5){localStorage.setItem('amarAdminLock_v1',String(Date.now()+300000));localStorage.setItem('amarAdminFail_v1','0');}}catch(e){}
-        showAdminErr('জিমেইল বা পাসওয়ার্ড ভুল। শুধু নির্ধারিত অ্যাডমিন প্রবেশ করতে পারবেন।');return;
-      }
-      try{localStorage.setItem('amarAdminFail_v1','0');sessionStorage.setItem(ADMIN_FLAG,'1')}catch(e){}
+      if(!email||!pw){showAdminErr('জিমেইল ও পাসওয়ার্ড দিন।');return;}
+      let tok='';
+      try{const j=await sbReq('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password:pw}});tok=(j&&j.access_token)||''}
+      catch(e){
+        const m=String((e&&e.message)||e);
+        if(/failed to fetch|abort|network/i.test(m)){showAdminErr('ইন্টারনেট/Supabase-এ পৌঁছানো যাচ্ছে না। সংযোগ দেখে আবার চেষ্টা করুন।');return}
+        try{let n=parseInt(localStorage.getItem('amarAdminFail_v1')||'0',10)+1;localStorage.setItem('amarAdminFail_v1',String(n));if(n>=5){localStorage.setItem('amarAdminLock_v1',String(Date.now()+300000));localStorage.setItem('amarAdminFail_v1','0')}}catch(_){}
+        showAdminErr(/not confirmed/i.test(m)?'এই ইউজারের ইমেইল Supabase-এ confirmed নয়।':'জিমেইল বা পাসওয়ার্ড ভুল। (Supabase-এ দেওয়া জিমেইল-পাসওয়ার্ডই লাগবে।)');return}
+      if(!tok){showAdminErr('লগইন হয়নি।');return}
+      // সার্ভারে অ্যাডমিন কিনা যাচাই (কিছু পরিবর্তন করে না)
+      try{await sbReq('/rest/v1/rpc/admin_soc_setpw',{method:'POST',body:{p_phone:'0',p_salt:'',p_iter:0,p_hash:''},token:tok})}
+      catch(e){if(/not allowed/i.test(String((e&&e.message)||e))){showAdminErr('এই ইউজার অ্যাডমিন নয়।');return}}
+      try{localStorage.setItem('amarAdminFail_v1','0');sessionStorage.setItem(ADMIN_FLAG,'1');sessionStorage.setItem(SB_TOK,tok)}catch(e){}
       document.getElementById('adPw').value='';
       openAdminPanel();
     }
@@ -5037,9 +5055,28 @@
       group('আপনার নিজের ক্যাটাগরি',getCustomCats().map(c=>[c.id,c.name,c.icon]));
       if(cur)sel.value=cur;
     }
+    // ওয়েবসাইট/অ্যাপ ভিজিটর পরিসংখ্যান (শুধু অ্যাডমিন; 5_analytics.sql লাগে)
+    var adStatP='d7';
+    async function renderAdminStats(){
+      const box=$('adStatsBox');box.textContent='';box.appendChild(mk('p','font-size:12px;color:#a7f3d0','লোড হচ্ছে…'));
+      let d;
+      try{const t=sbTok();if(!t)throw new Error('অ্যাডমিন অনলাইন লগইন নেই — অ্যাডমিন লগআউট করে আবার লগইন করুন।');d=await sbReq('/rest/v1/rpc/stats_summary',{method:'POST',body:{},token:t})}
+      catch(e){const m=String((e&&e.message)||e);box.textContent='';box.appendChild(mk('p','font-size:12.5px;color:#fecaca;line-height:1.7',/could not find the function|PGRST202|404/i.test(m)?'সেটআপ বাকি — Supabase SQL Editor-এ 5_analytics.sql চালান।':m));return}
+      d=d||{};const T=d.totals||{},U=d.uniq||{},P=adStatP;const g=(ev)=>(T[ev]&&T[ev][P])||0;
+      box.textContent='';
+      const tw=mk('div','display:flex;gap:6px;margin-bottom:10px');
+      [['d1','আজ'],['d7','৭ দিন'],['d30','৩০ দিন'],['all','সব সময়']].forEach(([k,l])=>{const b=mk('button','',l);b.className=k===P?'primary-btn':'change-btn';b.style.cssText='flex:1;margin:0;padding:8px 4px;font-size:12px';b.onclick=()=>{adStatP=k;renderAdminStats()};tw.appendChild(b)});box.appendChild(tw);
+      const kp=mk('div','display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px');
+      [['ইউনিক ভিজিটর',U[P]||0],['ওয়েবসাইট ভিজিট',g('view')],['অ্যাপ খোলা',g('app_open')],['"অ্যাপ খুলুন" ক্লিক',g('app_click')],['ইনস্টল ক্লিক',g('install_click')],['ইনস্টল সম্পন্ন',g('installed')]].forEach(([l,n])=>{const c=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:10px');c.appendChild(mk('b','display:block;font-size:22px;color:#6ee7b7',fmt(n)));c.appendChild(mk('small','font-size:11px;color:#a7f3d0',l));kp.appendChild(c)});box.appendChild(kp);
+      const dl=d.daily||[];let mx=1;dl.forEach(x=>{mx=Math.max(mx,x.view||0,x.app_open||0)});
+      box.appendChild(mk('div','font-size:13px;font-weight:700;margin:6px 0','গত ৩০ দিন (🟩 ভিজিট · 🟧 অ্যাপ খোলা)'));
+      const bars=mk('div','display:flex;align-items:flex-end;gap:2px;height:90px;background:#0a251c;border-radius:10px;padding:6px');
+      dl.forEach(x=>{const col=mk('div','flex:1;display:flex;align-items:flex-end;gap:1px;height:100%');col.title=x.d+': ভিজিট '+x.view+', অ্যাপ '+x.app_open;col.appendChild(mk('i','flex:1;background:#10b981;border-radius:2px;height:'+Math.max(2,Math.round((x.view||0)/mx*100))+'%'));col.appendChild(mk('i','flex:1;background:#f59e0b;border-radius:2px;height:'+Math.max(2,Math.round((x.app_open||0)/mx*100))+'%'));bars.appendChild(col)});box.appendChild(bars);
+      [['ডিভাইস (ইউনিক)',d.dev],['কোথা থেকে এসেছে',d.ref]].forEach(([t,a])=>{box.appendChild(mk('div','font-size:13px;font-weight:700;margin:12px 0 6px',t));(a||[]).forEach(x=>{const r=mk('div','display:flex;justify-content:space-between;background:#0b2b20;border-radius:8px;padding:7px 10px;margin-bottom:4px;font-size:12.5px');r.appendChild(mk('span','',String(x.k)));r.appendChild(mk('b','',fmt(x.n)));box.appendChild(r)});if(!(a||[]).length)box.appendChild(mk('p','font-size:12px;color:#a7f3d0','এখনো তথ্য নেই'))});
+    }
     function showAdminTab(tab){
       adTab=tab;
-      ['add','about','cats','cover','manage','reg','backup'].forEach(t=>{$('ad_'+t).style.display=(t===tab)?'block':'none';$('tab_'+t).classList.toggle('active',t===tab)});
+      ['add','about','cats','cover','manage','reg','stats','backup'].forEach(t=>{$('ad_'+t).style.display=(t===tab)?'block':'none';$('tab_'+t).classList.toggle('active',t===tab)});
       $('adPicker').style.display=(tab==='add'||tab==='about'||tab==='cover')?'block':'none';
       if(tab==='cover')renderAdminCover();
       if(tab==='add')adFillCategorySelect();
@@ -5048,6 +5085,7 @@
       if(tab==='manage')renderAdminRecords();
       if(tab==='reg')renderAdminReg();
       if(tab==='backup')$('backupText').value='';
+      if(tab==='stats')renderAdminStats();
     }
 
     // তথ্য যোগ/সম্পাদনা
@@ -5186,10 +5224,11 @@
       });
       const donors=getDonors();
       root.appendChild(mk('div','ad-sec','নিবন্ধিত রক্তদাতা ('+fmt(donors.length)+')'));
+      {const ab=mk('button','','＋ 🩸 অন্য ব্যক্তির রক্তদাতা নিবন্ধন করুন (অ্যাডমিন)');ab.className='primary-btn';ab.style.cssText='margin:0 0 10px;width:100%';ab.onclick=()=>openDonorForm(true);root.appendChild(ab)}
       if(!donors.length)root.appendChild(mk('p','font-size:12px;color:#a7f3d0;margin-bottom:8px','এখনো কেউ নিবন্ধন করেনি।'));
       donors.forEach(d=>{
         const card=mk('div','background:#0b2b20;border:1px solid rgba(244,63,94,.35);border-radius:14px;padding:12px;margin-bottom:10px;display:flex;gap:8px;align-items:flex-start');
-        const body=mk('div','flex:1;min-width:0');body.appendChild(mk('div','font-size:14px;font-weight:700',d.group+' · '+d.name));
+        const body=mk('div','flex:1;min-width:0');body.appendChild(mk('div','font-size:14px;font-weight:700',d.group+' · '+d.name+(d.byAdmin?' (অ্যাডমিন-যোগ)':'')));
         body.appendChild(mk('p','font-size:11px;color:#a7f3d0;line-height:1.6;margin-top:3px',[d.phone,adLocText(d.location||{}),d.address].filter(Boolean).join(' · ')));
         const del=mk('button','','মুছুন');del.className='danger-btn';del.onclick=()=>{if(!confirm('এই রক্তদাতা মুছে ফেলবেন?'))return;writeJSON(DONORS_KEY,getDonors().filter(x=>x.id!==d.id));renderAdminRecords()};
         card.appendChild(body);card.appendChild(del);root.appendChild(card);
