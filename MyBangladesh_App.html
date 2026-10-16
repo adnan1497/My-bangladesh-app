@@ -641,11 +641,7 @@
         <div class="lg-en">My Bangladesh</div>
         <h2 style="font-size:28px;margin-top:2px">আমার বাংলাদেশ</h2>
       </div>
-      <label class="field-label" for="loginName">আপনার নাম</label>
-      <input class="form-field" id="loginName" autocomplete="name" placeholder="সম্পূর্ণ নাম লিখুন">
-      <label class="field-label" for="loginPhone">মোবাইল নম্বর</label>
-      <input class="form-field" id="loginPhone" inputmode="tel" autocomplete="tel" placeholder="+8801XXXXXXXXX / +966XXXXXXXXX">
-      <button class="primary-btn" onclick="handleLogin()">প্রবেশ করুন</button>
+      <div id="entryBox"></div>
     </div>
   </div>
 
@@ -1275,6 +1271,7 @@
         const m=this.me;if(!m)return;let rows;
         if(this.isAdminView()){const t=sbTok();if(!t){return}
           try{rows=await sbReq('/rest/v1/admin_messages?select=id,user_key,user_name,dir,text,ts,dts,rts&order=ts.asc&limit=1000',{token:t})}catch(e){if(/jwt|expired/i.test(String(e.message))){try{sessionStorage.removeItem(SB_TOK)}catch(x){}}return}}
+        else if(SOCN.tok){try{rows=await socRpc('acc_admin_thread',{p_tok:SOCN.tok})}catch(e){if(/invalid session/.test(String(e&&e.message))){socDrop();try{entryShow('login')}catch(x){}return}if(!this._warned&&!/abort|failed to fetch|network|load failed/i.test(String(e&&e.message||e))){this._warned=true;showToast('⚠️ বার্তা আনা যায়নি: '+msgErrText(e))}return}}
         else{try{if(!this._claimed){const ok=await sbReq('/rest/v1/rpc/claim_identity',{method:'POST',body:{p_key:m.key,p_secret:ownerKey()}});if(ok!==true){this._claimed=false;if(!this._warned){this._warned=true;showToast('⚠️ '+msgErrText('not allowed'))}return}this._claimed=true}
           rows=await sbReq('/rest/v1/rpc/user_thread',{method:'POST',body:{p_key:m.key,p_secret:ownerKey()}})}catch(e){if(!this._warned&&!/abort|failed to fetch|network|load failed/i.test(String(e&&e.message||e))){this._warned=true;showToast('⚠️ বার্তা আনা যায়নি: '+msgErrText(e))}return}
           try{const ur=await sbReq('/rest/v1/rpc/um_thread',{method:'POST',body:{p_key:m.key,p_secret:ownerKey()}});if(Array.isArray(ur))this.um=ur.map(r=>({id:r.id,from:r.from_key,fromName:r.from_name||'',to:r.to_key,toName:r.to_name||'',text:r.text,ts:+r.ts,dts:r.dts?+r.dts:0,rts:r.rts?+r.rts:0,_um:1}))}catch(e){}}
@@ -1288,6 +1285,7 @@
         if(msg.to!==ADMIN_MSG_KEY&&msg.from!==ADMIN_MSG_KEY){if(!SOCN.tok){await this.umSend(msg);return}await socRpc('soc_msg_send',{p_tok:SOCN.tok,p_id:msg.id,p_to:msg.to,p_text:msg.text,p_to_name:String(msg.toName||'').slice(0,80)});await this.pull();return}
         if(this.isAdminView()){const t=sbTok();if(!t)throw new Error('admin login');
           await sbReq('/rest/v1/admin_messages',{method:'POST',token:t,body:{id:msg.id,user_key:msg.to,user_name:String(msg.toName||'').slice(0,80),dir:'a2u',text:msg.text,ts:msg.ts},prefer:'return=minimal'})}
+        else if(SOCN.tok){await socRpc('acc_admin_send',{p_tok:SOCN.tok,p_id:msg.id,p_text:msg.text,p_ts:msg.ts})}
         else{await sbReq('/rest/v1/rpc/user_send',{method:'POST',body:{p_key:msg.from,p_secret:ownerKey(),p_id:msg.id,p_name:String(msg.fromName||'').slice(0,80),p_text:msg.text,p_ts:msg.ts}})}
         await this.pull();
       },
@@ -1305,6 +1303,7 @@
         if(!sids.length)return;const now=Date.now();
         try{
           if(this.isAdminView()){const t=sbTok();if(!t)return;await sbReq('/rest/v1/admin_messages?dir=eq.u2a&id=in.('+sids.map(i=>'"'+String(i).replace(/"/g,'')+'"').join(',')+')',{method:'PATCH',token:t,body:{[field]:now},prefer:'return=minimal'})}
+          else if(SOCN.tok){await socRpc('acc_admin_mark',{p_tok:SOCN.tok,p_ids:sids,p_field:field,p_now:now})}
           else{await sbReq('/rest/v1/rpc/user_mark',{method:'POST',body:{p_key:this.me.key,p_secret:ownerKey(),p_ids:sids,p_field:field,p_now:now}})}
           this.srv.forEach(x=>{if(sids.includes(x.id)&&!x[field])x[field]=now});this.emit(false);
         }catch(e){}
@@ -1354,7 +1353,7 @@
       const b=mk('button','','💬 বার্তা');b.className='call-btn';b.style.cssText='border:0;cursor:pointer;background:#0ea5e9;color:#fff';
       b.onclick=()=>openChat(phone,name);return b;
     }
-    function needLogin(){if(msgMe())return false;alert('বার্তা পাঠাতে আগে লগইন করুন (নাম ও মোবাইল নম্বর)।');return true}
+    function needLogin(){if(window.__admMsg||socMe())return false;alert('বার্তা পাঠাতে আগে লগইন করুন (মোবাইল নম্বর ও পাসওয়ার্ড)।');try{entryShow('login')}catch(e){}return true}
     function modalHead(title,sub,backFn){
       const h=mk('div','');h.className='modal-header';const t=mk('div','');
       if(backFn){const bk=mk('button','','←');bk.className='close-btn';bk.style.marginRight='8px';bk.onclick=backFn;h.appendChild(bk)}
@@ -1394,7 +1393,6 @@
     function openChat(phone,name){
       if(needLogin())return;const m=msgMe(),k=String(phone)===ADMIN_MSG_KEY?ADMIN_MSG_KEY:(/^u[0-9a-f]{16}$/.test(String(phone))?String(phone):phoneKey(phone));
       if(k!==ADMIN_MSG_KEY&&(!k||k.length<7)){alert('এই ব্যক্তির সঠিক নম্বর নেই।');return}
-      if(k!==ADMIN_MSG_KEY&&!window.__admMsg&&!socMe()){if(confirm('অন্য ব্যবহারকারীকে বার্তা পাঠাতে হলে আগে "সামাজিক যোগাযোগ"-এ প্রোফাইল তৈরি/লগইন করতে হবে (ফোন নম্বর যাচাইসহ)। এখনই যাবেন?')){try{openCategoryModal('social')}catch(e){}}return}
       if(k===m.key){alert('নিজেকে মেসেজ পাঠানো যাবে না।');return}
       if(blockedList().includes(k)){alert('এই নম্বরটি আপনি ব্লক করেছেন। ইনবক্স থেকে আনব্লক করুন।');return}
       if(!canMessage(k)){alert('এই ব্যক্তি শুধু বন্ধুদের কাছ থেকে বার্তা নেন। আগে বন্ধুত্বের অনুরোধ পাঠান।');return}
@@ -1579,7 +1577,7 @@
     function socMe(){try{return SOCN.tok&&SOCN.me?SOCN.me:null}catch(e){return null}}
     const socRpc=(fn,body,tok)=>sbReq('/rest/v1/rpc/'+fn,{method:'POST',body:body||{},token:tok});
     function socErrText(e){const m=String((e&&e.message)||e||'');if(/slow/.test(m))return 'একটু অপেক্ষা করে আবার চেষ্টা করুন।';if(/friends only/.test(m))return 'এই ব্যক্তি শুধু বন্ধুদের কাছ থেকে বার্তা নেন। আগে বন্ধুত্বের অনুরোধ পাঠান।';if(/bad target/.test(m))return 'এই ব্যক্তিকে পাওয়া যায়নি।';if(/too many/.test(m))return 'অনেক অনুরোধ পাঠানো হয়ে গেছে।';if(/abort|fetch|network|Failed/i.test(m))return 'ইন্টারনেট সংযোগ নেই বা সার্ভারে পৌঁছানো যাচ্ছে না।';return 'ব্যর্থ: '+m}
-    function socDrop(){SOCN.tok='';SOCN.me=null;SOCN.users={};SOCN.posts=[];SOCN.fr=[];SOCN.cur=0;SOCN.loaded={};try{localStorage.removeItem(SOCN_KEY)}catch(e){}msgPeer=null;try{msgInit()}catch(e){}}
+    function socDrop(){try{setTimeout(()=>{if(!SOCN.tok)entryShow('login')},300)}catch(e){}SOCN.tok='';SOCN.me=null;SOCN.users={};SOCN.posts=[];SOCN.fr=[];SOCN.cur=0;SOCN.loaded={};try{localStorage.removeItem(SOCN_KEY)}catch(e){}msgPeer=null;try{msgInit()}catch(e){}}
     function socUiRefresh(){if(!socBox||!socBox.isConnected)return;const a=document.activeElement;if(a&&socBox.contains(a)&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA')&&a.value)return;socRender()}
     async function socPull(force){
       if(!SOCN.tok||SOCN.busy)return false;SOCN.busy=true;let changed=false;
@@ -1614,14 +1612,89 @@
     function socMe_dummy(){}
     const socIsAdmin=()=>{try{return sessionStorage.getItem(ADMIN_FLAG)==='1'}catch(e){return false}};
     let socBox=null,soc={mode:'login',tab:'feed',view:null,onlyMine:false,openC:{}},socLastPost=0;
-    function pwCheck(pw,phone){
-      if(pw.length<8)return 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।';
-      if(!/[a-z]/.test(pw)||!/[A-Z]/.test(pw))return 'পাসওয়ার্ডে ইংরেজি ছোট (a) ও বড় (A) হাতের অক্ষর দুটোই লাগবে।';
-      if(!/[0-9]/.test(pw))return 'পাসওয়ার্ডে অন্তত একটি সংখ্যা লাগবে।';
-      if(!/[^A-Za-z0-9]/.test(pw))return 'পাসওয়ার্ডে অন্তত একটি চিহ্ন (যেমন @ # ! $) লাগবে।';
-      if(phoneKey(pw)===phone||pw.toLowerCase().includes('password'))return 'এই পাসওয়ার্ডটি সহজে অনুমান করা যায়। অন্য দিন।';
-      return '';
+    // ===== একক অ্যাকাউন্ট: নম্বর + যেকোনো পাসওয়ার্ড (সার্ভারে যাচাই), ভুলে গেলে রিকভারি কোড =====
+    const E={mode:'login'};
+    const RC_ABC='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    const rcNew=()=>{const a=crypto.getRandomValues(new Uint8Array(10));const s=Array.from(a).map(b=>RC_ABC[b%RC_ABC.length]).join('');return s.slice(0,5)+'-'+s.slice(5)};
+    const rcNorm=c=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/O/g,'0').replace(/I|L/g,'1');
+    async function rcHash(c){const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('amar-rc|'+rcNorm(c)));return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+    function entryShow(mode,prefill){E.mode=mode||E.mode||'login';E.pre=prefill||E.pre||{};try{$('loginModal').classList.add('active')}catch(e){}entryRender()}
+    function entryDone(r,k,name){
+      const nm=String(r.name||name||'').slice(0,60);const saved={name:nm,phone:k,createdAt:new Date().toISOString()};
+      try{localStorage.setItem(PROFILE_KEY,JSON.stringify(saved))}catch(e){}currentProfile=saved;
+      try{socSetSession(r,k,r.dob?{dob:r.dob,age:r.age}:{})}catch(e){}
+      try{$('loginModal').classList.remove('active')}catch(e){}try{refreshWho()}catch(e){}
     }
+    function entryCodeScreen(box,code,then){
+      box.innerHTML='';box.appendChild(mk('div','font-size:34px;text-align:center','🔑'));box.appendChild(mk('h3','text-align:center;font-size:18px;margin:4px 0 6px','আপনার রিকভারি কোড'));
+      box.appendChild(mk('div','text-align:center;font-size:30px;font-weight:800;letter-spacing:3px;color:#fde68a;background:#0a251c;border:1px dashed #fcd34d;border-radius:14px;padding:14px;margin:8px 0;user-select:all',code));
+      box.appendChild(mk('p','font-size:12.5px;color:#fcd34d;line-height:1.8','⚠️ এই কোডটি কাগজে লিখে বা স্ক্রিনশট নিয়ে রাখুন। পাসওয়ার্ড ভুলে গেলে এই কোড দিয়ে নিজেই নতুন পাসওয়ার্ড বানাতে পারবেন। কোডটি আর দেখানো হবে না এবং কাউকে দেবেন না।'));
+      const cp=mk('button','','📋 কোড কপি করুন');cp.className='change-btn';cp.style.cssText='width:100%;padding:10px;margin-bottom:8px;cursor:pointer';cp.onclick=()=>{try{navigator.clipboard.writeText(code);cp.textContent='✅ কপি হয়েছে'}catch(e){}};box.appendChild(cp);
+      const ok=mk('button','','রেখেছি — চালিয়ে যান');ok.className='primary-btn';ok.onclick=then;box.appendChild(ok);
+    }
+    function entryRender(){
+      const box=$('entryBox');if(!box)return;box.innerHTML='';
+      const sw=mk('div','display:flex;gap:6px;margin-bottom:10px');
+      [['login','লগইন'],['reg','নতুন অ্যাকাউন্ট']].forEach(([k,l])=>{const b=mk('button','',l);b.style.cssText=`flex:1;padding:10px;border-radius:10px;border:1px solid rgba(16,185,129,.5);color:#fff;font-size:14px;cursor:pointer;background:${(E.mode===k||(E.mode==='forgot'&&k==='login'))?'#059669':'#061812'}`;b.onclick=()=>{E.mode=k;entryRender()};sw.appendChild(b)});box.appendChild(sw);
+      const er=mk('div','display:none;color:#fecaca;margin-top:8px');er.className='notice';const fail=m=>{er.textContent=m;er.style.display='block'};
+      const fld=(label,id,o)=>{o=o||{};box.appendChild(mk('label','',label)).className='field-label';const i=document.createElement('input');i.className='form-field';i.id=id;if(o.type)i.type=o.type;if(o.mode)i.setAttribute('inputmode',o.mode);i.maxLength=o.max||64;if(o.ac)i.autocomplete=o.ac;if(o.ph)i.placeholder=o.ph;if(o.val)i.value=o.val;box.appendChild(i);return i};
+      const eye=(inp)=>{const l=document.createElement('label');l.style.cssText='display:flex;gap:6px;align-items:center;font-size:11.5px;color:#a7f3d0;margin:-2px 0 8px';const c=document.createElement('input');c.type='checkbox';c.onchange=()=>{inp.type=c.checked?'text':'password'};l.appendChild(c);l.appendChild(document.createTextNode('পাসওয়ার্ড দেখান'));box.appendChild(l)};
+      const pre=E.pre||{};
+      const skip=()=>{const s=mk('button','','এখন নয়, শুধু দেখব →');s.style.cssText='background:none;border:0;color:#6ee7b7;font-size:12px;margin-top:12px;cursor:pointer;width:100%;text-align:center';s.onclick=()=>{$('loginModal').classList.remove('active')};box.appendChild(s)};
+      if(E.mode==='login'){
+        fld('মোবাইল নম্বর','eLPhone',{mode:'tel',max:20,ac:'tel',val:pre.phone||'',ph:'01XXXXXXXXX / +966XXXXXXXXX'});const pw=fld('পাসওয়ার্ড','eLPw',{type:'password',ac:'current-password'});eye(pw);box.appendChild(er);
+        const b=mk('button','','প্রবেশ করুন');b.className='primary-btn';b.onclick=async()=>{
+          const k=phoneKey($('eLPhone').value),p=$('eLPw').value;er.style.display='none';
+          if(!/^[0-9]{7,15}$/.test(k))return fail('সঠিক মোবাইল নম্বর লিখুন।');if(!p)return fail('পাসওয়ার্ড লিখুন।');
+          b.disabled=true;try{const sl=await socRpc('soc_salt',{p_phone:k});const h=await deriveHash(k,p,sl.salt,sl.iter);const r=await socRpc('soc_login',{p_phone:k,p_hash:h});
+            if(r&&r.error==='locked')fail('অনেকবার ভুল হয়েছে। ৫ মিনিট পরে চেষ্টা করুন।');else if(!r||r.error||!r.token)fail('নম্বর বা পাসওয়ার্ড মিলছে না। নতুন হলে "নতুন অ্যাকাউন্ট" চাপুন; পাসওয়ার্ড ভুলে গেলে নিচের "ভুলে গেছি" চাপুন।');else entryDone(r,k)}
+          catch(e){fail(msgErrText2(e))}b.disabled=false};box.appendChild(b);
+        const fg=mk('button','','🔑 পাসওয়ার্ড ভুলে গেছি');fg.style.cssText='background:none;border:0;color:#fcd34d;font-size:13px;margin-top:10px;cursor:pointer;width:100%;text-align:center;text-decoration:underline';fg.onclick=()=>{E.pre={phone:$('eLPhone').value};E.mode='forgot';entryRender()};box.appendChild(fg);skip();
+      }else if(E.mode==='reg'){
+        fld('আপনার নাম *','eRName',{max:60,ac:'name',val:pre.name||'',ph:'সম্পূর্ণ নাম'});fld('মোবাইল নম্বর * (যেকোনো দেশের)','eRPhone',{mode:'tel',max:20,ac:'tel',val:pre.phone||'',ph:'01XXXXXXXXX / +966XXXXXXXXX'});
+        {const d=fld('জন্ম তারিখ * (কমপক্ষে ১৩ বছর বয়স)','eRDob',{type:'date'});const t=new Date();d.max=new Date(t.getFullYear()-13,t.getMonth(),t.getDate()).toISOString().slice(0,10);d.min='1900-01-01'}
+        const pw=fld('পাসওয়ার্ড * (যা খুশি, কমপক্ষে ৪ অক্ষর)','eRPw',{type:'password',ac:'new-password'});eye(pw);
+        const lb=document.createElement('label');lb.style.cssText='display:flex;gap:8px;align-items:flex-start;margin-top:6px;font-size:11.5px;line-height:1.6;color:#a7f3d0';const cb=document.createElement('input');cb.type='checkbox';cb.id='eRAgree';lb.appendChild(cb);lb.appendChild(mk('span','','আমি ভদ্র আচরণ করব; অন্যকে হয়রানি, ঘৃণা বা ভুয়া তথ্য ছড়াব না।'));box.appendChild(lb);box.appendChild(er);
+        const b=mk('button','','অ্যাকাউন্ট খুলুন');b.className='primary-btn';b.onclick=async()=>{
+          er.style.display='none';const name=$('eRName').value.trim(),k=phoneKey($('eRPhone').value),p=$('eRPw').value;
+          if(name.length<2)return fail('নাম লিখুন।');if(!/^[0-9]{7,15}$/.test(k))return fail('সঠিক মোবাইল নম্বর লিখুন।');const dobS=$('eRDob').value,age=ageFromDob(dobS);if(age===null)return fail('সঠিক জন্ম তারিখ বাছুন।');if(age<13||age>110)return fail('বয়স কমপক্ষে ১৩ বছর হতে হবে।');if(p.length<4)return fail('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন।');if(!$('eRAgree').checked)return fail('শর্তের ঘরে টিক দিন।');
+          const salt=randHex(16),iter=100000;let hash;try{hash=await deriveHash(k,p,salt,iter)}catch(e){return fail('এই ব্রাউজারে নিরাপদ পাসওয়ার্ড সংরক্ষণ সম্ভব হচ্ছে না।')}
+          b.disabled=true;try{
+            let tk=null;if(OTP_ON){tk=await otpEnsure(k);if(!tk){b.disabled=false;return fail('ফোন নম্বর যাচাই (ওটিপি) সম্পন্ন হয়নি।')}}
+            const r=await socRpc('soc_register',{p_phone:k,p_name:name.slice(0,60),p_dob:dobS,p_age:age,p_area:{},p_salt:salt,p_iter:iter,p_hash:hash},tk);
+            const rr={pid:r.pid,token:r.token,name:name.slice(0,60),area:{},dob:dobS,age};const code=rcNew();let shown=false;
+            try{await socRpc('soc_set_recovery',{p_tok:r.token,p_rhash:await rcHash(code)});shown=true}catch(e){}
+            if(shown){entryCodeScreen(box,code,()=>entryDone(rr,k,name));b.disabled=false;return}
+            entryDone(rr,k,name);
+          }catch(e){const m=String(e&&e.message||e);fail(/email used/.test(m)?'এই ইমেইল দিয়ে আগেই একটি অ্যাকাউন্ট খোলা হয়েছে।':/exists/.test(m)?'এই নম্বরে অ্যাকাউন্ট আগেই আছে। "লগইন" চাপুন।':/bad age/.test(m)?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: Supabase-এ 6_accounts.sql চালান)।':msgErrText2(e))}b.disabled=false};box.appendChild(b);skip();
+      }else{
+        box.appendChild(mk('h3','font-size:16px;margin-bottom:6px','🔑 নতুন পাসওয়ার্ড বানান'));box.appendChild(mk('p','font-size:12px;color:#a7f3d0;line-height:1.7;margin-bottom:8px','অ্যাকাউন্ট খোলার সময় যে রিকভারি কোডটি পেয়েছিলেন সেটি দিন।'));
+        fld('মোবাইল নম্বর','eFPhone',{mode:'tel',max:20,val:pre.phone||''});fld('রিকভারি কোড','eFCode',{max:20,ph:'XXXXX-XXXXX'});const pw=fld('নতুন পাসওয়ার্ড (যা খুশি, ৪+ অক্ষর)','eFPw',{type:'password',ac:'new-password'});eye(pw);box.appendChild(er);
+        const b=mk('button','','পাসওয়ার্ড বদলান');b.className='primary-btn';b.onclick=async()=>{
+          er.style.display='none';const k=phoneKey($('eFPhone').value),c=$('eFCode').value,p=$('eFPw').value;
+          if(!/^[0-9]{7,15}$/.test(k))return fail('সঠিক মোবাইল নম্বর লিখুন।');if(rcNorm(c).length<8)return fail('রিকভারি কোড লিখুন।');if(p.length<4)return fail('নতুন পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন।');
+          const salt=randHex(16),iter=100000;const hash=await deriveHash(k,p,salt,iter);const nc=rcNew();
+          b.disabled=true;try{const r=await socRpc('soc_recover',{p_phone:k,p_rhash:await rcHash(c),p_salt:salt,p_iter:iter,p_hash:hash,p_new_rhash:await rcHash(nc)});
+            if(r&&r.error==='locked')fail('অনেকবার ভুল কোড দেওয়া হয়েছে। ১৫ মিনিট পরে চেষ্টা করুন।');else if(r&&r.error==='no recovery')fail('এই অ্যাকাউন্টে রিকভারি কোড বানানো ছিল না। অ্যাডমিনের সাথে যোগাযোগ করে পাসওয়ার্ড রিসেট করিয়ে নিন।');else if(!r||r.error||!r.token)fail('নম্বর বা কোড মিলছে না।');
+            else entryCodeScreen(box,nc,()=>entryDone(r,k))}catch(e){fail(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: 6_accounts.sql চালান)।':msgErrText2(e))}b.disabled=false};box.appendChild(b);
+        const bk=mk('button','','← লগইনে ফিরুন');bk.style.cssText='background:none;border:0;color:#6ee7b7;font-size:13px;margin-top:10px;cursor:pointer;width:100%';bk.onclick=()=>{E.mode='login';entryRender()};box.appendChild(bk);
+        box.appendChild(mk('p','font-size:11.5px;color:#a7f3d0;line-height:1.7;margin-top:10px','কোডও হারিয়ে ফেললে অ্যাডমিনের সাথে যোগাযোগ করুন — তিনি আপনার নম্বরের জন্য একটি সাময়িক পাসওয়ার্ড বসিয়ে দেবেন।'));
+      }
+    }
+    function msgErrText2(e){const t=String(e&&e.message||e||'');if(/abort|failed to fetch|network|load failed/i.test(t))return'ইন্টারনেট সংযোগ নেই বা ধীর। সংযোগ দেখে আবার চেষ্টা করুন।';if(/could not find the function|PGRST202/i.test(t))return'সার্ভারের সেটআপ বাকি আছে (অ্যাডমিন: Supabase-এ SQL চালান)।';return t.slice(0,140)||'অজানা সমস্যা'}
+    // অ্যাকাউন্ট সরঞ্জাম (প্রোফাইল পাতায়): পাসওয়ার্ড বদল, নতুন রিকভারি কোড
+    function accTools(body){
+      const u=socMe();if(!u)return;const box=mk('div','background:#0a251c;border:1px solid rgba(250,204,21,.35);border-radius:14px;padding:12px;margin-top:12px');body.appendChild(box);
+      box.appendChild(mk('b','font-size:14px;display:block;margin-bottom:6px','🔐 আমার অ্যাকাউন্ট'));
+      const b1=mk('button','','🔑 পাসওয়ার্ড বদলান');b1.className='change-btn';b1.style.cssText='width:100%;padding:10px;margin-bottom:8px;cursor:pointer';
+      b1.onclick=async()=>{const p=prompt('নতুন পাসওয়ার্ড লিখুন (যা খুশি, ৪+ অক্ষর):');if(p===null)return;if(p.length<4){alert('কমপক্ষে ৪ অক্ষর দিন।');return}const k=u.phone||'';if(!/^[0-9]{7,15}$/.test(k)){alert('এই অ্যাকাউন্টে নম্বর পাওয়া যায়নি, আবার লগইন করুন।');return}
+        try{const salt=randHex(16),iter=100000;const hash=await deriveHash(k,p,salt,iter);await socRpc('soc_change_pw',{p_tok:SOCN.tok,p_salt:salt,p_iter:iter,p_hash:hash});alert('পাসওয়ার্ড বদলানো হয়েছে।')}catch(e){alert('হয়নি: '+msgErrText2(e))}};box.appendChild(b1);
+      const b2=mk('button','','🆕 নতুন রিকভারি কোড বানান');b2.className='change-btn';b2.style.cssText='width:100%;padding:10px;cursor:pointer';
+      b2.onclick=async()=>{if(!confirm('নতুন কোড বানালে আগের কোড আর কাজ করবে না। এগিয়ে যাবেন?'))return;try{const c=rcNew();await socRpc('soc_set_recovery',{p_tok:SOCN.tok,p_rhash:await rcHash(c)});prompt('আপনার নতুন রিকভারি কোড (লিখে বা কপি করে রাখুন):',c)}catch(e){alert('হয়নি: '+msgErrText2(e))}};box.appendChild(b2);
+      box.appendChild(mk('p','font-size:11px;color:#fcd34d;line-height:1.6;margin-top:8px','পাসওয়ার্ড ভুলে গেলে লগইন পাতায় "ভুলে গেছি" চেপে এই কোড দিয়ে নতুন পাসওয়ার্ড বানানো যায়।'));
+    }
+    function pwCheck(pw,phone){if(String(pw||'').length<4)return 'পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন।';return ''}
+
     function pwStrength(pw){let s=0;if(pw.length>=8)s++;if(pw.length>=12)s++;if(/[a-z]/.test(pw)&&/[A-Z]/.test(pw))s++;if(/[0-9]/.test(pw))s++;if(/[^A-Za-z0-9]/.test(pw))s++;return s}
     const randHex=n=>Array.from(crypto.getRandomValues(new Uint8Array(n))).map(b=>b.toString(16).padStart(2,'0')).join('');
     function socAgo(ts){const d=(Date.now()-ts)/1000;if(d<60)return 'এইমাত্র';if(d<3600)return fmt(Math.floor(d/60))+' মিনিট আগে';if(d<86400)return fmt(Math.floor(d/3600))+' ঘণ্টা আগে';if(d<604800)return fmt(Math.floor(d/86400))+' দিন আগে';return new Date(ts).toLocaleDateString('bn-BD')}
@@ -1654,51 +1727,13 @@
         b.onclick=()=>{if(k==='msg'){openInbox();return}soc.tab=k;soc.view=null;socRender()};tabs.appendChild(b)});
       socBox.appendChild(tabs);
       const body=mk('div','');socBox.appendChild(body);
-      if(soc.view)socProfile(body,soc.view);else if(soc.tab==='feed')socFeed(body,u);else if(soc.tab==='people')socPeople(body,u);else if(soc.tab==='friends')socFriends(body,u);else if(soc.tab==='me')socMyProfile(body,u);;
+      if(soc.view)socProfile(body,soc.view);else if(soc.tab==='feed')socFeed(body,u);else if(soc.tab==='people')socPeople(body,u);else if(soc.tab==='friends')socFriends(body,u);else if(soc.tab==='me'){socMyProfile(body,u);accTools(body)};
     }
     function socField(parent,label,id,o){o=o||{};parent.appendChild(mk('label','',label)).className='field-label';const i=document.createElement(o.area?'textarea':'input');i.className='form-field';i.id=id;if(o.type)i.type=o.type;if(o.mode)i.setAttribute('inputmode',o.mode);if(o.max)i.maxLength=o.max;if(o.ph)i.placeholder=o.ph;if(o.area)i.rows=3;if(o.ac)i.autocomplete=o.ac;parent.appendChild(i);return i}
     function socAuth(){
-      const f=mk('div','background:#0a251c;border:1px solid rgba(16,185,129,.35);border-radius:14px;padding:12px');socBox.appendChild(f);
-      const sw=mk('div','display:flex;gap:6px;margin-bottom:8px');
-      [['login','লগইন'],['reg','নতুন প্রোফাইল তৈরি']].forEach(([k,l])=>{const b=mk('button','',l);b.style.cssText=`flex:1;padding:9px;border-radius:10px;border:1px solid rgba(16,185,129,.5);color:#fff;font-size:13px;cursor:pointer;background:${soc.mode===k?'#059669':'#061812'}`;b.onclick=()=>{soc.mode=k;socRender()};sw.appendChild(b)});f.appendChild(sw);
-      const er=mk('div','display:none;color:#fecaca;margin-top:8px');er.className='notice';
-      const fail=m=>{er.textContent=m;er.style.display='block'};
-      if(soc.mode==='login'){
-        socField(f,'মোবাইল নম্বর','sLPhone',{mode:'tel',max:20,ac:'tel'});socField(f,'পাসওয়ার্ড','sLPw',{type:'password',max:64,ac:'current-password'});f.appendChild(er);
-        const b=mk('button','','লগইন করুন');b.className='primary-btn';b.onclick=async()=>{
-          const k=phoneKey($('sLPhone').value),pw=$('sLPw').value;er.style.display='none';
-          if(!/^[0-9]{7,15}$/.test(k))return fail('সঠিক মোবাইল নম্বর লিখুন।');if(!pw)return fail('পাসওয়ার্ড লিখুন।');
-          b.disabled=true;try{const sl=await socRpc('soc_salt',{p_phone:k});const h=await deriveHash(k,pw,sl.salt,sl.iter);const r=await socRpc('soc_login',{p_phone:k,p_hash:h});
-            if(r&&r.error==='locked')fail('অনেকবার ভুল হয়েছে। ৫ মিনিট পরে চেষ্টা করুন।');else if(!r||r.error||!r.token)fail('নম্বর বা পাসওয়ার্ড মিলছে না।');else socSetSession(r,k)}
-          catch(e){fail(socErrText(e))}b.disabled=false;
-        };f.appendChild(b);
-      }else{
-        socField(f,'নাম *','sRName',{max:60,ac:'name'});socField(f,'মোবাইল নম্বর * (যেকোনো দেশের)','sRPhone',{mode:'tel',max:20,ac:'tel'});{const dob=socField(f,'জন্ম তারিখ * (কমপক্ষে ১৩ বছর বয়স)','sRDob',{type:'date'});const t=new Date();dob.max=new Date(t.getFullYear()-13,t.getMonth(),t.getDate()).toISOString().slice(0,10);dob.min='1900-01-01'}
-        const pw=socField(f,'পাসওয়ার্ড * (৮+ অক্ষর, বড়-ছোট হাতের অক্ষর, সংখ্যা ও চিহ্ন)','sRPw',{type:'password',max:64,ac:'new-password'});
-        const meter=mk('div','height:6px;border-radius:4px;background:#1e293b;margin:-4px 0 8px;overflow:hidden');const bar=mk('div','height:100%;width:0;transition:.2s');meter.appendChild(bar);f.appendChild(meter);
-        pw.oninput=()=>{const s=pwStrength(pw.value);bar.style.width=(s*20)+'%';bar.style.background=s<=2?'#ef4444':s<=3?'#f59e0b':'#10b981'};
-        socField(f,'পাসওয়ার্ড আবার লিখুন *','sRPw2',{type:'password',max:64,ac:'new-password'});
-        f.appendChild(mk('label','','এলাকা (ঐচ্ছিক)')).className='field-label';
-        ['Div','Dist','Upz'].forEach((s,i)=>{const e=document.createElement('select');e.className='form-field';e.id='sr'+s;e.style.marginBottom='6px';e.onchange=()=>casChange('sr',['div','dist','upz'][i]);f.appendChild(e)});
-        const un=document.createElement('select');un.id='srUn';un.style.display='none';f.appendChild(un);casInit('sr',{});
-        const lb=document.createElement('label');lb.style.cssText='display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:11.5px;line-height:1.6;color:#a7f3d0';const cb=document.createElement('input');cb.type='checkbox';cb.id='sRAgree';lb.appendChild(cb);lb.appendChild(mk('span','','আমি ভদ্র আচরণ করব; অন্যকে হয়রানি, ঘৃণা বা ভুয়া তথ্য ছড়াব না। আমার নাম ও পোস্ট অন্যরা দেখতে পারবে।'));f.appendChild(lb);f.appendChild(er);
-        const b=mk('button','','প্রোফাইল তৈরি করুন');b.className='primary-btn';b.onclick=async()=>{
-          er.style.display='none';
-          const name=$('sRName').value.trim(),k=phoneKey($('sRPhone').value),dobS=$('sRDob').value,p1=$('sRPw').value,p2=$('sRPw2').value;
-          if(name.length<2)return fail('নাম লিখুন।');if(!/^[0-9]{7,15}$/.test(k))return fail('সঠিক মোবাইল নম্বর লিখুন।');
-          const age=ageFromDob(dobS);if(age===null)return fail('সঠিক জন্ম তারিখ বাছুন।');if(age<13||age>110)return fail('বয়স কমপক্ষে ১৩ বছর হতে হবে।');
-          const pe=pwCheck(p1,k);if(pe)return fail(pe);if(p1!==p2)return fail('দুটি পাসওয়ার্ড মিলছে না।');if(!$('sRAgree').checked)return fail('শর্তের ঘরে টিক দিন।');
-          const salt=randHex(16),iter=100000;let hash;try{hash=await deriveHash(k,p1,salt,iter)}catch(e){return fail('এই ব্রাউজারে নিরাপদ পাসওয়ার্ড সংরক্ষণ সম্ভব হচ্ছে না।')}
-          const loc=casGet('sr');const area={division:loc.division,district:loc.district,upazila:loc.upazila};
-          b.disabled=true;try{
-            let tk=null;if(OTP_ON){tk=await otpEnsure(k);if(!tk){b.disabled=false;return fail('ফোন নম্বর যাচাই (ওটিপি) সম্পন্ন হয়নি।')}}
-            const r=await socRpc('soc_register',{p_phone:k,p_name:name.slice(0,60),p_dob:dobS,p_age:age,p_area:area,p_salt:salt,p_iter:iter,p_hash:hash},tk);
-            socSetSession({pid:r.pid,token:r.token,name:name.slice(0,60),area},k,{dob:dobS,age});
-          }catch(e){fail(/email used/.test(String(e&&e.message))?'এই ইমেইল দিয়ে আগেই একটি প্রোফাইল তৈরি হয়েছে।':/exists/.test(String(e&&e.message))?'এই নম্বরে প্রোফাইল আগেই আছে। লগইন করুন।':socErrText(e))}b.disabled=false;
-        };f.appendChild(b);
-      }
-      socBox.appendChild(mk('div','margin-top:12px')).appendChild(mk('p','font-size:10.5px;color:#fcd34d;line-height:1.6','⚠️ পাসওয়ার্ড ভুলে গেলে এখন পুনরুদ্ধারের উপায় নেই। অন্য কাউকে পাসওয়ার্ড বা ওটিপি দেবেন না।'));
-      
+      const f=mk('div','background:#0a251c;border:1px solid rgba(16,185,129,.35);border-radius:14px;padding:14px;text-align:center');socBox.appendChild(f);
+      f.appendChild(mk('p','font-size:13px;line-height:1.8;color:#d1fae5;margin-bottom:10px','সামাজিক যোগাযোগ ও বার্তা ব্যবহার করতে মোবাইল নম্বর ও পাসওয়ার্ড দিয়ে লগইন করুন। (অ্যাপের লগইন আর এটি এক — আলাদা কিছু বানাতে হবে না।)'));
+      const b=mk('button','','🔐 লগইন / নতুন অ্যাকাউন্ট');b.className='primary-btn';b.onclick=()=>entryShow('login');f.appendChild(b);
     }
     function socFeed(body,u){
       const comp=mk('div','background:#0a251c;border:1px solid rgba(16,185,129,.35);border-radius:14px;padding:10px;margin-bottom:12px');
@@ -5131,6 +5166,14 @@
     function renderAdminRecords(){
       const root=$('adminRecordsList');root.innerHTML='';
       const records=getRecords(),about=getAbout(),aboutKeys=Object.keys(about);
+      {const rb=mk('div','background:#0a251c;border:1px solid rgba(250,204,21,.4);border-radius:14px;padding:12px;margin-bottom:12px');rb.appendChild(mk('b','font-size:14px;display:block;margin-bottom:4px','🔑 ইউজারের পাসওয়ার্ড রিসেট'));
+        rb.appendChild(mk('p','font-size:11px;color:#a7f3d0;line-height:1.6;margin-bottom:6px','কেউ পাসওয়ার্ড ও রিকভারি কোড দুটোই হারালে তার নম্বর ও একটি সাময়িক পাসওয়ার্ড দিন; তাকে সেটা জানান, সে লগইন করে "প্রোফাইল → পাসওয়ার্ড বদলান" দিয়ে নিজের পছন্দেরটা বসাবে। (আগে "📝 নিবন্ধন" ট্যাবে Supabase লগইন করা থাকতে হবে।)'));
+        const ph=mk('input','');ph.className='form-field';ph.placeholder='ইউজারের মোবাইল নম্বর';ph.setAttribute('inputmode','tel');const tp=mk('input','');tp.className='form-field';tp.placeholder='সাময়িক পাসওয়ার্ড (৪+ অক্ষর)';rb.appendChild(ph);rb.appendChild(tp);
+        const go=mk('button','','রিসেট করুন');go.className='primary-btn';go.onclick=async()=>{const k=phoneKey(ph.value),p=tp.value;if(!/^[0-9]{7,15}$/.test(k)){alert('সঠিক নম্বর দিন।');return}if(p.length<4){alert('সাময়িক পাসওয়ার্ড কমপক্ষে ৪ অক্ষর।');return}const t=sbTok();if(!t){alert('আগে "📝 নিবন্ধন" ট্যাবে Supabase জিমেইল-পাসওয়ার্ডে লগইন করুন।');return}
+          if(!confirm(k+' নম্বরের পাসওয়ার্ড রিসেট করবেন? সে সব ডিভাইস থেকে লগআউট হবে।'))return;
+          try{const salt=randHex(16),iter=100000,hash=await deriveHash(k,p,salt,iter);const r=await sbReq('/rest/v1/rpc/admin_soc_setpw',{method:'POST',token:t,body:{p_phone:k,p_salt:salt,p_iter:iter,p_hash:hash}});if(r&&r.error==='no user')alert('এই নম্বরে কোনো অ্যাকাউন্ট নেই।');else{alert('রিসেট হয়েছে ('+(r&&r.name||'')+')। সাময়িক পাসওয়ার্ড: '+p+'\nএটি ইউজারকে জানান।');ph.value='';tp.value=''}}
+          catch(e){alert('হয়নি: '+(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি — 6_accounts.sql চালান।':/not allowed/i.test(String(e&&e.message))?'এই লগইন অ্যাডমিন নয়।':String(e&&e.message||e).slice(0,120)))}};
+        rb.appendChild(go);root.appendChild(rb)}
       root.appendChild(mk('div','ad-sec','এলাকা সম্পর্কে লেখা ('+fmt(aboutKeys.length)+')'));
       if(!aboutKeys.length)root.appendChild(mk('p','font-size:12px;color:#a7f3d0;margin-bottom:8px','এখনো কিছু লেখা হয়নি।'));
       aboutKeys.forEach(k=>{
@@ -5249,7 +5292,8 @@
     function logoutLocal(){try{sessionStorage.removeItem(ADMIN_FLAG)}catch(e){}admMsgLeave();document.getElementById('adminModal').classList.remove('active');}
     function initAdmin(){
       let saved=null;try{saved=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null')}catch(e){}
-      if(saved){currentProfile=saved;document.getElementById('loginModal').classList.remove('active');}
+      if(saved){currentProfile=saved;E.pre={phone:saved.phone||'',name:saved.name||''};}
+      if(socMe()){document.getElementById('loginModal').classList.remove('active');}else{E.mode=saved?'login':'reg';entryRender()}
     }
 
     // অ্যাপের ভিতরে ডাউনলোড/সেভ/প্রিন্ট/সোর্স অপশন বন্ধ
