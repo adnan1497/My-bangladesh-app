@@ -1353,7 +1353,8 @@
     function notifyMsg(x){
       const t=`💬 ${x.fromName||'নতুন মেসেজ'}: ${x.text.slice(0,60)}`;
       showToast(t,()=>openChat(x.from,x.fromName));
-      try{if('Notification' in window&&Notification.permission==='granted'&&document.hidden)new Notification(x.fromName||'আমার বাংলাদেশ',{body:x.text.slice(0,100)})}catch(e){}
+      msgChime();
+      if(document.hidden)sysNotify(x.fromName||'আমার বাংলাদেশ',x.text.slice(0,100),{tag:'amar-msg'});
     }
     function ensureMsgModal(){
       if($('msgModal'))return;
@@ -2138,7 +2139,24 @@
     let alarmCtx=null,alarmRing=null,alarmTimer=null;
     function alarmAudio(){try{if(!alarmCtx)alarmCtx=new (window.AudioContext||window.webkitAudioContext)();if(alarmCtx.state==='suspended')alarmCtx.resume()}catch(e){}}
     document.addEventListener('pointerdown',alarmAudio,{passive:true});
-    function alarmBeep(){alarmAudio();if(!alarmCtx)return;try{const o=alarmCtx.createOscillator(),g=alarmCtx.createGain();o.type='square';o.frequency.value=880;g.gain.value=.25;o.connect(g);g.connect(alarmCtx.destination);o.start();o.stop(alarmCtx.currentTime+.25)}catch(e){}}
+    var alarmFlip=0;
+    function alarmBeep(){alarmAudio();if(!alarmCtx)return;try{const t0=alarmCtx.currentTime;alarmFlip^=1;
+      const comp=alarmCtx.createDynamicsCompressor();comp.connect(alarmCtx.destination);
+      [[alarmFlip?880:1175,'square'],[alarmFlip?1320:1568,'sawtooth']].forEach(([f,ty],k)=>{const o=alarmCtx.createOscillator(),g=alarmCtx.createGain();o.type=ty;o.frequency.setValueAtTime(f,t0);o.frequency.linearRampToValueAtTime(f*1.12,t0+.4);g.gain.setValueAtTime(k?0.5:0.9,t0);g.gain.linearRampToValueAtTime(0.0001,t0+.5);o.connect(g);g.connect(comp);o.start(t0);o.stop(t0+.5)})}catch(e){}}
+    // নতুন বার্তার মিষ্টি দুই-সুরের শব্দ
+    function msgChime(){alarmAudio();if(!alarmCtx)return;try{const t0=alarmCtx.currentTime;[[784,0],[1047,.16]].forEach(([f,d])=>{const o=alarmCtx.createOscillator(),g=alarmCtx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0.0001,t0+d);g.gain.linearRampToValueAtTime(0.6,t0+d+.02);g.gain.exponentialRampToValueAtTime(0.0001,t0+d+.35);o.connect(g);g.connect(alarmCtx.destination);o.start(t0+d);o.stop(t0+d+.4)})}catch(e){}try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(e){}}
+    // সিস্টেম নোটিফিকেশন (সার্ভিস ওয়ার্কার দিয়ে — অ্যান্ড্রয়েডে বেশি নির্ভরযোগ্য)
+    async function sysNotify(title,body,opt){try{if(!('Notification' in window)||Notification.permission!=='granted')return;const o=Object.assign({body,icon:'icon-192.png',badge:'icon-192.png',vibrate:[300,150,300,150,300],tag:'amar',renotify:true},opt||{});const reg=('serviceWorker' in navigator)?await navigator.serviceWorker.getRegistration():null;if(reg&&reg.showNotification)await reg.showNotification(title,o);else new Notification(title,o)}catch(e){}}
+    // ব্যাকগ্রাউন্ডে চালু রাখা: প্রায়-নিঃশব্দ শব্দ + স্ক্রিন-জেগে-থাকা, যাতে অ্যাপ ছোট করলেও টাইমার চলে
+    var bgKeep={audio:null,lock:null};
+    function bgKeepOn(){try{if(!bgKeep.audio){const sr=8000,n=sr,buf=new Uint8Array(44+n*2),dv=new DataView(buf.buffer);const w=(o,t)=>{for(let k=0;k<t.length;k++)dv.setUint8(o+k,t.charCodeAt(k))};w(0,'RIFF');dv.setUint32(4,36+n*2,true);w(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,sr,true);dv.setUint32(28,sr*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);w(36,'data');dv.setUint32(40,n*2,true);for(let k=0;k<n;k++)dv.setInt16(44+k*2,(k%2?1:-1),true);
+      let b='';for(let k=0;k<buf.length;k++)b+=String.fromCharCode(buf[k]);const a=new Audio('data:audio/wav;base64,'+btoa(b));a.loop=true;a.volume=0.02;bgKeep.audio=a}
+      bgKeep.audio.play().catch(()=>{})}catch(e){}
+      try{if(navigator.wakeLock&&!bgKeep.lock&&!document.hidden)navigator.wakeLock.request('screen').then(l=>{bgKeep.lock=l;l.addEventListener('release',()=>{bgKeep.lock=null})}).catch(()=>{})}catch(e){}}
+    function bgKeepOff(){try{bgKeep.audio&&bgKeep.audio.pause()}catch(e){}try{bgKeep.lock&&bgKeep.lock.release()}catch(e){}bgKeep.lock=null}
+    const bgWanted=()=>{try{return localStorage.getItem('amarBgKeep_v1')==='1'}catch(e){return false}};
+    document.addEventListener('pointerdown',()=>{if(bgWanted())bgKeepOn()},{passive:true});
+    document.addEventListener('visibilitychange',()=>{if(bgWanted()&&!document.hidden)bgKeepOn()});
     function alarmTick(now){
       now=now||new Date();const hh=String(now.getHours()).padStart(2,'0'),mm=String(now.getMinutes()).padStart(2,'0'),t=hh+':'+mm,day=now.getDay(),stamp=now.toDateString()+' '+t;
       const all=getAlarms();let changed=false,fire=null;
@@ -2152,7 +2170,7 @@
       const stop=mk('button','','বন্ধ করুন');stop.className='primary-btn';stop.style.cssText='width:80%;max-width:300px;font-size:17px';stop.onclick=()=>alarmStop();ov.appendChild(stop);
       const sn=mk('button','','😴 ৫ মিনিট পরে');sn.className='change-btn';sn.style.cssText='width:80%;max-width:300px;margin-top:10px;padding:12px';sn.onclick=()=>{alarmStop();const all=getAlarms();const d=new Date(Date.now()+5*60000);all.push({id:newId(),time:String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'),label:(a.label||'অ্যালার্ম')+' (স্নুজ)',days:[],on:true});writeJSON(ALARM_KEY,all)};ov.appendChild(sn);
       ov.style.display='flex';alarmRing=setInterval(()=>{alarmBeep();try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}},900);alarmBeep();
-      try{if('Notification' in window&&Notification.permission==='granted')new Notification('⏰ '+(a.label||'অ্যালার্ম'),{body:a.time})}catch(e){}
+      sysNotify('⏰ '+(a.label||'অ্যালার্ম'),a.time+' — বন্ধ করতে অ্যাপ খুলুন',{requireInteraction:true,tag:'amar-alarm',vibrate:[600,200,600,200,600,200,600]});
       setTimeout(()=>{if(alarmRing)alarmStop()},120000);
     }
     function alarmStop(){clearInterval(alarmRing);alarmRing=null;const ov=$('alarmOverlay');if(ov)ov.style.display='none';if($('alarmListBox'))drawAlarms()}
@@ -2181,6 +2199,11 @@
       const add=mk('button','','অ্যালার্ম যোগ করুন');add.className='primary-btn';add.style.marginTop='0';
       add.onclick=()=>{const t=tm.value;if(!/^\d\d:\d\d$/.test(t)){alert('সময় বাছুন।');return}const l=getAlarms();if(l.length>=30){alert('সর্বোচ্চ ৩০টি অ্যালার্ম রাখা যায়।');return}l.push({id:newId(),time:t,label:lb.value.trim().slice(0,60),days:[...sel],on:true});if(writeJSON(ALARM_KEY,l)){alarmAudio();if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();drawAlarms()}};f.appendChild(add);list.appendChild(f);
       const tst=mk('button','','🔔 শব্দ পরীক্ষা করুন');tst.className='change-btn';tst.style.cssText='width:100%;padding:9px;margin-bottom:12px';tst.onclick=()=>alarmRingNow({time:String(new Date().getHours()).padStart(2,'0')+':'+String(new Date().getMinutes()).padStart(2,'0'),label:'পরীক্ষা'});list.appendChild(tst);
+      {const nb=mk('div','background:#0b2b20;border:1px solid rgba(250,204,21,.4);border-radius:14px;padding:11px;margin-bottom:12px');
+        const row=mk('label','display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.6;cursor:pointer');const cb=document.createElement('input');cb.type='checkbox';cb.checked=bgWanted();cb.style.marginTop='4px';
+        cb.onchange=async()=>{try{localStorage.setItem('amarBgKeep_v1',cb.checked?'1':'0')}catch(e){}if(cb.checked){bgKeepOn();try{if('Notification' in window&&Notification.permission==='default')await Notification.requestPermission()}catch(e){}}else bgKeepOff()};
+        row.appendChild(cb);row.appendChild(mk('span','','📢 অ্যাপের বাইরে (হোম স্ক্রিনে/অন্য অ্যাপে) থাকলেও অ্যালার্ম ও বার্তার শব্দ চালু রাখুন'));nb.appendChild(row);
+        nb.appendChild(mk('p','font-size:11px;color:#fde68a;line-height:1.7;margin-top:6px','⚠️ সীমাবদ্ধতা: এটি ব্রাউজার-অ্যাপ। অ্যাপটি ব্যাকগ্রাউন্ডে খোলা রাখুন (রিসেন্ট অ্যাপ থেকে ঝেড়ে ফেলবেন না) এবং ব্যাটারি-সেভার/ব্যাটারি অপটিমাইজেশন থেকে এই অ্যাপ বাদ দিন। ফোন একেবারে বন্ধ হলে বা অ্যাপ জোর করে বন্ধ করলে বাজবে না। নিশ্চিন্ত থাকতে ফোনের নিজস্ব অ্যালার্মও সেট করুন।'));list.appendChild(nb)}
       const box=mk('div','');box.id='alarmListBox';list.appendChild(box);drawAlarms();
     }
     // ----- টুলস -----
@@ -5067,7 +5090,7 @@
       const tw=mk('div','display:flex;gap:6px;margin-bottom:10px');
       [['d1','আজ'],['d7','৭ দিন'],['d30','৩০ দিন'],['all','সব সময়']].forEach(([k,l])=>{const b=mk('button','',l);b.className=k===P?'primary-btn':'change-btn';b.style.cssText='flex:1;margin:0;padding:8px 4px;font-size:12px';b.onclick=()=>{adStatP=k;renderAdminStats()};tw.appendChild(b)});box.appendChild(tw);
       const kp=mk('div','display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px');
-      [['ইউনিক ভিজিটর',U[P]||0],['ওয়েবসাইট ভিজিট',g('view')],['অ্যাপ খোলা',g('app_open')],['"অ্যাপ খুলুন" ক্লিক',g('app_click')],['ইনস্টল ক্লিক',g('install_click')],['ইনস্টল সম্পন্ন',g('installed')]].forEach(([l,n])=>{const c=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:10px');c.appendChild(mk('b','display:block;font-size:22px;color:#6ee7b7',fmt(n)));c.appendChild(mk('small','font-size:11px;color:#a7f3d0',l));kp.appendChild(c)});box.appendChild(kp);
+      [['ইউনিক ভিজিটর',U[P]||0],['ওয়েবসাইট ভিজিট',g('view')],['অ্যাপ খোলা',g('app_open')],['"অ্যাপ খুলুন" ক্লিক',g('app_click')],['ইনস্টল ক্লিক',g('install_click')],['ইনস্টল সম্পন্ন',g('installed')],['শেয়ার ক্লিক',g('share')]].forEach(([l,n])=>{const c=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:10px');c.appendChild(mk('b','display:block;font-size:22px;color:#6ee7b7',fmt(n)));c.appendChild(mk('small','font-size:11px;color:#a7f3d0',l));kp.appendChild(c)});box.appendChild(kp);
       const dl=d.daily||[];let mx=1;dl.forEach(x=>{mx=Math.max(mx,x.view||0,x.app_open||0)});
       box.appendChild(mk('div','font-size:13px;font-weight:700;margin:6px 0','গত ৩০ দিন (🟩 ভিজিট · 🟧 অ্যাপ খোলা)'));
       const bars=mk('div','display:flex;align-items:flex-end;gap:2px;height:90px;background:#0a251c;border-radius:10px;padding:6px');
