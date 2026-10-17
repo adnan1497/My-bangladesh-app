@@ -2157,6 +2157,22 @@
     const bgWanted=()=>{try{return localStorage.getItem('amarBgKeep_v1')==='1'}catch(e){return false}};
     document.addEventListener('pointerdown',()=>{if(bgWanted())bgKeepOn()},{passive:true});
     document.addEventListener('visibilitychange',()=>{if(bgWanted()&&!document.hidden)bgKeepOn()});
+    // ===== অ্যান্ড্রয়েড APK-তে সিস্টেম-মানের অ্যালার্ম (অ্যাপ বন্ধ থাকলেও বাজে) =====
+    const CAPN=()=>{try{return(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())?Capacitor.Plugins.LocalNotifications:null}catch(e){return null}};
+    const IS_APK=()=>!!CAPN();
+    let natT=null;function nativeAlarmSoon(){if(!CAPN())return;clearTimeout(natT);natT=setTimeout(nativeAlarmSync,700)}
+    const natId=(str)=>{let h=7;for(let i=0;i<str.length;i++)h=(h*31+str.charCodeAt(i))|0;return Math.abs(h)%2000000000+1};
+    async function nativeAlarmSync(){const LN=CAPN();if(!LN)return;
+      try{let p=await LN.checkPermissions();if(p.display!=='granted')p=await LN.requestPermissions();
+        try{if(LN.checkExactNotificationSetting){const e=await LN.checkExactNotificationSetting();if(e&&e.exact_alarm&&e.exact_alarm!=='granted'&&LN.requestExactNotificationSetting)await LN.requestExactNotificationSetting()}}catch(_){}
+        await LN.createChannel({id:'alarm2',name:'অ্যালার্ম',description:'জোরে বাজে',importance:5,visibility:1,sound:'alarm.wav',vibration:true,lights:true});
+        const pend=await LN.getPending();if(pend&&pend.notifications&&pend.notifications.length)await LN.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
+        const list=[],now=new Date();
+        getAlarms().filter(a=>a.on).forEach(a=>{const [h,m]=a.time.split(':').map(Number);const base={title:'⏰ '+(a.label||'অ্যালার্ম'),body:a.time+' — বন্ধ করতে চাপুন',channelId:'alarm2',extra:{alarmId:a.id,label:a.label||'',time:a.time},ongoing:false,autoCancel:true};
+          if(a.days&&a.days.length){a.days.forEach(d=>list.push(Object.assign({id:natId(a.id+'d'+d)},base,{schedule:{on:{weekday:d+1,hour:h,minute:m},allowWhileIdle:true}})))}
+          else{const at=new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0,0);if(at<=now)at.setDate(at.getDate()+1);list.push(Object.assign({id:natId(a.id)},base,{schedule:{at,allowWhileIdle:true}}))}});
+        if(list.length)await LN.schedule({notifications:list})}catch(e){try{console.warn('native alarm',e)}catch(_){}}}
+    try{const LN0=CAPN();if(LN0){LN0.addListener('localNotificationActionPerformed',ev=>{try{const x=(ev.notification&&ev.notification.extra)||{};alarmRingNow({time:x.time||'',label:x.label||'অ্যালার্ম'})}catch(e){}});setTimeout(nativeAlarmSync,2500)}}catch(e){}
     function alarmTick(now){
       now=now||new Date();const hh=String(now.getHours()).padStart(2,'0'),mm=String(now.getMinutes()).padStart(2,'0'),t=hh+':'+mm,day=now.getDay(),stamp=now.toDateString()+' '+t;
       const all=getAlarms();let changed=false,fire=null;
@@ -2199,7 +2215,8 @@
       const add=mk('button','','অ্যালার্ম যোগ করুন');add.className='primary-btn';add.style.marginTop='0';
       add.onclick=()=>{const t=tm.value;if(!/^\d\d:\d\d$/.test(t)){alert('সময় বাছুন।');return}const l=getAlarms();if(l.length>=30){alert('সর্বোচ্চ ৩০টি অ্যালার্ম রাখা যায়।');return}l.push({id:newId(),time:t,label:lb.value.trim().slice(0,60),days:[...sel],on:true});if(writeJSON(ALARM_KEY,l)){alarmAudio();if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();drawAlarms()}};f.appendChild(add);list.appendChild(f);
       const tst=mk('button','','🔔 শব্দ পরীক্ষা করুন');tst.className='change-btn';tst.style.cssText='width:100%;padding:9px;margin-bottom:12px';tst.onclick=()=>alarmRingNow({time:String(new Date().getHours()).padStart(2,'0')+':'+String(new Date().getMinutes()).padStart(2,'0'),label:'পরীক্ষা'});list.appendChild(tst);
-      {const nb=mk('div','background:#0b2b20;border:1px solid rgba(250,204,21,.4);border-radius:14px;padding:11px;margin-bottom:12px');
+      if(IS_APK()){list.appendChild(mk('p','font-size:12px;color:#6ee7b7;line-height:1.7;background:#0b2b20;border:1px solid rgba(16,185,129,.4);border-radius:14px;padding:11px;margin-bottom:12px','✅ APK মোড: অ্যালার্মগুলো ফোনের সিস্টেমে জমা হয় — অ্যাপ বন্ধ থাকলেও নির্ধারিত সময়ে জোরে বাজবে। (প্রথমবার "অ্যালার্ম ও রিমাইন্ডার"/নোটিফিকেশনের অনুমতি দিন এবং ব্যাটারি অপটিমাইজেশন থেকে অ্যাপটি বাদ দিন।)'))}
+      else {const nb=mk('div','background:#0b2b20;border:1px solid rgba(250,204,21,.4);border-radius:14px;padding:11px;margin-bottom:12px');
         const row=mk('label','display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.6;cursor:pointer');const cb=document.createElement('input');cb.type='checkbox';cb.checked=bgWanted();cb.style.marginTop='4px';
         cb.onchange=async()=>{try{localStorage.setItem('amarBgKeep_v1',cb.checked?'1':'0')}catch(e){}if(cb.checked){bgKeepOn();try{if('Notification' in window&&Notification.permission==='default')await Notification.requestPermission()}catch(e){}}else bgKeepOff()};
         row.appendChild(cb);row.appendChild(mk('span','','📢 অ্যাপের বাইরে (হোম স্ক্রিনে/অন্য অ্যাপে) থাকলেও অ্যালার্ম ও বার্তার শব্দ চালু রাখুন'));nb.appendChild(row);
@@ -5022,7 +5039,7 @@
       document.addEventListener('visibilitychange',()=>{if(!document.hidden)api.maybePull()});
       return api})();
     function readJSON(k,def){try{let v=JSON.parse(localStorage.getItem(k)||'null');if(typeof SH!=='undefined'&&SH&&SH.M[k])v=SH.merge(k,v);return v==null?def:v}catch(e){return def}}
-    function writeJSON(k,v){try{if(typeof SH!=='undefined'&&SH&&SH.M[k])v=SH.onWrite(k,v);localStorage.setItem(k,JSON.stringify(v));return true}catch(e){alert('সংরক্ষণ ব্যর্থ হয়েছে। ডিভাইসের স্টোরেজ খালি করুন।');return false}}
+    function writeJSON(k,v){try{if(typeof SH!=='undefined'&&SH&&SH.M[k])v=SH.onWrite(k,v);localStorage.setItem(k,JSON.stringify(v));if(k==='amarAlarms_v1'){try{nativeAlarmSoon()}catch(_){}}return true}catch(e){alert('সংরক্ষণ ব্যর্থ হয়েছে। ডিভাইসের স্টোরেজ খালি করুন।');return false}}
     function getAbout(){const a=readJSON(ABOUT_KEY,{});return (a&&typeof a==='object'&&!Array.isArray(a))?a:{}}
     function getCustomCats(){const a=readJSON(CATS_KEY,[]);return Array.isArray(a)?a.filter(c=>c&&typeof c.id==='string'&&typeof c.name==='string'):[]}
     function allCategories(){return CATEGORIES.concat(getCustomCats().map(c=>({id:c.id,name:c.name,icon:c.icon||'📌',custom:true})))}
