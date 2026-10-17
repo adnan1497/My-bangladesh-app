@@ -634,7 +634,7 @@
 
 
   <!-- First-use owner setup / local login -->
-  <div class="modal-overlay active overlay-center" id="loginModal" style="z-index:100">
+  <div class="modal-overlay overlay-center" id="loginModal" style="z-index:100">
     <div class="modal-content">
       <div style="text-align:center;padding:8px 0 18px">
         <div style="font-size:42px">🇧🇩</div>
@@ -1365,7 +1365,7 @@
       const b=mk('button','','💬 বার্তা');b.className='call-btn';b.style.cssText='border:0;cursor:pointer;background:#0ea5e9;color:#fff';
       b.onclick=()=>openChat(phone,name);return b;
     }
-    function needLogin(){if(window.__admMsg||socMe())return false;alert('বার্তা পাঠাতে আগে লগইন করুন (মোবাইল নম্বর ও পাসওয়ার্ড)।');try{entryShow('login')}catch(e){}return true}
+    function needLogin(){if(window.__admMsg||socMe())return false;try{entryShow(E.mode||'login')}catch(e){}return true}
     function modalHead(title,sub,backFn){
       const h=mk('div','');h.className='modal-header';const t=mk('div','');
       if(backFn){const bk=mk('button','','←');bk.className='close-btn';bk.style.marginRight='8px';bk.onclick=backFn;h.appendChild(bk)}
@@ -1652,7 +1652,7 @@
       const fld=(label,id,o)=>{o=o||{};box.appendChild(mk('label','',label)).className='field-label';const i=document.createElement('input');i.className='form-field';i.id=id;if(o.type)i.type=o.type;if(o.mode)i.setAttribute('inputmode',o.mode);i.maxLength=o.max||64;if(o.ac)i.autocomplete=o.ac;if(o.ph)i.placeholder=o.ph;if(o.val)i.value=o.val;box.appendChild(i);return i};
       const eye=(inp)=>{const l=document.createElement('label');l.style.cssText='display:flex;gap:6px;align-items:center;font-size:11.5px;color:#a7f3d0;margin:-2px 0 8px';const c=document.createElement('input');c.type='checkbox';c.onchange=()=>{inp.type=c.checked?'text':'password'};l.appendChild(c);l.appendChild(document.createTextNode('পাসওয়ার্ড দেখান'));box.appendChild(l)};
       const pre=E.pre||{};
-      const skip=()=>{const s=mk('button','','এখন নয়, শুধু দেখব →');s.style.cssText='background:none;border:0;color:#6ee7b7;font-size:12px;margin-top:12px;cursor:pointer;width:100%;text-align:center';s.onclick=()=>{$('loginModal').classList.remove('active')};box.appendChild(s)};
+      const skip=()=>{const s=mk('button','','✕ এখন নয়, বন্ধ করুন');s.style.cssText='background:none;border:0;color:#6ee7b7;font-size:12px;margin-top:12px;cursor:pointer;width:100%;text-align:center';s.onclick=()=>{$('loginModal').classList.remove('active')};box.appendChild(s)};
       if(E.mode==='login'){
         fld('মোবাইল নম্বর','eLPhone',{mode:'tel',max:20,ac:'tel',val:pre.phone||'',ph:'01XXXXXXXXX / +966XXXXXXXXX'});const pw=fld('পাসওয়ার্ড','eLPw',{type:'password',ac:'current-password'});eye(pw);box.appendChild(er);
         const b=mk('button','','প্রবেশ করুন');b.className='primary-btn';b.onclick=async()=>{
@@ -5372,7 +5372,8 @@
     function initAdmin(){
       let saved=null;try{saved=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null')}catch(e){}
       if(saved){currentProfile=saved;E.pre={phone:saved.phone||'',name:saved.name||''};}
-      if(socMe()){document.getElementById('loginModal').classList.remove('active');}else{E.mode=saved?'login':'reg';entryRender()}
+      // শুরুতে কোনো লগইন নয়; শুধু সোশ্যাল/বার্তায় লাগলে তখন দেখানো হবে
+      document.getElementById('loginModal').classList.remove('active');E.mode=saved?'login':'reg';
     }
 
     // অ্যাপের ভিতরে ডাউনলোড/সেভ/প্রিন্ট/সোর্স অপশন বন্ধ
