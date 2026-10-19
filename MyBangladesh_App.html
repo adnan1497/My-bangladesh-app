@@ -1215,6 +1215,14 @@
     function msgMe(){try{if(window.__admMsg&&sessionStorage.getItem('amarBangladeshAdminIn_v1')==='1')return{name:ADMIN_MSG_NAME,key:ADMIN_MSG_KEY}}catch(e){}return me()}
     function admMsgLeave(){if(window.__admMsg){window.__admMsg=false;msgAll=[];msgPeer=null;try{msgInit()}catch(e){}try{updateBadge()}catch(e){}}}
     const MSG_HOLD_KEY='amarBangladeshHold_v1',MSG_BNAME_KEY='amarBangladeshBlockNames_v1';
+    // কথোপকথন মোছা: শুধু আমার দিক থেকে (এই ডিভাইসে) লুকানো হয়; অন্যজন তার কপি দেখে। নতুন মেসেজ ঠিকই আসে।
+    const MSG_CLR_KEY='amarBangladeshChatClear_v1';
+    const clrMapAll=()=>{const o=readJSON(MSG_CLR_KEY,{});return o&&typeof o==='object'&&!Array.isArray(o)?o:{}};
+    const clrArr=()=>{const m=msgMe();const a=m?clrMapAll()[m.key]:null;return Array.isArray(a)?a:[]};
+    function clearChatWith(peer){const m=msgMe();if(!m)return 0;
+      const conv=msgAll.filter(x=>(x.from===m.key&&x.to===peer)||(x.from===peer&&x.to===m.key));
+      const o=clrMapAll();o[m.key]=clrArr().concat(conv.map(x=>x.id).filter(Boolean)).slice(-5000);writeJSON(MSG_CLR_KEY,o);
+      msgAll=msgAll.filter(x=>!conv.includes(x));return conv.length}
     const holdMapAll=()=>{const o=readJSON(MSG_HOLD_KEY,{});return o&&typeof o==='object'&&!Array.isArray(o)?o:{}};
     const holdList=()=>{const m=msgMe();return m?(holdMapAll()[m.key]||[]).filter(x=>typeof x==='string'):[]};
     function holdSet(peer,name,on){const m=msgMe();if(!m)return;const o=holdMapAll();let a=(o[m.key]||[]).filter(x=>x&&x.k!==peer&&x!==peer);
@@ -1331,9 +1339,9 @@
       msgSeen=new Set();msgLoaded=false;msgAll=[];window.__msgT0=Date.now();setTimeout(()=>{try{pushSync()}catch(e){}},2000);
       msgBackend=FIREBASE_CONFIG?FirebaseBackend:HybridBackend;
       msgBackend.start(m,list=>{
-        const bl=blockedList();
+        const bl=blockedList();const cl=new Set(clrArr());
         const mySoc=window.__admMsg?null:socMe();const sentTo=new Set(list.filter(x=>x&&x.from===m.key).map(x=>x.to));
-        const ok=list.filter(x=>x&&typeof x.text==='string'&&!bl.includes(x.from===m.key?x.to:x.from)&&!(mySoc&&mySoc.friendsOnly&&x.from!==m.key&&!sentTo.has(x.from)&&frRel(mySoc.id,x.from)!=='friends'));
+        const ok=list.filter(x=>x&&typeof x.text==='string'&&!cl.has(x.id)&&!bl.includes(x.from===m.key?x.to:x.from)&&!(mySoc&&mySoc.friendsOnly&&x.from!==m.key&&!sentTo.has(x.from)&&frRel(mySoc.id,x.from)!=='friends'));
         try{msgBackend.mark(ok.filter(x=>x.to===m.key&&!x.dts).map(x=>x.id),'dts')}catch(e){}
         const hs=new Set(holdList());const nt=notifiedSet();const warm=Date.now()-(window.__msgT0||0)<9000;
         const incoming=ok.filter(x=>x.to===m.key&&!msgSeen.has(x.id)&&!hs.has(x.from));
@@ -1431,6 +1439,9 @@
         const hb=mk('button','',held?'▶️ হোল্ড থেকে ছাড়ুন':'⏳ হোল্ডে রাখুন (ব্লক নয়)');hb.className='change-btn';hb.style.cssText='width:100%;margin-top:8px;cursor:pointer';
         hb.onclick=()=>{holdSet(msgPeer.key,msgPeer.name,!held);msgPeer=null;msgInit();setTimeout(drawInbox,60)};
         b.appendChild(hb);b.appendChild(bk)}
+      {const cd=mk('button','','🗑️ এই কথোপকথন মুছুন');cd.className='danger-btn';cd.style.cssText='width:100%;margin-top:8px';
+        cd.onclick=()=>{if(!confirm('এই কথোপকথনের সব মেসেজ আপনার ফোন থেকে মুছে যাবে।\nঅন্যজন তার নিজের কপি দেখতে পাবে। এরপর নতুন মেসেজ এলে আবার দেখা যাবে।\n\nমুছবেন?'))return;
+          const n=clearChatWith(msgPeer.key);msgPeer=null;updateBadge();drawInbox();showToast('🗑️ '+fmt(n)+'টি মেসেজ মুছে ফেলা হয়েছে')};b.appendChild(cd)}
       drawChat();inp.focus();
     }
     function drawChat(){
@@ -2042,6 +2053,16 @@
     const rcNew=()=>{const a=crypto.getRandomValues(new Uint8Array(10));const s=Array.from(a).map(b=>RC_ABC[b%RC_ABC.length]).join('');return s.slice(0,5)+'-'+s.slice(5)};
     const rcNorm=c=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/O/g,'0').replace(/I|L/g,'1');
     async function rcHash(c){const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('amar-rc|'+rcNorm(c)));return Array.from(new Uint8Array(d)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+    // ===== জিমেইলে কোড (Supabase Auth ইমেইল-OTP) =====
+    const emOk=e=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
+    async function emSend(em){await sbReq('/auth/v1/otp',{method:'POST',body:{email:em,create_user:true}})}
+    async function emVerify(em,code){const j=await sbReq('/auth/v1/verify',{method:'POST',body:{type:'email',email:em,token:String(code||'').replace(/[^0-9]/g,'').replace(/^$/,'x')}});if(!j||!j.access_token)throw new Error('কোড মিলছে না');return j.access_token}
+    function emErr(e){const t=String(e&&e.message||e||'');
+      if(/only request this after|rate limit|too many|over_email_send_rate_limit/i.test(t))return'অল্প সময়ে অনেকবার চেষ্টা হয়েছে। ১ মিনিট পরে আবার চেষ্টা করুন।';
+      if(/error sending|smtp|sending .*email|unexpected_failure|550|535/i.test(t))return'ইমেইল পাঠানো যায়নি — অ্যাডমিনের ইমেইল-সেটআপ বাকি আছে।';
+      if(/expired|invalid|otp|token/i.test(t))return'কোড ভুল বা মেয়াদ শেষ। আবার কোড পাঠিয়ে চেষ্টা করুন।';
+      if(/email used/i.test(t))return'এই জিমেইল অন্য একটি অ্যাকাউন্টে ব্যবহৃত।';
+      return msgErrText2(e)}
     function entryShow(mode,prefill){E.mode=mode||E.mode||'login';E.pre=prefill||E.pre||{};try{$('loginModal').classList.add('active')}catch(e){}entryRender()}
     function entryDone(r,k,name){
       const nm=String(r.name||name||'').slice(0,60);const saved={name:nm,phone:k,createdAt:new Date().toISOString()};
@@ -2091,6 +2112,27 @@
             if(shown){entryCodeScreen(box,code,()=>entryDone(rr,k,name));b.disabled=false;return}
             entryDone(rr,k,name);
           }catch(e){const m=String(e&&e.message||e);fail(/email used/.test(m)?'এই ইমেইল দিয়ে আগেই একটি অ্যাকাউন্ট খোলা হয়েছে।':/exists/.test(m)?'এই নম্বরে অ্যাকাউন্ট আগেই আছে। "লগইন" চাপুন।':/bad age/.test(m)?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: Supabase-এ 6_accounts.sql চালান)।':msgErrText2(e))}b.disabled=false};box.appendChild(b);skip();
+      }else if(E.mode==='forgotmail'){
+        const mkIn=(par,label,id,o)=>{o=o||{};par.appendChild(mk('label','',label)).className='field-label';const i=document.createElement('input');i.className='form-field';i.id=id;if(o.type)i.type=o.type;if(o.mode)i.setAttribute('inputmode',o.mode);i.maxLength=o.max||64;if(o.ac)i.autocomplete=o.ac;if(o.ph)i.placeholder=o.ph;if(o.val)i.value=o.val;par.appendChild(i);return i};
+        box.appendChild(mk('h3','font-size:16px;margin-bottom:6px','📧 জিমেইলে কোড পাঠান'));
+        box.appendChild(mk('p','font-size:12px;color:#a7f3d0;line-height:1.7;margin-bottom:8px','অ্যাকাউন্টে যে জিমেইল যোগ করা আছে সেটি দিন। সেই ইমেইলে একটি কোড যাবে (ইনবক্স না পেলে স্প্যাম ফোল্ডার দেখুন)।'));
+        mkIn(box,'মোবাইল নম্বর','eMPhone',{mode:'tel',max:20,val:pre.phone||''});mkIn(box,'জিমেইল','eMMail',{type:'email',max:80,ac:'email',ph:'আপনার@gmail.com'});
+        const sendB=mk('button','','📧 কোড পাঠান');sendB.className='primary-btn';box.appendChild(sendB);
+        const s2=mk('div','display:none;margin-top:8px');box.appendChild(s2);
+        s2.appendChild(mk('p','font-size:12px;color:#fde68a;line-height:1.6;margin:6px 0','✅ কোড পাঠানো হয়েছে। কোডটি ও নতুন পাসওয়ার্ড দিন।'));
+        mkIn(s2,'ইমেইলের কোড','eMCode',{mode:'numeric',max:12,ph:'কোড'});const pw=mkIn(s2,'নতুন পাসওয়ার্ড (যা খুশি, ৪+ অক্ষর)','eMPw',{type:'password',ac:'new-password'});eye(pw);
+        const goB=mk('button','','পাসওয়ার্ড বদলান');goB.className='primary-btn';s2.appendChild(goB);box.appendChild(er);
+        sendB.onclick=async()=>{er.style.display='none';const k=phoneKey($('eMPhone').value),em=$('eMMail').value.trim().toLowerCase();
+          if(!/^[0-9]{7,15}$/.test(k))return fail('সঠিক মোবাইল নম্বর লিখুন।');if(!emOk(em))return fail('সঠিক জিমেইল লিখুন।');
+          sendB.disabled=true;try{await emSend(em);s2.style.display='block';sendB.textContent='🔁 আবার কোড পাঠান'}catch(e){fail(emErr(e))}sendB.disabled=false};
+        goB.onclick=async()=>{er.style.display='none';const k=phoneKey($('eMPhone').value),em=$('eMMail').value.trim().toLowerCase(),c=$('eMCode').value,p=$('eMPw').value;
+          if(!/^[0-9]{7,15}$/.test(k))return fail('সঠিক মোবাইল নম্বর লিখুন।');if(!emOk(em))return fail('সঠিক জিমেইল লিখুন।');if(String(c).replace(/\D/g,'').length<4)return fail('ইমেইলের কোড লিখুন।');if(p.length<4)return fail('নতুন পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন।');
+          goB.disabled=true;try{const at=await emVerify(em,c);const salt=randHex(16),iter=100000;const hash=await deriveHash(k,p,salt,iter);
+            const r=await socRpc('soc_recover_email',{p_phone:k,p_salt:salt,p_iter:iter,p_hash:hash},at);
+            if(r&&r.error==='email mismatch')fail('এই নম্বরের অ্যাকাউন্টে এই জিমেইল যোগ করা নেই। রিকভারি কোড দিয়ে চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।');else if(!r||r.error||!r.token)fail('হয়নি, আবার চেষ্টা করুন।');else entryDone(r,k)}
+          catch(e){fail(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: 8_email_recovery.sql চালান)।':emErr(e))}goB.disabled=false};
+        const b1=mk('button','','🔑 রিকভারি কোড দিয়ে করুন');b1.className='change-btn';b1.style.cssText='width:100%;padding:10px;margin-top:10px;cursor:pointer';b1.onclick=()=>{E.pre={phone:$('eMPhone').value};E.mode='forgot';entryRender()};box.appendChild(b1);
+        const bk=mk('button','','← লগইনে ফিরুন');bk.style.cssText='background:none;border:0;color:#6ee7b7;font-size:13px;margin-top:10px;cursor:pointer;width:100%';bk.onclick=()=>{E.mode='login';entryRender()};box.appendChild(bk);
       }else{
         box.appendChild(mk('h3','font-size:16px;margin-bottom:6px','🔑 নতুন পাসওয়ার্ড বানান'));box.appendChild(mk('p','font-size:12px;color:#a7f3d0;line-height:1.7;margin-bottom:8px','অ্যাকাউন্ট খোলার সময় যে রিকভারি কোডটি পেয়েছিলেন সেটি দিন।'));
         fld('মোবাইল নম্বর','eFPhone',{mode:'tel',max:20,val:pre.phone||''});fld('রিকভারি কোড','eFCode',{max:20,ph:'XXXXX-XXXXX'});const pw=fld('নতুন পাসওয়ার্ড (যা খুশি, ৪+ অক্ষর)','eFPw',{type:'password',ac:'new-password'});eye(pw);box.appendChild(er);
@@ -2101,6 +2143,7 @@
           b.disabled=true;try{const r=await socRpc('soc_recover',{p_phone:k,p_rhash:await rcHash(c),p_salt:salt,p_iter:iter,p_hash:hash,p_new_rhash:await rcHash(nc)});
             if(r&&r.error==='locked')fail('অনেকবার ভুল কোড দেওয়া হয়েছে। ১৫ মিনিট পরে চেষ্টা করুন।');else if(r&&r.error==='no recovery')fail('এই অ্যাকাউন্টে রিকভারি কোড বানানো ছিল না। অ্যাডমিনের সাথে যোগাযোগ করে পাসওয়ার্ড রিসেট করিয়ে নিন।');else if(!r||r.error||!r.token)fail('নম্বর বা কোড মিলছে না।');
             else entryCodeScreen(box,nc,()=>entryDone(r,k))}catch(e){fail(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: 6_accounts.sql চালান)।':msgErrText2(e))}b.disabled=false};box.appendChild(b);
+        const bm=mk('button','','📧 কোড না থাকলে — জিমেইলে কোড পাঠান');bm.className='change-btn';bm.style.cssText='width:100%;padding:10px;margin-top:10px;cursor:pointer';bm.onclick=()=>{E.pre={phone:$('eFPhone').value};E.mode='forgotmail';entryRender()};box.appendChild(bm);
         const bk=mk('button','','← লগইনে ফিরুন');bk.style.cssText='background:none;border:0;color:#6ee7b7;font-size:13px;margin-top:10px;cursor:pointer;width:100%';bk.onclick=()=>{E.mode='login';entryRender()};box.appendChild(bk);
         box.appendChild(mk('p','font-size:11.5px;color:#a7f3d0;line-height:1.7;margin-top:10px','কোডও হারিয়ে ফেললে অ্যাডমিনের সাথে যোগাযোগ করুন — তিনি আপনার নম্বরের জন্য একটি সাময়িক পাসওয়ার্ড বসিয়ে দেবেন।'));
       }
@@ -2115,6 +2158,11 @@
         try{const salt=randHex(16),iter=100000;const hash=await deriveHash(k,p,salt,iter);await socRpc('soc_change_pw',{p_tok:SOCN.tok,p_salt:salt,p_iter:iter,p_hash:hash});alert('পাসওয়ার্ড বদলানো হয়েছে।')}catch(e){alert('হয়নি: '+msgErrText2(e))}};box.appendChild(b1);
       const b2=mk('button','','🆕 নতুন রিকভারি কোড বানান');b2.className='change-btn';b2.style.cssText='width:100%;padding:10px;cursor:pointer';
       b2.onclick=async()=>{if(!confirm('নতুন কোড বানালে আগের কোড আর কাজ করবে না। এগিয়ে যাবেন?'))return;try{const c=rcNew();await socRpc('soc_set_recovery',{p_tok:SOCN.tok,p_rhash:await rcHash(c)});prompt('আপনার নতুন রিকভারি কোড (লিখে বা কপি করে রাখুন):',c)}catch(e){alert('হয়নি: '+msgErrText2(e))}};box.appendChild(b2);
+      const b3=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');b3.className='change-btn';b3.style.cssText='width:100%;padding:10px;margin-top:8px;cursor:pointer';
+      b3.onclick=async()=>{const em=String(prompt('আপনার জিমেইল ঠিকানা লিখুন:')||'').trim().toLowerCase();if(!em)return;if(!emOk(em)){alert('সঠিক ইমেইল লিখুন।');return}
+        try{await emSend(em)}catch(e){alert('কোড পাঠানো যায়নি: '+emErr(e));return}
+        const c=prompt('ইমেইলে একটি কোড গেছে (ইনবক্স/স্প্যাম দেখুন)। কোডটি লিখুন:');if(!c)return;
+        try{const at=await emVerify(em,c);await socRpc('soc_set_email',{p_tok:SOCN.tok},at);alert('✅ জিমেইল যোগ হয়েছে। পাসওয়ার্ড ভুলে গেলে লগইন পাতায় "ভুলে গেছি" → "জিমেইলে কোড পাঠান" চাপুন।')}catch(e){alert('হয়নি: '+(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: 8_email_recovery.sql চালান)।':emErr(e)))}};box.appendChild(b3);
       box.appendChild(mk('p','font-size:11px;color:#fcd34d;line-height:1.6;margin-top:8px','পাসওয়ার্ড ভুলে গেলে লগইন পাতায় "ভুলে গেছি" চেপে এই কোড দিয়ে নতুন পাসওয়ার্ড বানানো যায়।'));
     }
     function pwCheck(pw,phone){if(String(pw||'').length<4)return 'পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন।';return ''}
@@ -2675,9 +2723,15 @@
     const baDate=ts=>new Date(ts).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'});
     const baDT=ts=>baDate(ts)+' '+new Date(ts).toLocaleTimeString('bn-BD',{hour:'numeric',minute:'2-digit'});
     const baTs=dayStr=>{if(!/^\d{4}-\d\d-\d\d$/.test(dayStr||''))return Date.now();const p=dayStr.split('-').map(Number);const n=new Date();return new Date(p[0],p[1]-1,p[2],n.getHours(),n.getMinutes(),n.getSeconds()).getTime()};
-    function baData(){let d=readJSON(BA_KEY,null);if(!d||typeof d!=='object'||Array.isArray(d))d={};d.shop=Object.assign({name:'',owner:'',phone:'',addr:'',vat:0,pin:''},d.shop||{});['parties','tx','cash','items','sales','staff'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[]});return d}
+    function baData(){let d=readJSON(BA_KEY,null);if(!d||typeof d!=='object'||Array.isArray(d))d={};d.shop=Object.assign({name:'',owner:'',phone:'',addr:'',vat:0,pin:'',rc:'',em:''},d.shop||{});['parties','tx','cash','items','sales','staff'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[]});return d}
     function baSave(d){return writeJSON(BA_KEY,d)}
     const baBal=(d,pid)=>d.tx.filter(t=>t.pid===pid).reduce((a,t)=>a+(t.type==='gave'?t.amt:-t.amt),0);
+    const baRcNew=()=>{const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789',a=crypto.getRandomValues(new Uint8Array(10));const t=Array.from(a).map(b=>A[b%A.length]).join('');return t.slice(0,5)+'-'+t.slice(5)};
+    const baRcNorm=c=>String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/O/g,'0').replace(/I|L/g,'1');
+    const baRcHash=async c=>{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('amar-bizrc|'+baRcNorm(c)));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')};
+    const baEmHash=async e=>{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('amar-bizem|'+String(e||'').trim().toLowerCase()));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')};
+    const baDigits=v=>String(v||'').replace(/[০-৯]/g,c=>'০১২৩৪৫৬৭৮৯'.indexOf(c));
+    const baShowRc=c=>prompt('🔑 আপনার পিন-রিকভারি কোড (কপি করে বা কাগজে লিখে নিরাপদ জায়গায় রাখুন)।\nপিন ভুলে গেলে এই কোড দিয়ে নতুন পিন বসাতে পারবেন:',c);
     const baSha=async s=>{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('amar-pin|'+s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')};
     const baBtn=(p,t,fn,cls,css)=>{const b=mk('button','',t);b.className=cls||'change-btn';b.style.cssText+=';cursor:pointer;'+(css||'');b.onclick=fn;p.appendChild(b);return b};
     function baField(p,label,o){o=o||{};if(label)p.appendChild(mk('label','',label)).className='field-label';const i=document.createElement(o.area?'textarea':(o.select?'select':'input'));i.className='form-field';if(o.area)i.rows=o.rows||3;if(o.type)i.type=o.type;if(o.mode)i.setAttribute('inputmode',o.mode);if(o.ph)i.placeholder=o.ph;if(o.max)i.maxLength=o.max;if(o.select){o.select.forEach(([v,t])=>{const op=document.createElement('option');op.value=v;op.textContent=t;i.appendChild(op)})}if(o.val!=null)i.value=o.val;p.appendChild(i);return i}
@@ -2695,7 +2749,39 @@
     function baLock(list,d){
       const c=mk('div',BA_CARD+';text-align:center');c.appendChild(mk('div','font-size:40px','🔒'));c.appendChild(mk('h3','margin:6px 0','হিসাব খাতা লক করা'));
       const pin=baField(c,'পিন দিন',{type:'password',mode:'numeric',max:8});const er=mk('div','color:#fecaca;font-size:12px;min-height:16px;margin-top:6px','');c.appendChild(er);
-      baBtn(c,'খুলুন',async()=>{if(await baSha(pin.value)===d.shop.pin){BA.unlocked=true;baRe()}else er.textContent='পিন মিলছে না।'},'primary-btn');list.appendChild(c)}
+      baBtn(c,'খুলুন',async()=>{if(await baSha(baDigits(pin.value))===d.shop.pin){BA.unlocked=true;baRe()}else er.textContent='পিন মিলছে না।'},'primary-btn');
+      const fg=mk('button','','🔑 পিন ভুলে গেছি');fg.style.cssText='background:none;border:0;color:#fcd34d;font-size:13px;margin-top:10px;cursor:pointer;width:100%;text-decoration:underline';
+      const box=mk('div','display:none;text-align:left;margin-top:12px;border-top:1px solid rgba(16,185,129,.3);padding-top:10px');
+      fg.onclick=()=>{box.style.display=box.style.display==='none'?'block':'none'};c.appendChild(fg);c.appendChild(box);
+      if(d.shop.rc){
+        box.appendChild(mk('p','font-size:12px;color:#a7f3d0;line-height:1.7;margin-bottom:6px','পিন চালু করার সময় যে রিকভারি কোড পেয়েছিলেন সেটি ও নতুন পিন দিন।'));
+        const rc=baField(box,'রিকভারি কোড',{max:20,ph:'XXXXX-XXXXX'});const np=baField(box,'নতুন পিন (৪–৮ সংখ্যা)',{type:'password',mode:'numeric',max:8});const er2=mk('div','color:#fecaca;font-size:12px;min-height:16px;margin:4px 0','');box.appendChild(er2);
+        baBtn(box,'পিন বদলে খুলুন',async()=>{const n=baDigits(np.value);if(baRcNorm(rc.value).length<8){er2.textContent='রিকভারি কোড লিখুন।';return}if(!/^[0-9]{4,8}$/.test(n)){er2.textContent='৪ থেকে ৮ সংখ্যার নতুন পিন দিন।';return}
+          if(await baRcHash(rc.value)!==d.shop.rc){er2.textContent='কোড মিলছে না।';return}
+          d.shop.pin=await baSha(n);const nc=baRcNew();d.shop.rc=await baRcHash(nc);baSave(d);BA.unlocked=true;baShowRc(nc);baRe()},'primary-btn');
+      }else{
+        box.appendChild(mk('p','font-size:12px;color:#fde68a;line-height:1.7;margin-bottom:6px','এই পিনের জন্য রিকভারি কোড বানানো ছিল না, তাই পিন ফেরত আনার উপায় নেই। হিসাব দেখতে হলে নিচের বোতামে লক ও সব হিসাব মুছে নতুন করে শুরু করতে হবে।'));
+      }
+      if(d.shop.em){
+        const eb=mk('div','margin-top:12px;border-top:1px dashed rgba(16,185,129,.3);padding-top:10px');box.appendChild(eb);
+        eb.appendChild(mk('p','font-size:12px;color:#a7f3d0;line-height:1.7;margin-bottom:6px','📧 অথবা পিন চালুর সময় যে জিমেইল যোগ করেছিলেন, সেটি দিন — ইমেইলে কোড যাবে।'));
+        const em=baField(eb,'জিমেইল',{type:'email',max:80,ph:'আপনার@gmail.com'});const er3=mk('div','color:#fecaca;font-size:12px;min-height:16px;margin:4px 0','');
+        const s2=mk('div','display:none');const cd=baField(s2,'ইমেইলের কোড',{mode:'numeric',max:12});const np2=baField(s2,'নতুন পিন (৪–৮ সংখ্যা)',{type:'password',mode:'numeric',max:8});
+        const sb=baBtn(eb,'📧 কোড পাঠান',async()=>{er3.textContent='';const e1=em.value.trim().toLowerCase();if(!emOk(e1)){er3.textContent='সঠিক জিমেইল লিখুন।';return}
+          if(await baEmHash(e1)!==d.shop.em){er3.textContent='এই জিমেইল এই খাতার সাথে যোগ করা নেই।';return}
+          sb.disabled=true;try{await emSend(e1);s2.style.display='block';sb.textContent='🔁 আবার কোড পাঠান'}catch(e){er3.textContent=emErr(e)}sb.disabled=false},'change-btn','width:100%;margin-top:6px');
+        eb.appendChild(s2);eb.appendChild(er3);
+        baBtn(s2,'পিন বদলে খুলুন',async()=>{er3.textContent='';const e1=em.value.trim().toLowerCase(),n=baDigits(np2.value);if(!/^[0-9]{4,8}$/.test(n)){er3.textContent='৪ থেকে ৮ সংখ্যার নতুন পিন দিন।';return}
+          if(await baEmHash(e1)!==d.shop.em){er3.textContent='এই জিমেইল এই খাতার সাথে যোগ করা নেই।';return}
+          try{await emVerify(e1,cd.value)}catch(e){er3.textContent=emErr(e);return}
+          d.shop.pin=await baSha(n);baSave(d);BA.unlocked=true;alert('✅ নতুন পিন বসানো হয়েছে।');baRe()},'primary-btn');
+      }
+      box.appendChild(mk('p','font-size:11.5px;color:#fca5a5;line-height:1.7;margin-top:10px','কোডও হারিয়ে ফেললে: পুরোনো ব্যাকআপ ফাইল (সেটিংস → ব্যাকআপ) থাকলে সব ফিরিয়ে আনা যাবে।'));
+      baBtn(box,'⚠️ লক ও সব হিসাব মুছে নতুন করে শুরু',()=>{
+        if(!confirm('সতর্কতা: বাকি খাতা, ক্যাশবুক, স্টক, মেমো — এই ফোনের সব হিসাব স্থায়ীভাবে মুছে যাবে। ব্যাকআপ না থাকলে ফেরানো যাবে না।\n\nএগিয়ে যাবেন?'))return;
+        const w=prompt('নিশ্চিত করতে নিচের বক্সে লিখুন: মুছুন');if(String(w||'').trim()!=='মুছুন')return;
+        try{localStorage.removeItem(BA_KEY)}catch(e){}BA.unlocked=false;BA.tab='khata';BA.pid=null;BA.sub=null;baRe()},'danger-btn','width:100%;margin-top:8px');
+      list.appendChild(c)}
     // ---------- বাকি খাতা ----------
     function baKhata(b){
       const d=baData();if(BA.pid){baParty(b,d);return}
@@ -2897,8 +2983,15 @@
       const nm=baField(c,'ব্যবসার নাম',{val:d.shop.name,max:60}),ow=baField(c,'মালিকের নাম',{val:d.shop.owner,max:60}),ph=baField(c,'মোবাইল নম্বর',{type:'tel',mode:'tel',val:d.shop.phone,max:20}),ad=baField(c,'ঠিকানা',{val:d.shop.addr,max:120}),vt=baField(c,'ডিফল্ট ভ্যাট % (মেমোর জন্য, ঐচ্ছিক)',{mode:'decimal',val:d.shop.vat||''});
       baBtn(c,'সংরক্ষণ',()=>{Object.assign(d.shop,{name:nm.value.trim(),owner:ow.value.trim(),phone:ph.value.trim(),addr:ad.value.trim(),vat:baNum(vt.value)});baSave(d);alert('সংরক্ষিত হয়েছে');baRe()},'primary-btn');
       const sc=mk('div',BA_CARD);b.appendChild(sc);sc.appendChild(mk('div','font-weight:700;margin-bottom:6px','🔒 পিন লক'));sc.appendChild(mk('p','font-size:12px;color:#a7f3d0;line-height:1.7;margin-bottom:6px',d.shop.pin?'পিন চালু আছে — প্রতিবার খুলতে পিন লাগবে।':'পিন দিলে অন্য কেউ আপনার হিসাব দেখতে পারবে না।'));
-      const pn=baField(sc,d.shop.pin?'নতুন পিন (৪–৮ সংখ্যা)':'পিন (৪–৮ সংখ্যা)',{type:'password',mode:'numeric',max:8});baBtn(sc,d.shop.pin?'পিন বদলান':'পিন চালু করুন',async()=>{if(!/^[0-9]{4,8}$/.test(pn.value.replace(/[০-৯]/g,c=>'০১২৩৪৫৬৭৮৯'.indexOf(c)))){alert('৪ থেকে ৮ সংখ্যার পিন দিন।');return}d.shop.pin=await baSha(pn.value.replace(/[০-৯]/g,c=>'০১২৩৪৫৬৭৮৯'.indexOf(c)));baSave(d);BA.unlocked=true;alert('পিন সংরক্ষিত — পিনটি মনে রাখুন, ভুলে গেলে হিসাব খোলা যাবে না।');baRe()},'primary-btn');
-      if(d.shop.pin)baBtn(sc,'পিন বন্ধ করুন',()=>{if(!confirm('পিন লক বন্ধ করবেন?'))return;d.shop.pin='';baSave(d);baRe()},'change-btn','width:100%;margin-top:6px');
+      const pn=baField(sc,d.shop.pin?'নতুন পিন (৪–৮ সংখ্যা)':'পিন (৪–৮ সংখ্যা)',{type:'password',mode:'numeric',max:8});baBtn(sc,d.shop.pin?'পিন বদলান':'পিন চালু করুন',async()=>{const n=baDigits(pn.value);if(!/^[0-9]{4,8}$/.test(n)){alert('৪ থেকে ৮ সংখ্যার পিন দিন।');return}d.shop.pin=await baSha(n);const nc=baRcNew();d.shop.rc=await baRcHash(nc);baSave(d);BA.unlocked=true;baShowRc(nc);baRe()},'primary-btn');
+      if(d.shop.pin)baBtn(sc,d.shop.rc?'🆕 নতুন রিকভারি কোড বানান':'🔑 রিকভারি কোড বানান (প্রস্তাবিত)',async()=>{if(d.shop.rc&&!confirm('নতুন কোড বানালে আগের কোড আর কাজ করবে না। এগিয়ে যাবেন?'))return;const nc=baRcNew();d.shop.rc=await baRcHash(nc);baSave(d);baShowRc(nc);baRe()},'change-btn','width:100%;margin-top:6px');
+      if(d.shop.pin)baBtn(sc,d.shop.em?'📧 জিমেইল বদলান (পিন ফেরানোর জন্য)':'📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)',async()=>{
+        const e1=String(prompt('আপনার জিমেইল ঠিকানা লিখুন:')||'').trim().toLowerCase();if(!e1)return;if(!emOk(e1)){alert('সঠিক ইমেইল লিখুন।');return}
+        try{await emSend(e1)}catch(e){alert('কোড পাঠানো যায়নি: '+emErr(e));return}
+        const c=prompt('ইমেইলে একটি কোড গেছে (ইনবক্স/স্প্যাম দেখুন)। কোডটি লিখুন:');if(!c)return;
+        try{await emVerify(e1,c);d.shop.em=await baEmHash(e1);baSave(d);alert('✅ জিমেইল যোগ হয়েছে। পিন ভুলে গেলে লক-পর্দায় "পিন ভুলে গেছি" চেপে এই জিমেইলে কোড নিতে পারবেন।');baRe()}catch(e){alert('হয়নি: '+emErr(e))}},'change-btn','width:100%;margin-top:6px');
+      if(d.shop.pin)sc.appendChild(mk('p','font-size:11px;color:#fcd34d;line-height:1.6;margin-top:6px',d.shop.rc?'✅ রিকভারি কোড আছে — পিন ভুলে গেলে লক-পর্দায় "পিন ভুলে গেছি" চাপুন।':'⚠️ রিকভারি কোড নেই — পিন ভুলে গেলে হিসাব খোলা যাবে না। কোড বানিয়ে রাখুন।'));
+      if(d.shop.pin)baBtn(sc,'পিন বন্ধ করুন',()=>{if(!confirm('পিন লক বন্ধ করবেন?'))return;d.shop.pin='';d.shop.rc='';d.shop.em='';baSave(d);baRe()},'change-btn','width:100%;margin-top:6px');
       const bk=mk('div',BA_CARD);b.appendChild(bk);bk.appendChild(mk('div','font-weight:700;margin-bottom:6px','💾 ব্যাকআপ ও রিস্টোর'));bk.appendChild(mk('p','font-size:12px;color:#fde68a;line-height:1.7;margin-bottom:6px','তথ্য শুধু এই ফোনে থাকে। ফোন বদল বা মুছে গেলে হারাতে পারেন — নিয়মিত ব্যাকআপ নিন ও নিরাপদ জায়গায় (হোয়াটসঅ্যাপ/ড্রাইভ) রাখুন।'));
       baBtn(bk,'⬇️ ব্যাকআপ ফাইল নিন',()=>{const j=JSON.stringify(baData());tmShareBlob(new Blob([j],{type:'application/json'}),'hisab-backup-'+baDay(Date.now())+'.json','হিসাব ব্যাকআপ')},'primary-btn');
       const ta=baField(bk,'অথবা ব্যাকআপের লেখা এখানে পেস্ট করুন',{area:true,rows:3,ph:'{ "shop": ... }'});const fi=document.createElement('input');fi.type='file';fi.accept='.json,application/json';fi.style.cssText='margin:6px 0;font-size:12px;color:#a7f3d0';fi.onchange=()=>{const f=fi.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{ta.value=String(r.result||'')};r.readAsText(f)};bk.appendChild(fi);
@@ -3030,7 +3123,10 @@
       row('📤 বন্ধুকে অ্যাপ শেয়ার করুন',()=>{const u='https://adnan1497.github.io/My-bangladesh-app/MyBangladesh_App.html';const t='আমার বাংলাদেশ — জরুরি সেবা, হাসপাতাল, রক্ত, ব্যবসা হিসাব, সরকারি সেবা সব এক অ্যাপে।';if(navigator.share)navigator.share({title:'আমার বাংলাদেশ',text:t,url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(t+' '+u);alert('লিংক কপি হয়েছে')}catch(e){prompt('কপি করুন:',t+' '+u)}}try{amTrack('share')}catch(e){}});
       row('📝 অ্যাডমিনকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ১৭ · তৈরি: মোঃ রাজীব আল আদনান'))}
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ১৯ · তৈরি: মোঃ রাজীব আল আদনান'));
+      {const u=(typeof socMe==='function')?socMe():null;
+        const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
+        lo.onclick=()=>{if(u){if(!confirm('এই ফোন থেকে লগআউট করবেন?\n(আবার লগইন করলে সব ফিরে পাবেন)'))return;const t=SOCN.tok;socRpc('soc_logout',{p_tok:t}).catch(()=>{});socDrop();try{soc.tab='feed';soc.mode='login';socRender()}catch(e){}updateBadge();closeModal('settingsModal')}else{closeModal('settingsModal');entryShow('login')}};b.appendChild(lo)}}
 
     // ===== 🤰 মা ও শিশু: গর্ভাবস্থার শুরু থেকে শিশুর ৬ মাস পর্যন্ত =====
     const MB_KEY='amarMaternal_v1',MB={tab:'home',sub:null,list:null};
