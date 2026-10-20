@@ -782,6 +782,7 @@
         <button id="tab_cover" onclick="showAdminTab('cover')">🧭 এলাকা-ভিত্তিক</button>
         <button id="tab_reg" onclick="showAdminTab('reg')">📝 নিবন্ধন</button>
         <button id="tab_stats" onclick="showAdminTab('stats')">📊 ভিজিটর</button>
+        <button id="tab_shop" onclick="showAdminTab('shop')">🛍️ শপ</button>
         <button id="tab_backup" onclick="showAdminTab('backup')">💾 ব্যাকআপ</button>
         <button id="tab_msg" onclick="openAdminInbox()">💬 কথা <span id="admMsgBadge" style="display:none;background:#ef4444;color:#fff;border-radius:999px;padding:0 6px;font-size:10px;margin-left:3px"></span></button>
       </div>
@@ -858,6 +859,7 @@
 
       <div id="ad_reg" style="display:none"></div>
       <div id="ad_stats" style="display:none"><div id="adStatsBox"></div></div>
+      <div id="ad_shop" style="display:none"><div id="adShopBox"></div></div>
       <div id="ad_backup" style="display:none">
         <p class="notice">আপনার লেখা সব তথ্য এই ফোনের ব্রাউজারে জমা থাকে। “এক্সপোর্ট” চেপে টেক্সট কপি করে সুরক্ষিত জায়গায় রাখুন; অন্য ফোনে বা পরে “ইমপোর্ট”-এ বসালে সব ফিরে আসবে।</p>
         <div class="notice">📢 সবার ফোনে দেখাতে: "এক্সপোর্ট" চেপে এই টেক্সট কপি করে Claude-কে দিন; ফাইলের ভেতরে বসিয়ে নতুন ফাইল বানিয়ে দেওয়া হবে। (অনলাইনে স্বয়ংক্রিয়ভাবে যাওয়ার জন্য Firebase লাগবে।)</div>
@@ -1414,41 +1416,128 @@
     const MPF_BUB={green:['🟢 সবুজ','#059669'],blue:['🔵 নীল','#2563eb'],purple:['🟣 বেগুনি','#7c3aed'],rose:['🌹 গোলাপি','#e11d48'],amber:['🟠 কমলা','#d97706']};
     const MPF_FS={s:['ছোট',12],m:['মাঝারি',13.5],l:['বড়',15.5],xl:['অনেক বড়',17.5]};
     const MSG_EMOJI=['😀','😂','😍','🥰','😊','😉','🙏','👍','👏','🎉','❤️','😢','😮','😡','🤝','🌹','🇧🇩','✅','🙂','😎','🤲','💐','🌙','☀️'];
-    const MSGQ={q:'',un:false};
-    function msgSettings(back){
-      const b=$('msgBody');b.innerHTML='';const P=mpf();
-      const go=()=>{back==='chat'&&msgPeer?buildChat():drawInbox()};
-      b.appendChild(modalHead('⚙️ কথা সেটিংস','শুধু এই ফোনে প্রযোজ্য',go));
-      const sec=t=>b.appendChild(mk('div','font-size:12.5px;font-weight:700;color:#6ee7b7;margin:14px 0 6px',t));
-      const chips=(map,cur,key,fmtL)=>{const r=mk('div','display:flex;flex-wrap:wrap;gap:7px');Object.keys(map).forEach(k=>{const c=mk('button','',map[k][0]);c.style.cssText='padding:8px 12px;border-radius:999px;font-size:12.5px;cursor:pointer;color:#fff;border:2px solid '+(cur===k?'#fcd34d':'rgba(16,185,129,.4)')+';background:'+(key==='bub'?map[k][1]:'#0a251c');c.onclick=()=>{mpfSet(key,k);msgSettings(back)};r.appendChild(c)});b.appendChild(r)};
-      sec('🎨 চ্যাটের ব্যাকগ্রাউন্ড');chips(MPF_BG,P.bg,'bg');
-      sec('💬 আমার মেসেজের রং');chips(MPF_BUB,P.bub,'bub');
-      sec('🔤 লেখার আকার');chips(MPF_FS,P.fs,'fs');
-      // প্রিভিউ
-      const pv=mk('div','margin-top:12px;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;background:'+MPF_BG[P.bg][1]);
-      const bb=(t,mine)=>mk('div','max-width:78%;padding:8px 12px;border-radius:14px;line-height:1.5;color:#fff;align-self:'+(mine?'flex-end':'flex-start')+';background:'+(mine?MPF_BUB[P.bub][1]:'#1e293b')+';font-size:'+MPF_FS[P.fs][1]+'px',t);
-      pv.appendChild(bb('আসসালামু আলাইকুম, কেমন আছেন?',false));pv.appendChild(bb('আলহামদুলিল্লাহ, ভালো! 😊',true));b.appendChild(pv);
-      const tg=(label,key)=>{const l=document.createElement('label');l.style.cssText='display:flex;gap:10px;align-items:center;background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:11px 12px;margin-top:8px;font-size:13px';const c=document.createElement('input');c.type='checkbox';c.checked=!!P[key];c.onchange=()=>mpfSet(key,c.checked);l.appendChild(c);l.appendChild(mk('span','',label));b.appendChild(l)};
-      sec('🧰 সুবিধা');tg('😊 ইমোজি বাটন দেখান','emoji');tg('📅 তারিখের বিভাজক দেখান (আজ/গতকাল)','dates');
-      const pr=prefs();{const l=document.createElement('label');l.style.cssText='display:flex;gap:10px;align-items:center;background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:11px 12px;margin-top:8px;font-size:13px';const c=document.createElement('input');c.type='checkbox';c.checked=!!pr.sound;c.onchange=()=>{try{prefSet('sound',c.checked?1:0)}catch(e){}};l.appendChild(c);l.appendChild(mk('span','','🔔 নতুন মেসেজ এলে অ্যাপের ভেতরে শব্দ'));b.appendChild(l)}
-      sec('🔔 নোটিফিকেশন');
-      if('Notification' in window&&Notification.permission!=='granted'){const nb=mk('button','','🔔 ফোনের নোটিফিকেশন চালু করুন');nb.className='change-btn';nb.style.cssText='width:100%;padding:11px;cursor:pointer';nb.onclick=()=>{try{Notification.requestPermission().then(()=>msgSettings(back))}catch(e){}};b.appendChild(nb)}else b.appendChild(mk('p','font-size:12.5px;color:#a7f3d0','✅ নোটিফিকেশন চালু আছে। কারও কথা বন্ধ রাখতে সেই চ্যাটে "⏳ হোল্ডে রাখুন" চাপুন।'));
-      sec('🔒 গোপনীয়তা');
-      const me=socMe();if(me){const l=document.createElement('label');l.style.cssText='display:flex;gap:10px;align-items:flex-start;background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:11px 12px;font-size:13px;line-height:1.6';const c=document.createElement('input');c.type='checkbox';c.checked=!!me.friendsOnly;c.onchange=async()=>{try{await socProfSave({friendsOnly:c.checked});showToast(c.checked?'এখন শুধু বন্ধুরা কথা পাঠাতে পারবে':'সবাই কথা পাঠাতে পারবে')}catch(e){c.checked=!c.checked;alert('সংরক্ষণ করা যায়নি।')}};l.appendChild(c);l.appendChild(mk('span','','শুধু বন্ধুরাই আমাকে কথা পাঠাতে পারবে'));b.appendChild(l)}
-      const bl=mk('button','','🚫 ব্লক ও হোল্ড তালিকা দেখুন');bl.className='change-btn';bl.style.cssText='width:100%;padding:11px;margin-top:8px;cursor:pointer';bl.onclick=()=>{msgPeer=null;drawInbox();setTimeout(()=>{try{document.querySelectorAll('#msgBody details').forEach(d=>d.open=true)}catch(e){}},50)};b.appendChild(bl);
-      sec('🧹 ডেটা');
-      const ca=mk('button','','🗑️ সব কথোপকথন এই ফোন থেকে মুছুন');ca.className='danger-btn';ca.style.cssText='width:100%;padding:11px;cursor:pointer';
-      ca.onclick=()=>{if(!confirm('এই ফোনের সব কথোপকথন লুকানো হবে (অন্যজনের কপি থাকবে)। নিশ্চিত?'))return;const m=msgMe();if(!m)return;const keys=new Set();msgAll.forEach(x=>keys.add(x.from===m.key?x.to:x.from));let n=0;keys.forEach(k=>{n+=clearChatWith(k)});updateBadge();showToast('🗑️ '+fmt(n)+'টি মেসেজ মুছেছে');drawInbox()};b.appendChild(ca);
-      const rs=mk('button','','↩️ সেটিংস আগের মতো করুন');rs.className='change-btn';rs.style.cssText='width:100%;padding:11px;margin-top:8px;cursor:pointer';rs.onclick=()=>{writeJSON(MPF_KEY,{});msgSettings(back)};b.appendChild(rs);
-    }
+    const MSGQ={q:'',f:'all'};
     function msgDayLabel(ts){const d=new Date(ts),n=new Date(),k=x=>x.getFullYear()*372+x.getMonth()*31+x.getDate();const df=k(n)-k(d);if(df===0)return'আজ';if(df===1)return'গতকাল';return d.toLocaleDateString('bn-BD',{day:'numeric',month:'long',year:d.getFullYear()===n.getFullYear()?undefined:'numeric'})}
-    function msgBubbleMenu(bub,x,mine){
-      const old=document.getElementById('msgMenu');if(old){const same=old.previousSibling===bub;old.remove();if(same)return}
-      const m=mk('div','align-self:'+(mine?'flex-end':'flex-start')+';display:flex;gap:6px;margin-top:-2px');m.id='msgMenu';
-      const bt=(t,fn)=>{const c=mk('button','',t);c.style.cssText='padding:6px 11px;border-radius:999px;font-size:12px;background:#0a251c;color:#fff;border:1px solid rgba(16,185,129,.6);cursor:pointer';c.onclick=e=>{e.stopPropagation();fn()};m.appendChild(c)};
-      bt('📋 কপি',()=>{try{navigator.clipboard.writeText(x.text);showToast('কপি হয়েছে')}catch(e){}m.remove()});
-      bt('🗑️ আমার থেকে মুছুন',()=>{const mm=msgMe();if(!mm)return;const o=clrMapAll();o[mm.key]=clrArr().concat([x.id]).slice(-5000);writeJSON(MSG_CLR_KEY,o);msgAll=msgAll.filter(y=>y!==x);drawChat()});
-      bub.after(m)}
+    const MSG_PIN_KEY='amarMsgPin_v1',MSG_ARC_KEY='amarMsgArc_v1',MSG_STAR_KEY='amarMsgStar_v1',MSG_DRAFT_KEY='amarMsgDraft_v1',MSG_QR_KEY='amarMsgQR_v1';
+    const mlist=key=>{const m=msgMe();if(!m)return[];const o=readJSON(key,{});const a=o&&typeof o==='object'?o[m.key]:null;return Array.isArray(a)?a:[]};
+    const mlistSet=(key,arr)=>{const m=msgMe();if(!m)return;let o=readJSON(key,{});if(!o||typeof o!=='object'||Array.isArray(o))o={};o[m.key]=arr;writeJSON(key,o)};
+    const mtoggle=(key,v)=>{const a=mlist(key),i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v);mlistSet(key,a.slice(-2000));return i<0};
+    function draftGet(peer){const m=msgMe();if(!m)return'';const o=readJSON(MSG_DRAFT_KEY,{});const d=o&&o[m.key];return d&&typeof d==='object'&&typeof d[peer]==='string'?d[peer]:''}
+    function draftSet(peer,t){const m=msgMe();if(!m)return;let o=readJSON(MSG_DRAFT_KEY,{});if(!o||typeof o!=='object'||Array.isArray(o))o={};const d=o[m.key]&&typeof o[m.key]==='object'?o[m.key]:{};if(t)d[peer]=String(t).slice(0,500);else delete d[peer];o[m.key]=d;writeJSON(MSG_DRAFT_KEY,o)}
+    const QR_DEF=['আসসালামু আলাইকুম','ওয়ালাইকুম আসসালাম','ধন্যবাদ 🙏','ঠিক আছে 👍','একটু পরে কথা বলছি','এখন ব্যস্ত আছি, পরে জানাচ্ছি'];
+    const qrList=()=>{const a=readJSON(MSG_QR_KEY,null);return Array.isArray(a)?a.filter(x=>typeof x==='string'):QR_DEF.slice()};
+    const peerName=k=>{const nm=readJSON(MSG_BNAME_KEY,{});const m=msgMe();let n=(nm&&nm[k])||'';if(!n)for(const x of msgAll){if(m&&x.from===k&&x.fromName){n=x.fromName;break}if(m&&x.to===k&&x.toName){n=x.toName;break}}return n||k};
+    function msgSheet(title,items){
+      const old=document.getElementById('msgSheet');if(old)old.remove();
+      const ov=mk('div','position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;display:flex;align-items:flex-end;justify-content:center');ov.id='msgSheet';ov.onclick=e=>{if(e.target===ov)ov.remove()};
+      const sh=mk('div','width:100%;max-width:520px;background:#0b2b20;border:1px solid rgba(16,185,129,.5);border-radius:18px 18px 0 0;padding:12px 12px 18px;max-height:75vh;overflow-y:auto');ov.appendChild(sh);
+      if(title)sh.appendChild(mk('div','font-size:12.5px;color:#a7f3d0;text-align:center;margin:2px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis',title));
+      items.forEach(([t,fn,danger])=>{const b=mk('button','',t);b.style.cssText='display:block;width:100%;text-align:left;padding:13px 12px;border:0;border-top:1px solid rgba(16,185,129,.15);background:transparent;color:'+(danger?'#fca5a5':'#fff')+';font-size:14.5px;cursor:pointer';b.onclick=()=>{ov.remove();fn()};sh.appendChild(b)});
+      const c=mk('button','','বন্ধ করুন');c.style.cssText='display:block;width:100%;margin-top:8px;padding:11px;border-radius:12px;border:1px solid rgba(16,185,129,.4);background:#061812;color:#a7f3d0;font-size:13.5px;cursor:pointer';c.onclick=()=>ov.remove();sh.appendChild(c);document.body.appendChild(ov)}
+    function msgBlockPeer(k,name){const a=blockedList();if(!a.includes(k))a.push(k);writeJSON(MSG_BLOCK_KEY,a);{const nm=readJSON(MSG_BNAME_KEY,{});nm[k]=name||k;writeJSON(MSG_BNAME_KEY,nm)}holdSet(k,name,false);msgInit()}
+    function msgRowMenu(p){
+      const pinned=mlist(MSG_PIN_KEY).includes(p.key),arc=mlist(MSG_ARC_KEY).includes(p.key),held=holdList().includes(p.key),isAdm=p.key===ADMIN_MSG_KEY;
+      const it=[[pinned?'📌 পিন সরান':'📌 উপরে পিন করুন',()=>{mtoggle(MSG_PIN_KEY,p.key);drawInbox()}],[arc?'📤 আর্কাইভ থেকে ফেরান':'🗄️ আর্কাইভ করুন',()=>{mtoggle(MSG_ARC_KEY,p.key);drawInbox()}]];
+      if(!isAdm)it.push([held?'▶️ হোল্ড থেকে ছাড়ুন':'⏳ হোল্ডে রাখুন (নোটিফিকেশন বন্ধ)',()=>{holdSet(p.key,p.name,!held);msgInit();setTimeout(drawInbox,60)}]);
+      it.push(['🗑️ কথোপকথন মুছুন',()=>{if(!confirm('এই কথোপকথনের সব মেসেজ আপনার ফোন থেকে মুছবে। অন্যজনের কপি থাকবে। মুছবেন?'))return;const n=clearChatWith(p.key);updateBadge();drawInbox();showToast('🗑️ '+fmt(n)+'টি মেসেজ মুছেছে')},true]);
+      if(!isAdm)it.push(['🚫 ব্লক করুন',()=>{if(!confirm('ব্লক করলে এই নম্বরের মেসেজ আর দেখাবে না।'))return;msgBlockPeer(p.key,p.name);setTimeout(drawInbox,50)},true]);
+      msgSheet(p.name||p.key,it)}
+    // ---------- সেটিংস: মূল তালিকা (মেসেঞ্জারের মতো) ----------
+    function msgSettings(back,page){
+      const b=$('msgBody');b.innerHTML='';const toHub=()=>msgSettings(back);
+      if(page){({look:msgPgLook,notif:msgPgNotif,priv:msgPgPriv,block:msgPgBlock,hold:msgPgHold,arc:msgPgArc,star:msgPgStar,qr:msgPgQr,data:msgPgData})[page](b,back,toHub);return}
+      b.appendChild(modalHead('⚙️ কথা সেটিংস','সব কিছু এক জায়গায়',()=>{back==='chat'&&msgPeer?buildChat():drawInbox()}));
+      const me=socMe()||msgMe();
+      if(me){const h=mk('div','display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#065f46,#0f766e);border-radius:16px;padding:13px;margin:4px 0 8px');h.appendChild(me.id?avatarEl(me,48):mk('div','width:48px;height:48px;border-radius:50%;background:#047857;display:flex;align-items:center;justify-content:center;font-weight:700',String(me.name||'?').charAt(0)));const t=mk('div','');t.appendChild(mk('b','font-size:15px;display:block',me.name||''));t.appendChild(mk('span','font-size:11.5px;color:#d1fae5',me.phone||''));h.appendChild(t);b.appendChild(h)}
+      const grp=(t,rows)=>{b.appendChild(mk('div','font-size:12px;font-weight:700;color:#6ee7b7;margin:14px 2px 2px',t));rows.forEach(([ic,tt,sub,pg])=>{const r=mk('div','display:flex;gap:12px;align-items:center;padding:11px 4px;border-bottom:1px solid rgba(16,185,129,.14);cursor:pointer');r.appendChild(mk('span','font-size:22px;width:30px;text-align:center',ic));const m=mk('div','flex:1;min-width:0');m.appendChild(mk('b','font-size:14px;display:block',tt));if(sub)m.appendChild(mk('span','font-size:11.5px;color:#a7f3d0;line-height:1.5;display:block',sub));r.appendChild(m);r.appendChild(mk('span','color:#6ee7b7;font-size:19px','›'));r.onclick=()=>msgSettings(back,pg);b.appendChild(r)})};
+      const nb=blockedList().length,nh=holdList().length,na=mlist(MSG_ARC_KEY).length,ns=mlist(MSG_STAR_KEY).length;
+      grp('পছন্দ ও চেহারা',[['🎨','চ্যাটের চেহারা','ব্যাকগ্রাউন্ড, মেসেজের রং, লেখার আকার','look'],['🔔','নোটিফিকেশন ও শব্দ','শব্দ, কম্পন ও ফোনের নোটিফিকেশন','notif'],['⚡','দ্রুত উত্তর','এক চাপে পাঠানোর তৈরি বাক্য','qr']]);
+      grp('গোপনীয়তা ও নিরাপত্তা',[['🔒','কে আমাকে কথা পাঠাতে পারবে','শুধু বন্ধু / সবাই','priv'],['🚫','ব্লক তালিকা','ব্লক করা: '+fmt(nb)+' জন','block'],['⏳','হোল্ডে রাখা চ্যাট','জমা থাকে, কিন্তু নোটিফিকেশন আসে না: '+fmt(nh)+' জন','hold']]);
+      grp('আমার চ্যাট',[['🗄️','আর্কাইভ করা চ্যাট',fmt(na)+'টি','arc'],['⭐','তারকা চিহ্নিত মেসেজ',fmt(ns)+'টি','star'],['🧹','ডেটা ও পরিষ্কার','সব চ্যাট মোছা, রিসেট ইত্যাদি','data']])}
+    const msgSub=(b,title,sub,toHub)=>b.appendChild(modalHead(title,sub,toHub));
+    const msgSec=(b,t)=>b.appendChild(mk('div','font-size:12.5px;font-weight:700;color:#6ee7b7;margin:14px 0 6px',t));
+    const msgToggle=(b,label,checked,fn,sub)=>{const l=document.createElement('label');l.style.cssText='display:flex;gap:10px;align-items:flex-start;background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:11px 12px;margin-top:8px;font-size:13px;line-height:1.6;cursor:pointer';const c=document.createElement('input');c.type='checkbox';c.checked=!!checked;c.onchange=()=>fn(c.checked,c);l.appendChild(c);const s=mk('span','');s.appendChild(mk('b','display:block;font-weight:600',label));if(sub)s.appendChild(mk('span','font-size:11.5px;color:#a7f3d0',sub));l.appendChild(s);b.appendChild(l)};
+    function msgPgLook(b,back,toHub){
+      const P=mpf();msgSub(b,'🎨 চ্যাটের চেহারা','শুধু এই ফোনে প্রযোজ্য',toHub);const again=()=>msgSettings(back,'look');
+      const chips=(map,cur,key)=>{const r=mk('div','display:flex;flex-wrap:wrap;gap:7px');Object.keys(map).forEach(k=>{const c=mk('button','',map[k][0]);c.style.cssText='padding:8px 12px;border-radius:999px;font-size:12.5px;cursor:pointer;color:#fff;border:2px solid '+(cur===k?'#fcd34d':'rgba(16,185,129,.4)')+';background:'+(key==='bub'?map[k][1]:'#0a251c');c.onclick=()=>{mpfSet(key,k);again()};r.appendChild(c)});b.appendChild(r)};
+      msgSec(b,'ব্যাকগ্রাউন্ড');chips(MPF_BG,P.bg,'bg');msgSec(b,'আমার মেসেজের রং');chips(MPF_BUB,P.bub,'bub');msgSec(b,'লেখার আকার');chips(MPF_FS,P.fs,'fs');
+      const pv=mk('div','margin-top:12px;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;background:'+MPF_BG[P.bg][1]);const bb=(t,mine)=>mk('div','max-width:78%;padding:8px 12px;border-radius:14px;line-height:1.5;color:#fff;align-self:'+(mine?'flex-end':'flex-start')+';background:'+(mine?MPF_BUB[P.bub][1]:'#1e293b')+';font-size:'+MPF_FS[P.fs][1]+'px',t);pv.appendChild(bb('আসসালামু আলাইকুম, কেমন আছেন?',false));pv.appendChild(bb('আলহামদুলিল্লাহ, ভালো! 😊',true));b.appendChild(pv);
+      msgSec(b,'সুবিধা');msgToggle(b,'😊 ইমোজি বাটন দেখান',P.emoji,v=>mpfSet('emoji',v));msgToggle(b,'📅 তারিখের বিভাজক (আজ/গতকাল)',P.dates,v=>mpfSet('dates',v));
+      const rs=mk('button','','↩️ চেহারা আগের মতো করুন');rs.className='change-btn';rs.style.cssText='width:100%;padding:11px;margin-top:12px;cursor:pointer';rs.onclick=()=>{writeJSON(MPF_KEY,{});again()};b.appendChild(rs)}
+    function msgPgNotif(b,back,toHub){
+      msgSub(b,'🔔 নোটিফিকেশন ও শব্দ','',toHub);const pr=prefs();
+      msgToggle(b,'🔔 নতুন কথা এলে অ্যাপের ভেতরে শব্দ',pr.sound,v=>prefSet('sound',v?1:0));
+      msgToggle(b,'📳 কম্পন',pr.vib,v=>prefSet('vib',v?1:0));
+      const t=mk('button','','▶️ শব্দ পরীক্ষা করুন');t.className='change-btn';t.style.cssText='width:100%;padding:11px;margin-top:10px;cursor:pointer';t.onclick=()=>{try{msgChime()}catch(e){}};b.appendChild(t);
+      msgSec(b,'ফোনের নোটিফিকেশন');
+      if('Notification' in window&&Notification.permission!=='granted'){const nb=mk('button','','🔔 ফোনের নোটিফিকেশন চালু করুন');nb.className='primary-btn';nb.style.margin='0';nb.onclick=()=>{try{Notification.requestPermission().then(()=>{try{pushInit()}catch(e){}msgSettings(back,'notif')})}catch(e){}};b.appendChild(nb)}else b.appendChild(mk('p','font-size:12.5px;color:#a7f3d0;line-height:1.7','✅ নোটিফিকেশন চালু আছে। নির্দিষ্ট কারও নোটিফিকেশন বন্ধ রাখতে চ্যাট ⋮ মেনু থেকে "হোল্ডে রাখুন" বাছুন।'))}
+    function msgPgPriv(b,back,toHub){
+      msgSub(b,'🔒 গোপনীয়তা','',toHub);const me=socMe();
+      if(me)msgToggle(b,'শুধু বন্ধুরাই আমাকে কথা পাঠাতে পারবে',me.friendsOnly,async(v,c)=>{try{await socProfSave({friendsOnly:v});showToast(v?'এখন শুধু বন্ধুরা কথা পাঠাতে পারবে':'সবাই কথা পাঠাতে পারবে')}catch(e){c.checked=!v;alert('সংরক্ষণ করা যায়নি।')}},'বন্ধু নয় এমন কেউ প্রথমে বন্ধুত্বের অনুরোধ পাঠাবে।');else b.appendChild(mk('p','font-size:13px;color:#a7f3d0','এই সেটিং-এর জন্য সমাজ অ্যাকাউন্টে লগইন করুন।'));
+      msgSec(b,'নিরাপদ থাকুন');b.appendChild(mk('p','font-size:12.5px;color:#d1fae5;line-height:1.9;white-space:pre-line','• ওটিপি, পাসওয়ার্ড বা রিকভারি কোড কাউকে বলবেন না।\n• অচেনা লিংকে চাপ দেবেন না।\n• বিরক্ত করলে সঙ্গে সঙ্গে ব্লক করুন।'))}
+    function msgPgBlock(b,back,toHub){
+      msgSub(b,'🚫 ব্লক তালিকা','ব্লক করা নম্বরের মেসেজ দেখা যায় না',toHub);const bl=blockedList();
+      if(!bl.length)b.appendChild(mk('p','font-size:13px;color:#a7f3d0;padding:12px 2px','কেউ ব্লকে নেই।'));
+      bl.forEach(k=>{const r=mk('div','display:flex;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(16,185,129,.15)');r.appendChild(mk('span','font-size:22px','🚫'));const m=mk('div','flex:1;min-width:0');m.appendChild(mk('b','font-size:13.5px;display:block',peerName(k)));m.appendChild(mk('span','font-size:11px;color:#a7f3d0',/^u[0-9a-f]{16}$/.test(k)?'সদস্য':k));r.appendChild(m);const u=mk('button','','আনব্লক');u.className='change-btn';u.style.cursor='pointer';u.onclick=()=>{writeJSON(MSG_BLOCK_KEY,blockedList().filter(x=>x!==k));msgInit();msgSettings(back,'block')};r.appendChild(u);b.appendChild(r)})}
+    function msgPgHold(b,back,toHub){
+      msgSub(b,'⏳ হোল্ডে রাখা চ্যাট','',toHub);b.appendChild(mk('p','font-size:12px;color:#a7f3d0;line-height:1.7;margin:2px 0 6px','এদের কথা জমা থাকে, কিন্তু নোটিফিকেশন বা লাল সংখ্যা আসে না; তারা কিছু জানতে পারে না। ইচ্ছা হলে "ছাড়ুন" চাপুন।'));
+      const hl=holdList();if(!hl.length)b.appendChild(mk('p','font-size:13px;color:#6ee7b7;padding:10px 2px','কেউ হোল্ডে নেই।'));
+      hl.forEach(k=>{const r=mk('div','display:flex;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(16,185,129,.15)');r.appendChild(mk('span','font-size:22px','⏳'));const m=mk('div','flex:1;min-width:0;cursor:pointer');m.appendChild(mk('b','font-size:13.5px;display:block',peerName(k)));m.onclick=()=>openChat(k,peerName(k));r.appendChild(m);const u=mk('button','','ছাড়ুন');u.className='call-btn';u.style.cssText='border:0;cursor:pointer';u.onclick=()=>{holdSet(k,peerName(k),false);msgInit();setTimeout(()=>msgSettings(back,'hold'),60)};r.appendChild(u);b.appendChild(r)})}
+    function msgPgArc(b,back,toHub){
+      msgSub(b,'🗄️ আর্কাইভ করা চ্যাট','নতুন মেসেজ এলে নিজে ইনবক্সে ফিরে আসে',toHub);const al=mlist(MSG_ARC_KEY);
+      if(!al.length)b.appendChild(mk('p','font-size:13px;color:#a7f3d0;padding:12px 2px','কোনো চ্যাট আর্কাইভে নেই। ইনবক্সে চ্যাটের ⋮ চেপে আর্কাইভ করুন।'));
+      al.forEach(k=>{const r=mk('div','display:flex;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(16,185,129,.15)');r.appendChild(mk('span','font-size:22px','🗄️'));const m=mk('div','flex:1;min-width:0;cursor:pointer');m.appendChild(mk('b','font-size:13.5px;display:block',peerName(k)));m.onclick=()=>openChat(k,peerName(k));r.appendChild(m);const u=mk('button','','ফেরান');u.className='change-btn';u.style.cursor='pointer';u.onclick=()=>{mtoggle(MSG_ARC_KEY,k);msgSettings(back,'arc')};r.appendChild(u);b.appendChild(r)})}
+    function msgPgStar(b,back,toHub,onlyPeer){
+      b.innerHTML='';msgSub(b,'⭐ তারকা চিহ্নিত মেসেজ','',onlyPeer?()=>msgInfo():toHub);const ids=new Set(mlist(MSG_STAR_KEY)),m=msgMe();
+      const rows=msgAll.filter(x=>ids.has(x.id)&&(!onlyPeer||x.from===onlyPeer||x.to===onlyPeer)).sort((a,c)=>c.ts-a.ts);
+      if(!rows.length)b.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.8;padding:12px 2px','কোনো মেসেজে তারকা দেওয়া নেই। চ্যাটে কোনো মেসেজে চেপে "⭐ তারকা দিন" বাছুন।'));
+      rows.forEach(x=>{const mine=m&&x.from===m.key,pk=mine?x.to:x.from;const c=mk('div','background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:10px 12px;margin-top:8px;cursor:pointer');c.appendChild(mk('div','font-size:11px;color:#6ee7b7;margin-bottom:3px',(mine?'আপনি → '+peerName(pk):peerName(pk)+' →')+' · '+new Date(x.ts).toLocaleString('bn-BD')));c.appendChild(mk('div','font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word',x.text));c.onclick=()=>openChat(pk,peerName(pk));const rm=mk('button','','⭐ সরান');rm.className='change-btn';rm.style.cssText='margin-top:6px;cursor:pointer;font-size:11.5px';rm.onclick=e=>{e.stopPropagation();mtoggle(MSG_STAR_KEY,x.id);msgPgStar($('msgBody'),back,toHub,onlyPeer)};c.appendChild(rm);b.appendChild(c)})}
+    function msgPgQr(b,back,toHub){
+      msgSub(b,'⚡ দ্রুত উত্তর','চ্যাটে ⚡ চাপলে এগুলো দেখা যায়',toHub);const l=qrList();
+      l.forEach((t,i)=>{const r=mk('div','display:flex;gap:8px;align-items:center;padding:9px 4px;border-bottom:1px solid rgba(16,185,129,.15)');r.appendChild(mk('span','flex:1;font-size:13.5px;line-height:1.5',t));const d=mk('button','','🗑️');d.className='danger-btn';d.style.cursor='pointer';d.onclick=()=>{l.splice(i,1);writeJSON(MSG_QR_KEY,l);msgSettings(back,'qr')};r.appendChild(d);b.appendChild(r)});
+      const inp=document.createElement('input');inp.className='form-field';inp.maxLength=80;inp.placeholder='নতুন দ্রুত উত্তর লিখুন…';inp.style.marginTop='12px';b.appendChild(inp);
+      const add=mk('button','','➕ যোগ করুন');add.className='primary-btn';add.onclick=()=>{const t=inp.value.trim();if(!t)return;if(l.length>=15){alert('সর্বোচ্চ ১৫টি রাখা যাবে।');return}l.push(t.slice(0,80));writeJSON(MSG_QR_KEY,l);msgSettings(back,'qr')};b.appendChild(add);
+      const rs=mk('button','','↩️ আগের তালিকা ফেরান');rs.className='change-btn';rs.style.cssText='width:100%;padding:10px;margin-top:8px;cursor:pointer';rs.onclick=()=>{writeJSON(MSG_QR_KEY,QR_DEF);msgSettings(back,'qr')};b.appendChild(rs)}
+    function msgPgData(b,back,toHub){
+      msgSub(b,'🧹 ডেটা ও পরিষ্কার','শুধু এই ফোনের ডেটা, অন্যজনের কপি থাকে',toHub);
+      const bt=(t,fn,cls)=>{const x=mk('button','',t);x.className=cls||'change-btn';x.style.cssText='width:100%;padding:12px;margin-top:8px;cursor:pointer';x.onclick=fn;b.appendChild(x)};
+      bt('🗑️ সব কথোপকথন এই ফোন থেকে মুছুন',()=>{if(!confirm('এই ফোনের সব কথোপকথন লুকানো হবে (অন্যজনের কপি থাকবে)। নিশ্চিত?'))return;const m=msgMe();if(!m)return;const keys=new Set();msgAll.forEach(x=>keys.add(x.from===m.key?x.to:x.from));let n=0;keys.forEach(k=>{n+=clearChatWith(k)});updateBadge();showToast('🗑️ '+fmt(n)+'টি মেসেজ মুছেছে');msgSettings(back,'data')},'danger-btn');
+      bt('✏️ সব খসড়া মুছুন',()=>{const m=msgMe();if(!m)return;let o=readJSON(MSG_DRAFT_KEY,{});if(o&&typeof o==='object')delete o[m.key];writeJSON(MSG_DRAFT_KEY,o||{});showToast('খসড়া মোছা হয়েছে')});
+      bt('⭐ সব তারকা সরান',()=>{mlistSet(MSG_STAR_KEY,[]);showToast('তারকা সরানো হয়েছে')});
+      bt('📌 সব পিন সরান',()=>{mlistSet(MSG_PIN_KEY,[]);showToast('পিন সরানো হয়েছে')});
+      bt('↩️ চেহারা ও পছন্দ আগের মতো করুন',()=>{writeJSON(MPF_KEY,{});showToast('করা হয়েছে')})}
+    // ---------- চ্যাটের তথ্য পাতা ----------
+    function msgInfo(){
+      if(!msgPeer)return;const b=$('msgBody');b.innerHTML='';const k=msgPeer.key,isAdm=k===ADMIN_MSG_KEY,m=msgMe();
+      b.appendChild(modalHead('ⓘ চ্যাটের তথ্য','',()=>buildChat()));
+      const h=mk('div','text-align:center;padding:10px 0 6px');h.appendChild(mk('div','width:76px;height:76px;border-radius:50%;background:#047857;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:32px;margin:0 auto 8px',(msgPeer.name||'?').trim().charAt(0)));h.appendChild(mk('b','font-size:17px;display:block',msgPeer.name));h.appendChild(mk('span','font-size:12px;color:#a7f3d0',isAdm?'অ্যাডমিন':(/^u[0-9a-f]{16}$/.test(k)?'সদস্য':'ফোন: '+k)));
+      const n=msgAll.filter(x=>(x.from===m.key&&x.to===k)||(x.from===k&&x.to===m.key)).length;h.appendChild(mk('div','font-size:11.5px;color:#6ee7b7;margin-top:4px','মোট মেসেজ: '+fmt(n)));b.appendChild(h);
+      const row=(ic,t,fn,danger)=>{const r=mk('div','display:flex;gap:12px;align-items:center;padding:12px 6px;border-top:1px solid rgba(16,185,129,.15);cursor:pointer;color:'+(danger?'#fca5a5':'#fff'));r.appendChild(mk('span','font-size:21px;width:28px;text-align:center',ic));r.appendChild(mk('b','font-size:14px;font-weight:600;flex:1',t));r.onclick=fn;b.appendChild(r)};
+      if(/^u[0-9a-f]{16}$/.test(k))row('👤','প্রোফাইল দেখুন',()=>{closeModal('msgModal');msgPeer=null;openCategoryModal('social');setTimeout(()=>{try{soc.view=k;socRender()}catch(e){}},700)});
+      row('🔍','চ্যাটে মেসেজ খুঁজুন',()=>{CHAT.search=true;buildChat()});
+      row('⭐','এই চ্যাটের তারকা মেসেজ',()=>msgPgStar(b,'chat',()=>msgInfo(),k));
+      row(mlist(MSG_PIN_KEY).includes(k)?'📌':'📌',mlist(MSG_PIN_KEY).includes(k)?'ইনবক্সে পিন সরান':'ইনবক্সে উপরে পিন করুন',()=>{mtoggle(MSG_PIN_KEY,k);msgInfo()});
+      row('🗄️',mlist(MSG_ARC_KEY).includes(k)?'আর্কাইভ থেকে ফেরান':'আর্কাইভ করুন',()=>{mtoggle(MSG_ARC_KEY,k);msgPeer=null;drawInbox()});
+      if(!isAdm){const held=holdList().includes(k);row('⏳',held?'হোল্ড থেকে ছাড়ুন':'হোল্ডে রাখুন (নোটিফিকেশন বন্ধ)',()=>{holdSet(k,msgPeer.name,!held);msgPeer=null;msgInit();setTimeout(drawInbox,60)})}
+      row('🗑️','কথোপকথন মুছুন (শুধু আমার ফোনে)',()=>{if(!confirm('এই কথোপকথনের সব মেসেজ আপনার ফোন থেকে মুছে যাবে।\nঅন্যজন তার নিজের কপি দেখতে পাবে। মুছবেন?'))return;const c=clearChatWith(k);msgPeer=null;updateBadge();drawInbox();showToast('🗑️ '+fmt(c)+'টি মেসেজ মুছেছে')},true);
+      if(!isAdm)row('🚫','ব্লক করুন',()=>{if(!confirm('ব্লক করলে এই নম্বরের মেসেজ আর দেখাবে না।'))return;const nm=msgPeer.name;msgBlockPeer(k,nm);msgPeer=null;setTimeout(drawInbox,50)},true)}
+    // ---------- মেসেজ রেন্ডার সহায়ক ----------
+    function msgLinkify(par,text){const re=/(https?:\/\/[^\s<>"']+)/g;let last=0,mt;while((mt=re.exec(text))){if(mt.index>last)par.appendChild(document.createTextNode(text.slice(last,mt.index)));const a=document.createElement('a');a.href=mt[1];a.textContent=mt[1];a.target='_blank';a.rel='noopener noreferrer';a.style.cssText='color:#7dd3fc;text-decoration:underline;word-break:break-all';a.onclick=e=>e.stopPropagation();par.appendChild(a);last=mt.index+mt[1].length}if(last<text.length)par.appendChild(document.createTextNode(text.slice(last)))}
+    function msgForward(x){
+      const m=msgMe();if(!m)return;const seen=new Map();msgAll.forEach(y=>{const k=y.from===m.key?y.to:y.from;if(k&&k!==m.key&&k!==ADMIN_MSG_KEY&&!blockedList().includes(k)&&!seen.has(k))seen.set(k,peerName(k))});
+      if(!seen.size){showToast('ফরোয়ার্ড করার মতো চ্যাট নেই');return}
+      msgSheet('↪️ কার কাছে পাঠাবেন?',[...seen.entries()].slice(0,25).map(([k,n])=>[n,async()=>{if(!canMessage(k)){alert('এই ব্যক্তি শুধু বন্ধুদের কাছ থেকে কথা নেন।');return}const t=(x.text.startsWith('↪️ ')?x.text:'↪️ '+x.text).slice(0,500);try{await msgBackend.send({id:newId(),from:m.key,fromName:m.name,to:k,toName:n,text:t,ts:Date.now()});showToast('✅ ফরোয়ার্ড হয়েছে')}catch(e){alert('পাঠানো যায়নি।\nকারণ: '+msgErrText(e))}}]))}
+    function msgBubbleMenu(bub,x,mineMsg){
+      const starred=mlist(MSG_STAR_KEY).includes(x.id),m=msgMe();
+      msgSheet(new Date(x.ts).toLocaleString('bn-BD'),[
+        ['↩️ উত্তর দিন',()=>{CHAT.reply={who:mineMsg?'আপনি':(msgPeer&&msgPeer.name)||'',text:x.text.replace(/^↩️ [^\n]*\n/,'').replace(/^↪️ /,'').slice(0,60)};drawReplyBar();try{$('chatInput').focus()}catch(e){}}],
+        ['📋 কপি করুন',()=>{try{navigator.clipboard.writeText(x.text);showToast('কপি হয়েছে')}catch(e){}}],
+        [starred?'⭐ তারকা সরান':'⭐ তারকা দিন',()=>{mtoggle(MSG_STAR_KEY,x.id);drawChat()}],
+        ['↪️ ফরোয়ার্ড করুন',()=>msgForward(x)],
+        ['ℹ️ মেসেজের তথ্য',()=>{const st=mineMsg?(x.rts?'✓✓ দেখেছে':x.dts?'✓✓ পৌঁছেছে':'✓ পাঠানো হয়েছে'):'প্রাপ্ত';alert('সময়: '+new Date(x.ts).toLocaleString('bn-BD')+'\nঅবস্থা: '+st+'\nদৈর্ঘ্য: '+fmt(x.text.length)+' অক্ষর')}],
+        ['🗑️ আমার থেকে মুছুন',()=>{const mm=msgMe();if(!mm)return;const o=clrMapAll();o[mm.key]=clrArr().concat([x.id]).slice(-5000);writeJSON(MSG_CLR_KEY,o);msgAll=msgAll.filter(y=>y!==x);drawChat()},true]])}
+    const CHAT={peer:'',q:'',reply:null,search:false,tray:null};
+    function drawReplyBar(){const old=document.getElementById('replyBar');if(old)old.remove();if(!CHAT.reply)return;const row=document.getElementById('chatRow');if(!row)return;const r=mk('div','display:flex;gap:8px;align-items:center;margin-top:8px;background:#0a251c;border-left:3px solid #38bdf8;border-radius:8px;padding:6px 10px;font-size:12px');r.id='replyBar';const t=mk('div','flex:1;min-width:0');t.appendChild(mk('b','color:#7dd3fc;display:block','↩️ '+CHAT.reply.who+'-কে উত্তর'));t.appendChild(mk('span','color:#a7f3d0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block',CHAT.reply.text));r.appendChild(t);const x=mk('button','','✕');x.style.cssText='border:0;background:transparent;color:#fff;font-size:16px;cursor:pointer';x.onclick=()=>{CHAT.reply=null;drawReplyBar()};r.appendChild(x);row.before(r)}
     function openInbox(){
       if(needLogin())return;ensureMsgModal();msgPeer=null;$('msgModal').classList.add('active');drawInbox();
     }
@@ -1457,9 +1546,11 @@
       if('Notification' in window&&Notification.permission==='default'){const nb=mk('button','','🔔 ফোনের নোটিফিকেশন চালু করুন');nb.className='change-btn';nb.style.cssText='width:100%;padding:9px;margin-bottom:10px';nb.onclick=()=>Notification.requestPermission().then(drawInbox);b.appendChild(nb)}
       {const sr=mk('div','display:flex;gap:6px;align-items:center;margin:2px 0 6px');const si=document.createElement('input');si.className='form-field';si.id='msgSearch';si.placeholder='🔍 নাম দিয়ে খুঁজুন…';si.value=MSGQ.q;si.maxLength=40;si.style.cssText='margin:0;flex:1;padding:9px 12px';
         si.oninput=()=>{MSGQ.q=si.value.trim().toLowerCase();const pos=si.selectionStart;drawInbox();const n=$('msgSearch');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}};sr.appendChild(si);
-        const uf=mk('button','',MSGQ.un?'🔴 অপঠিত ✓':'🔴 অপঠিত');uf.style.cssText='flex:none;padding:9px 11px;border-radius:999px;font-size:12px;cursor:pointer;color:#fff;border:1px solid rgba(16,185,129,.5);background:'+(MSGQ.un?'#059669':'#0a251c');uf.onclick=()=>{MSGQ.un=!MSGQ.un;drawInbox()};sr.appendChild(uf);b.appendChild(sr)}
+        b.appendChild(sr);
+        const fr=mk('div','display:flex;gap:6px;overflow-x:auto;padding-bottom:6px');[['all','সব'],['un','🔴 অপঠিত'],['pin','📌 পিন'],['arc','🗄️ আর্কাইভ']].forEach(([k,l])=>{const c=mk('button','',l);c.style.cssText='flex:0 0 auto;padding:6px 13px;border-radius:999px;font-size:12.5px;cursor:pointer;color:#fff;white-space:nowrap;border:1px solid rgba(16,185,129,.5);background:'+(MSGQ.f===k?'#059669':'#0a251c');c.onclick=()=>{MSGQ.f=k;drawInbox()};fr.appendChild(c)});b.appendChild(fr)}
       const peers=new Map();msgAll.forEach(x=>{const k=x.from===m.key?x.to:x.from;const nm=x.from===m.key?x.toName:x.fromName;const p=peers.get(k)||{key:k,name:nm,last:x};p.last=x;if(x.from!==m.key&&nm)p.name=nm;peers.set(k,p)});
-      const heldKeys=new Set(holdList());const arrAll=[...peers.values()].sort((a,c)=>c.last.ts-a.last.ts);const arr=arrAll.filter(x=>!heldKeys.has(x.key)&&(!MSGQ.q||String(x.name||x.key).toLowerCase().includes(MSGQ.q))&&(!MSGQ.un||unreadFor(x.key)));const heldArr=arrAll.filter(x=>heldKeys.has(x.key));
+      const heldKeys=new Set(holdList());const arrAll=[...peers.values()].sort((a,c)=>c.last.ts-a.last.ts);const pinL=window.__admMsg?[]:mlist(MSG_PIN_KEY),arcL=window.__admMsg?[]:mlist(MSG_ARC_KEY);const isArc=x=>arcL.includes(x.key)&&!unreadFor(x.key);
+      const arr=arrAll.filter(x=>!heldKeys.has(x.key)&&(!MSGQ.q||String(x.name||x.key).toLowerCase().includes(MSGQ.q))&&(MSGQ.f==='arc'?isArc(x):!isArc(x))&&(MSGQ.f!=='un'||unreadFor(x.key))&&(MSGQ.f!=='pin'||pinL.includes(x.key))).sort((a,c)=>(pinL.includes(c.key)-pinL.includes(a.key))||(c.last.ts-a.last.ts));const heldArr=arrAll.filter(x=>heldKeys.has(x.key));
       if(!arr.length)b.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.8;padding:10px 2px','এখনো কোনো মেসেজ নেই। রক্তদাতা, চিকিৎসক বা আইনজীবীর তালিকা থেকে "💬 কথা" চাপুন।'));
       arr.forEach(p=>{
         const u=unreadFor(p.key);
@@ -1468,17 +1559,20 @@
         const mid=mk('div','flex:1;min-width:0');mid.appendChild(mk('b','font-size:14px;display:block',p.name||p.key));
         mid.appendChild(mk('span','font-size:12px;color:'+(u?'#fff':'#a7f3d0')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block',(p.last.from===m.key?(p.last.rts?'✓✓ ':p.last.dts?'✓✓ ':'✓ ')+'আপনি: ':'')+p.last.text));row.appendChild(mid);
         if(u)row.appendChild(mk('span','background:#ef4444;color:#fff;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700',fmt(u)));
+        if(pinL.includes(p.key))row.appendChild(mk('span','font-size:13px','📌'));
+        if(!window.__admMsg){const mb=mk('button','','⋮');mb.setAttribute('aria-label','আরও');mb.style.cssText='flex:none;width:32px;height:32px;border-radius:50%;border:0;background:transparent;color:#a7f3d0;font-size:20px;font-weight:700;cursor:pointer';mb.onclick=e=>{e.stopPropagation();msgRowMenu(p)};row.appendChild(mb)}
+        {const dr=window.__admMsg?'':draftGet(p.key);if(dr){const sp=mid.querySelector('span');if(sp){sp.textContent='✏️ খসড়া: '+dr;sp.style.color='#fcd34d'}}}
         row.onclick=()=>openChat(p.key,p.name);b.appendChild(row);
       });
       const secStyle='margin-top:14px;background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:8px 12px';
-      {const d=mk('details',secStyle);d.open=heldArr.length>0;d.appendChild(mk('summary','font-size:13px;color:#fcd34d;cursor:pointer;font-weight:700','⏳ হোল্ডে রাখা ('+fmt(heldArr.length)+')'));
+      if(window.__admMsg){const d=mk('details',secStyle);d.open=heldArr.length>0;d.appendChild(mk('summary','font-size:13px;color:#fcd34d;cursor:pointer;font-weight:700','⏳ হোল্ডে রাখা ('+fmt(heldArr.length)+')'));
         d.appendChild(mk('p','font-size:10.5px;color:#a7f3d0;line-height:1.6;margin:6px 0','এদের কথা জমা থাকে, কিন্তু নোটিফিকেশন বা লাল সংখ্যা আসে না; তারা কিছু জানতে পারে না। যখন ইচ্ছা "ছাড়ুন" চাপুন।'));
         if(!heldArr.length)d.appendChild(mk('p','font-size:12px;color:#6ee7b7','কেউ হোল্ডে নেই।'));
         heldArr.forEach(p=>{const r=mk('div','display:flex;gap:8px;align-items:center;padding:7px 0;border-top:1px solid rgba(16,185,129,.15);font-size:12.5px');
           const mid=mk('div','flex:1;min-width:0;cursor:pointer');mid.appendChild(mk('b','display:block',p.name||p.key));mid.appendChild(mk('span','color:#a7f3d0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block',p.last.text));mid.onclick=()=>openChat(p.key,p.name);r.appendChild(mid);
           const rl=mk('button','','ছাড়ুন');rl.className='call-btn';rl.style.cssText='border:0;cursor:pointer';rl.onclick=()=>{holdSet(p.key,p.name,false);msgInit();setTimeout(drawInbox,60)};r.appendChild(rl);d.appendChild(r)});
         b.appendChild(d)}
-      {const bl=blockedList(),nm=readJSON(MSG_BNAME_KEY,{});const d=mk('details',secStyle);d.appendChild(mk('summary','font-size:13px;color:#fca5a5;cursor:pointer;font-weight:700','🚫 ব্লক তালিকা ('+fmt(bl.length)+')'));
+      if(window.__admMsg){const bl=blockedList(),nm=readJSON(MSG_BNAME_KEY,{});const d=mk('details',secStyle);d.appendChild(mk('summary','font-size:13px;color:#fca5a5;cursor:pointer;font-weight:700','🚫 ব্লক তালিকা ('+fmt(bl.length)+')'));
         if(!bl.length)d.appendChild(mk('p','font-size:12px;color:#6ee7b7;margin-top:6px','কেউ ব্লকে নেই।'));
         bl.forEach(k=>{const r=mk('div','display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid rgba(16,185,129,.15);font-size:12.5px');const t=mk('span','');t.textContent=(nm[k]?nm[k]+' · ':'')+k;r.appendChild(t);const u=mk('button','','আনব্লক');u.className='change-btn';u.style.cursor='pointer';u.onclick=()=>{writeJSON(MSG_BLOCK_KEY,blockedList().filter(x=>x!==k));msgInit();setTimeout(drawInbox,60)};r.appendChild(u);d.appendChild(r)});b.appendChild(d)}
     }
@@ -1491,55 +1585,64 @@
       ensureMsgModal();msgPeer={key:k,name:String(name||k).slice(0,80)};
       $('msgModal').classList.add('active');buildChat();
     }
+    function drawTray(){
+      const old=document.getElementById('chatTray');if(old)old.remove();if(!CHAT.tray)return;const row=document.getElementById('chatRow');if(!row)return;
+      const t=mk('div','display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:6px');t.id='chatTray';
+      const put=e=>{const i=$('chatInput');if(!i)return;const a=i.selectionStart==null?i.value.length:i.selectionStart,z=i.selectionEnd==null?a:i.selectionEnd;if((i.value.length-(z-a)+e.length)>500)return;i.value=i.value.slice(0,a)+e+i.value.slice(z);i.focus();try{i.setSelectionRange(a+e.length,a+e.length)}catch(_){}try{draftSet(msgPeer.key,i.value)}catch(_){}};
+      if(CHAT.tray==='emo')MSG_EMOJI.forEach(e=>{const c=mk('button','',e);c.style.cssText='font-size:22px;width:38px;height:38px;border-radius:9px;border:0;background:transparent;cursor:pointer';c.onclick=()=>put(e);t.appendChild(c)});
+      else qrList().forEach(q=>{const c=mk('button','',q);c.style.cssText='padding:7px 12px;border-radius:999px;border:1px solid rgba(56,189,248,.6);background:#061812;color:#e0f2fe;font-size:12.5px;cursor:pointer';c.onclick=()=>put(q);t.appendChild(c)});
+      const after=document.getElementById('replyBar');row.after(t)}
     function buildChat(){
       const b=$('msgBody');b.innerHTML='';
+      if(CHAT.peer!==msgPeer.key){CHAT.peer=msgPeer.key;CHAT.q='';CHAT.reply=null;CHAT.tray=null;CHAT.search=false}
       b.appendChild(modalHead(msgPeer.name,msgPeer.key===ADMIN_MSG_KEY?'তথ্য আপডেটের অনুরোধ অ্যাডমিনকে জানান':(/^u[0-9a-f]{16}$/.test(msgPeer.key)?'সদস্য':'ফোন: '+msgPeer.key),()=>{msgPeer=null;drawInbox()}));
-      b.appendChild(mk('div','font-size:10.5px;color:#fcd34d;line-height:1.5;margin-bottom:8px','⚠️ ওটিপি, পাসওয়ার্ড বা গোপন ব্যক্তিগত তথ্য পাঠাবেন না। জরুরি হলে ৯৯৯।'));
-      const list=mk('div','height:46vh;overflow-y:auto;background:'+MPF_BG[mpf().bg][1]+';border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px');list.id='chatList';b.appendChild(list);
-      const row=mk('div','display:flex;gap:8px;margin-top:8px');
-      const inp=document.createElement('input');inp.className='form-field';inp.id='chatInput';inp.maxLength=500;inp.placeholder=(msgPeer&&msgPeer.key===ADMIN_MSG_KEY)?'কোন তথ্য আপডেট বা সংশোধন দরকার, লিখুন…':'বার্তা লিখুন…';inp.style.margin='0';inp.style.flex='1';inp.onkeydown=e=>{if(e.key==='Enter')sendChat()};row.appendChild(inp);
-      const sb=mk('button','','পাঠান');sb.className='primary-btn';sb.style.cssText='margin:0;width:auto;padding:0 16px';sb.onclick=sendChat;
-      if(mpf().emoji){const eb=mk('button','','😊');eb.style.cssText='flex:none;width:42px;border-radius:11px;border:1px solid rgba(16,185,129,.55);background:#061812;font-size:20px;cursor:pointer';eb.setAttribute('aria-label','ইমোজি');
-        eb.onclick=()=>{let t=document.getElementById('emojiTray');if(t){t.remove();return}t=mk('div','display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:6px');t.id='emojiTray';
-          MSG_EMOJI.forEach(e=>{const c=mk('button','',e);c.style.cssText='font-size:22px;width:38px;height:38px;border-radius:9px;border:0;background:transparent;cursor:pointer';c.onclick=()=>{const i=$('chatInput');if(!i)return;const a=i.selectionStart==null?i.value.length:i.selectionStart,z=i.selectionEnd==null?a:i.selectionEnd;if((i.value.length-(z-a)+e.length)>500)return;i.value=i.value.slice(0,a)+e+i.value.slice(z);i.focus();try{i.setSelectionRange(a+e.length,a+e.length)}catch(_){}};t.appendChild(c)});row.after(t)};row.insertBefore(eb,inp)}
-      row.appendChild(sb);b.appendChild(row);
-      const bk=mk('button','','🚫 এই নম্বর ব্লক করুন');bk.className='danger-btn';bk.style.cssText='width:100%;margin-top:8px';
-      bk.onclick=()=>{if(!confirm('ব্লক করলে এই নম্বরের মেসেজ আর দেখাবে না।'))return;const a=blockedList();a.push(msgPeer.key);writeJSON(MSG_BLOCK_KEY,a);{const nm=readJSON(MSG_BNAME_KEY,{});nm[msgPeer.key]=msgPeer.name;writeJSON(MSG_BNAME_KEY,nm)}holdSet(msgPeer.key,msgPeer.name,false);msgPeer=null;msgInit();setTimeout(drawInbox,50)};if(msgPeer.key!==ADMIN_MSG_KEY){
-        const held=holdList().includes(msgPeer.key);
-        const hb=mk('button','',held?'▶️ হোল্ড থেকে ছাড়ুন':'⏳ হোল্ডে রাখুন (ব্লক নয়)');hb.className='change-btn';hb.style.cssText='width:100%;margin-top:8px;cursor:pointer';
-        hb.onclick=()=>{holdSet(msgPeer.key,msgPeer.name,!held);msgPeer=null;msgInit();setTimeout(drawInbox,60)};
-        b.appendChild(hb);b.appendChild(bk)}
-      {const cd=mk('button','','🗑️ এই কথোপকথন মুছুন');cd.className='danger-btn';cd.style.cssText='width:100%;margin-top:8px';
-        cd.onclick=()=>{if(!confirm('এই কথোপকথনের সব মেসেজ আপনার ফোন থেকে মুছে যাবে।\nঅন্যজন তার নিজের কপি দেখতে পাবে। এরপর নতুন মেসেজ এলে আবার দেখা যাবে।\n\nমুছবেন?'))return;
-          const n=clearChatWith(msgPeer.key);msgPeer=null;updateBadge();drawInbox();showToast('🗑️ '+fmt(n)+'টি মেসেজ মুছে ফেলা হয়েছে')};b.appendChild(cd)}
-      drawChat();inp.focus();
+      const ac=mk('div','display:flex;gap:6px;margin-bottom:8px;align-items:center');
+      const chip=(t,fn)=>{const c=mk('button','',t);c.style.cssText='padding:6px 12px;border-radius:999px;font-size:12px;cursor:pointer;color:#fff;border:1px solid rgba(16,185,129,.5);background:#0a251c';c.onclick=fn;ac.appendChild(c)};
+      chip('🔍 খুঁজুন',()=>{CHAT.search=!CHAT.search;if(!CHAT.search)CHAT.q='';buildChat()});chip('ⓘ তথ্য',()=>msgInfo());
+      ac.appendChild(mk('span','font-size:10px;color:#fcd34d;line-height:1.4;flex:1;margin-left:4px','⚠️ ওটিপি/পাসওয়ার্ড পাঠাবেন না। জরুরি ৯৯৯।'));b.appendChild(ac);
+      if(CHAT.search){const si=document.createElement('input');si.className='form-field';si.placeholder='🔍 এই চ্যাটে খুঁজুন…';si.value=CHAT.q;si.maxLength=40;si.style.cssText='margin:0 0 8px;padding:9px 12px';si.oninput=()=>{CHAT.q=si.value.trim().toLowerCase();drawChat()};b.appendChild(si);setTimeout(()=>{try{si.focus()}catch(e){}},50)}
+      const list=mk('div','height:'+(CHAT.search?'38vh':'46vh')+';overflow-y:auto;background:'+MPF_BG[mpf().bg][1]+';border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px');list.id='chatList';b.appendChild(list);
+      const row=mk('div','display:flex;gap:8px;margin-top:8px');row.id='chatRow';
+      const inp=document.createElement('input');inp.className='form-field';inp.id='chatInput';inp.maxLength=500;inp.placeholder=(msgPeer&&msgPeer.key===ADMIN_MSG_KEY)?'কোন তথ্য আপডেট বা সংশোধন দরকার, লিখুন…':'বার্তা লিখুন…';inp.style.margin='0';inp.style.flex='1';inp.onkeydown=e=>{if(e.key==='Enter')sendChat()};
+      inp.value=draftGet(msgPeer.key);const pk=msgPeer.key;inp.oninput=()=>draftSet(pk,inp.value);
+      const sq=(t,lab,key)=>{const e=mk('button','',t);e.style.cssText='flex:none;width:42px;border-radius:11px;border:1px solid rgba(16,185,129,.55);background:#061812;font-size:19px;cursor:pointer';e.setAttribute('aria-label',lab);e.onclick=()=>{CHAT.tray=CHAT.tray===key?null:key;drawTray()};row.appendChild(e)};
+      if(mpf().emoji)sq('😊','ইমোজি','emo');sq('⚡','দ্রুত উত্তর','qr');row.appendChild(inp);
+      const sb=mk('button','','পাঠান');sb.className='primary-btn';sb.style.cssText='margin:0;width:auto;padding:0 16px';sb.onclick=sendChat;row.appendChild(sb);b.appendChild(row);
+      drawReplyBar();drawTray();drawChat();if(!CHAT.search)inp.focus();
     }
     function drawChat(){
       const m=msgMe(),list=$('chatList');if(!list||!msgPeer)return;list.innerHTML='';
-      const conv=msgAll.filter(x=>(x.from===m.key&&x.to===msgPeer.key)||(x.from===msgPeer.key&&x.to===m.key));
-      if(!conv.length)list.appendChild(mk('p','font-size:12px;color:#a7f3d0;text-align:center;margin:auto','কথা শুরু করুন 👋'));
-      const PF=mpf();let lastDay='';
+      let conv=msgAll.filter(x=>(x.from===m.key&&x.to===msgPeer.key)||(x.from===msgPeer.key&&x.to===m.key));
+      if(CHAT.q)conv=conv.filter(x=>String(x.text).toLowerCase().includes(CHAT.q));
+      if(!conv.length)list.appendChild(mk('p','font-size:12px;color:#a7f3d0;text-align:center;margin:auto',CHAT.q?'কিছু পাওয়া যায়নি।':'কথা শুরু করুন 👋'));
+      const PF=mpf(),stars=new Set(mlist(MSG_STAR_KEY));let lastDay='';
       conv.forEach(x=>{
         const mineMsg=x.from===m.key;
         if(PF.dates){const dk=new Date(x.ts).toDateString();if(dk!==lastDay){lastDay=dk;const ds=mk('div','align-self:center;font-size:10.5px;color:'+MPF_BG[PF.bg][2]+';background:rgba(0,0,0,.28);border-radius:999px;padding:3px 11px;margin:6px 0',msgDayLabel(x.ts));list.appendChild(ds)}}
         const bub=mk('div',`max-width:78%;padding:8px 12px;border-radius:14px;font-size:${MPF_FS[PF.fs][1]}px;line-height:1.5;word-break:break-word;cursor:pointer;align-self:${mineMsg?'flex-end':'flex-start'};background:${mineMsg?MPF_BUB[PF.bub][1]:'#1e293b'};color:#fff`);
         bub.onclick=()=>msgBubbleMenu(bub,x,mineMsg);
-        bub.appendChild(document.createTextNode(x.text));
-        const t=new Date(x.ts);const meta=mk('div','font-size:9.5px;opacity:.75;margin-top:3px;text-align:right;display:flex;gap:4px;justify-content:flex-end;align-items:center');meta.appendChild(mk('span','',fmt(t.getHours())+':'+String(t.getMinutes()).padStart(2,'0')));
+        let body=String(x.text),quote=null,fwd=false;
+        if(body.startsWith('↩️ ')){const nl=body.indexOf('\n');if(nl>0){quote=body.slice(3,nl);body=body.slice(nl+1)}}else if(body.startsWith('↪️ ')){fwd=true;body=body.slice(3)}
+        if(fwd)bub.appendChild(mk('div','font-size:10.5px;opacity:.8;margin-bottom:3px','↪️ ফরোয়ার্ড করা'));
+        if(quote)bub.appendChild(mk('div','border-left:3px solid #7dd3fc;background:rgba(0,0,0,.22);border-radius:6px;padding:4px 8px;margin-bottom:5px;font-size:11.5px;opacity:.92;white-space:pre-wrap;word-break:break-word',quote));
+        const tx=mk('div','white-space:pre-wrap');msgLinkify(tx,body);bub.appendChild(tx);
+        const t=new Date(x.ts);const meta=mk('div','font-size:9.5px;opacity:.75;margin-top:3px;text-align:right;display:flex;gap:4px;justify-content:flex-end;align-items:center');if(stars.has(x.id))meta.appendChild(mk('span','font-size:10px','⭐'));meta.appendChild(mk('span','',fmt(t.getHours())+':'+String(t.getMinutes()).padStart(2,'0')));
         if(mineMsg){const st=x.rts?'read':x.dts?'deliv':'sent';const tk=mk('span','font-size:12px;font-weight:700;letter-spacing:-3px;color:'+(st==='read'?'#38bdf8':'#d1fae5'),st==='sent'?'✓':'✓✓');tk.title=st==='read'?'দেখেছে':st==='deliv'?'পৌঁছেছে':'পাঠানো হয়েছে';tk.dataset.st=st;meta.appendChild(tk)}
         bub.appendChild(meta);
         list.appendChild(bub);
       });
-      list.scrollTop=list.scrollHeight;
+      if(!CHAT.q)list.scrollTop=list.scrollHeight;
       const r=readMap();r[msgPeer.key]=Date.now();writeJSON(MSG_READ_KEY,r);updateBadge();
       try{if(msgBackend&&$('msgModal')&&$('msgModal').classList.contains('active'))msgBackend.mark(conv.filter(x=>x.to===m.key&&!x.rts).map(x=>x.id),'rts')}catch(e){}
     }
     async function sendChat(){
       const m=msgMe(),inp=$('chatInput');if(!m||!msgPeer||!inp)return;
-      const text=inp.value.trim().slice(0,500);if(!text)return;
+      let text=inp.value.trim();if(!text)return;
+      if(CHAT.reply){const pre='↩️ '+String(CHAT.reply.who).slice(0,20)+': '+String(CHAT.reply.text||'').replace(/\n/g,' ').slice(0,60)+'\n';text=pre+text.slice(0,Math.max(1,500-pre.length))}
+      text=text.slice(0,500);
       if(Date.now()-msgLastSend<800)return;msgLastSend=Date.now();
       const msg={id:newId(),from:m.key,fromName:m.name,to:msgPeer.key,toName:msgPeer.name,text,ts:Date.now()};
-      try{await msgBackend.send(msg);inp.value='';if(!FIREBASE_CONFIG){/* স্থানীয় মোডে সঙ্গে সঙ্গে দেখানো */}}catch(e){alert('মেসেজ পাঠানো যায়নি।\nকারণ: '+msgErrText(e))}
+      try{await msgBackend.send(msg);inp.value='';draftSet(msgPeer.key,'');CHAT.reply=null;drawReplyBar();if(!FIREBASE_CONFIG){/* স্থানীয় মোডে সঙ্গে সঙ্গে দেখানো */}}catch(e){alert('মেসেজ পাঠানো যায়নি।\nকারণ: '+msgErrText(e))}
     }
     // ===== সাধারণ জ্ঞান, কুইজ, ম্যাপ, পত্রিকা, সোশ্যাল মিডিয়া, যাতায়াত =====
     const GK=[
@@ -2275,7 +2378,7 @@
         b.onclick=()=>{if(k==='msg'){openInbox();return}soc.tab=k;soc.view=null;socRender()};tabs.appendChild(b)});
       socBox.appendChild(tabs);
       const body=mk('div','');socBox.appendChild(body);
-      if(soc.view)socProfile(body,soc.view);else if(soc.tab==='feed')socFeed(body,u);else if(soc.tab==='people')socPeople(body,u);else if(soc.tab==='friends')socFriends(body,u);else if(soc.tab==='me'){socMyProfile(body,u);accTools(body)}else if(soc.tab==='settings')socSettings(body,u);
+      if(soc.view)socProfile(body,soc.view);else if(soc.tab==='feed')socFeed(body,u);else if(soc.tab==='people')socPeople(body,u);else if(soc.tab==='friends')socFriends(body,u);else if(soc.tab==='me'){socMyProfile(body,u);accTools(body)}else if(soc.tab==='settings')socSettings(body,u);else if(soc.tab==='saved')socSavedView(body,u);
     }
     function socField(parent,label,id,o){o=o||{};parent.appendChild(mk('label','',label)).className='field-label';const i=document.createElement(o.area?'textarea':'input');i.className='form-field';i.id=id;if(o.type)i.type=o.type;if(o.mode)i.setAttribute('inputmode',o.mode);if(o.max)i.maxLength=o.max;if(o.ph)i.placeholder=o.ph;if(o.area)i.rows=3;if(o.ac)i.autocomplete=o.ac;parent.appendChild(i);return i}
     function socAuth(){
@@ -2283,9 +2386,20 @@
       f.appendChild(mk('p','font-size:13px;line-height:1.8;color:#d1fae5;margin-bottom:10px','সামাজিক যোগাযোগ ও কথা ব্যবহার করতে মোবাইল নম্বর ও পাসওয়ার্ড দিয়ে লগইন করুন। (অ্যাপের লগইন আর এটি এক — আলাদা কিছু বানাতে হবে না।)'));
       const b=mk('button','','🔐 লগইন / নতুন অ্যাকাউন্ট');b.className='primary-btn';b.onclick=()=>entryShow('login');f.appendChild(b);
     }
+    const SOC_SAVE_KEY='amarSocSaved_v1',SOC_FEEL=['😊 আনন্দিত','🙏 কৃতজ্ঞ','🎉 উদযাপনে','😢 মন খারাপ','😡 রাগান্বিত','🤒 অসুস্থ বোধ করছি','🤔 ভাবছি'];
+    const socSaved=u=>{const o=readJSON(SOC_SAVE_KEY,{});const a=o&&typeof o==='object'?o[u.id]:null;return Array.isArray(a)?a:[]};
+    function socSaveSet(u,arr){let o=readJSON(SOC_SAVE_KEY,{});if(!o||typeof o!=='object'||Array.isArray(o))o={};o[u.id]=arr.slice(0,200);writeJSON(SOC_SAVE_KEY,o)}
+    function socSaveToggle(p,u){const a=socSaved(u),i=a.findIndex(x=>x.id===p.id);if(i>=0){a.splice(i,1);socSaveSet(u,a);return false}a.unshift({id:p.id,uid:p.uid,name:p.name,text:String(p.text||'').slice(0,1000),ts:p.ts,area:p.area||{}});socSaveSet(u,a);return true}
+    async function socShare(p){const t=(p.name||'')+':\n'+(p.text||'')+'\n\n— আমার বাংলাদেশ অ্যাপ';try{if(navigator.share){await navigator.share({text:t});return}}catch(e){if(e&&e.name==='AbortError')return}try{await navigator.clipboard.writeText(t);showToast('কপি হয়েছে, যেখানে খুশি পেস্ট করুন')}catch(e){alert(t)}}
+    function socSavedView(body,u){
+      const l=socSaved(u);body.appendChild(mk('div','font-size:15px;font-weight:700;margin-bottom:4px','🔖 সংরক্ষিত পোস্ট'));body.appendChild(mk('p','font-size:11.5px;color:#a7f3d0;margin-bottom:10px','শুধু এই ফোনে জমা থাকে। মূল পোস্ট মুছে গেলেও এখানে থাকবে।'));
+      if(!l.length)body.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.8','কিছু সংরক্ষণ করা নেই। ফিডে যেকোনো পোস্টের 🔖 চাপুন।'));
+      l.forEach(p=>{const c=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:12px;margin-bottom:10px');const h=mk('div','display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px');h.appendChild(mk('b','font-size:13.5px',p.name));h.appendChild(mk('span','font-size:10.5px;color:#a7f3d0',socAgo(p.ts)));c.appendChild(h);c.appendChild(mk('p','font-size:13.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word',p.text));
+        const a=mk('div','display:flex;gap:8px;margin-top:8px');const sh=mk('button','','📤 শেয়ার');sh.className='change-btn';sh.onclick=()=>socShare(p);a.appendChild(sh);const rm=mk('button','','🗑️ সরান');rm.className='danger-btn';rm.onclick=()=>{socSaveToggle(p,u);socRender()};a.appendChild(rm);c.appendChild(a);body.appendChild(c)})}
     function socFeed(body,u){
       const comp=mk('div','background:#0a251c;border:1px solid rgba(16,185,129,.35);border-radius:14px;padding:10px;margin-bottom:12px');
       const ta=document.createElement('textarea');ta.className='form-field';ta.rows=3;ta.maxLength=1000;ta.placeholder='মনে কী চলছে, '+u.name.split(' ')[0]+'?';ta.style.marginBottom='6px';comp.appendChild(ta);
+      let feel='';{const fr=mk('div','display:flex;gap:6px;overflow-x:auto;padding-bottom:6px');SOC_FEEL.forEach(f=>{const c=mk('button','',f);c.style.cssText='flex:0 0 auto;padding:5px 11px;border-radius:999px;font-size:11.5px;cursor:pointer;color:#fff;white-space:nowrap;border:1px solid rgba(16,185,129,.45);background:#061812';c.onclick=()=>{feel=feel===f?'':f;[...fr.children].forEach(x=>x.style.background=x.textContent===feel?'#059669':'#061812')};fr.appendChild(c)});comp.appendChild(mk('div','font-size:11px;color:#6ee7b7;margin:0 0 4px','অনুভূতি (ঐচ্ছিক):'));comp.appendChild(fr)}
       let img='';const prev=mk('div','');comp.appendChild(prev);
       const row=mk('div','display:flex;gap:8px;align-items:center');
       const file=document.createElement('input');file.type='file';file.accept='image/*';file.style.display='none';
@@ -2294,7 +2408,8 @@
       const sp=mk('span','flex:1');row.appendChild(sp);
       const pst=mk('button','','পোস্ট করুন');pst.className='primary-btn';pst.style.cssText='margin:0;width:auto;padding:9px 18px';
       pst.onclick=async()=>{
-        const text=ta.value.trim();if(!text){alert('কিছু লিখুন।');return}
+        let text=ta.value.trim();if(!text){alert('কিছু লিখুন।');return}
+        if(feel)text=(text.slice(0,Math.max(1,1000-feel.length-4))+'\n— '+feel);
         if(Date.now()-socLastPost<5000){alert('একটু অপেক্ষা করে আবার পোস্ট করুন।');return}
         socLastPost=Date.now();const id=newId();const now=Date.now();
         SOCN.posts.unshift({id,uid:u.id,name:u.name,text:text.slice(0,1000),img:'',ts:now,upd:now,area:u.area||{},likes:[],comments:[]});ta.value='';socRender();
@@ -2303,9 +2418,13 @@
       };row.appendChild(pst);comp.appendChild(row);body.appendChild(comp);
       const fl=mk('label','display:flex;gap:8px;align-items:center;font-size:12px;color:#a7f3d0;margin-bottom:10px');const cb=document.createElement('input');cb.type='checkbox';cb.checked=soc.onlyMine;cb.onchange=()=>{soc.onlyMine=cb.checked;socRender()};fl.appendChild(cb);fl.appendChild(mk('span','','শুধু আমার জেলার পোস্ট'));body.appendChild(fl);
       const fl2=mk('label','display:flex;gap:8px;align-items:center;font-size:12px;color:#a7f3d0;margin:-4px 0 10px');const cb2=document.createElement('input');cb2.type='checkbox';cb2.checked=soc.onlyFriends;cb2.onchange=()=>{soc.onlyFriends=cb2.checked;socRender()};fl2.appendChild(cb2);fl2.appendChild(mk('span','','শুধু বন্ধুদের (ও আমার) পোস্ট'));body.appendChild(fl2);
+      if(soc.q==null)soc.q='';if(!soc.sort)soc.sort='new';
+      {const sr=mk('div','display:flex;gap:6px;align-items:center;margin-bottom:10px');const si=document.createElement('input');si.className='form-field';si.placeholder='🔍 পোস্ট বা নাম খুঁজুন…';si.maxLength=40;si.value=soc.q;si.style.cssText='margin:0;flex:1;padding:9px 12px';si.onkeydown=e=>{if(e.key==='Enter'){soc.q=si.value.trim().toLowerCase();socRender()}};si.onblur=()=>{const v=si.value.trim().toLowerCase();if(v!==soc.q){soc.q=v;socRender()}};sr.appendChild(si);
+        [['new','🕒 নতুন'],['top','🔥 জনপ্রিয়']].forEach(([k,l])=>{const c=mk('button','',l);c.style.cssText='flex:none;padding:8px 10px;border-radius:999px;font-size:11.5px;cursor:pointer;color:#fff;border:1px solid rgba(16,185,129,.5);background:'+(soc.sort===k?'#059669':'#0a251c');c.onclick=()=>{soc.sort=k;socRender()};sr.appendChild(c)});body.appendChild(sr)}
       const hid=readJSON(SOC_HIDE_KEY,[]);
-      const myF=soc.onlyFriends?frFriends(u.id):[];const posts=socPosts().filter(p=>!hid.includes(p.id)&&(!soc.onlyFriends||p.uid===u.id||myF.includes(p.uid))&&(!soc.onlyMine||!u.area||!u.area.district||(p.area&&p.area.district===u.area.district)));
-      if(!posts.length)body.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.8;padding:8px 2px','এখনো কোনো পোস্ট নেই। প্রথম পোস্টটি আপনিই করুন! 🌱'));
+      const myF=soc.onlyFriends?frFriends(u.id):[];const posts=socPosts().filter(p=>!hid.includes(p.id)&&(!soc.q||((p.text||'')+' '+(p.name||'')).toLowerCase().includes(soc.q))&&(!soc.onlyFriends||p.uid===u.id||myF.includes(p.uid))&&(!soc.onlyMine||!u.area||!u.area.district||(p.area&&p.area.district===u.area.district)));
+      if(soc.sort==='top')posts.sort((a,c)=>((c.likes||[]).length+2*(c.comments||[]).length)-((a.likes||[]).length+2*(a.comments||[]).length)||c.ts-a.ts);
+      if(!posts.length)body.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.8;padding:8px 2px',soc.q?'কিছু পাওয়া যায়নি।':'এখনো কোনো পোস্ট নেই। প্রথম পোস্টটি আপনিই করুন! 🌱'));
       posts.forEach(p=>body.appendChild(socPostCard(p,u)));
     }
     function socPostCard(p,u){
@@ -2324,6 +2443,7 @@
       const act=mk('div','display:flex;gap:8px;margin-top:10px;flex-wrap:wrap');
       const lk=mk('button','',(liked?'❤️ ':'🤍 ')+fmt((p.likes||[]).length));lk.className='change-btn';lk.onclick=()=>{const q=SOCN.posts.find(x=>x.id===p.id);if(!q)return;q.likes=q.likes||[];q.likes=liked?q.likes.filter(x=>x!==u.id):q.likes.concat([u.id]);socRender();socOp(()=>socRpc('soc_like',{p_tok:SOCN.tok,p_id:p.id,p_on:!liked}))};act.appendChild(lk);
       const cm=mk('button','','💭 '+fmt((p.comments||[]).length));cm.className='change-btn';act.appendChild(cm);
+      {const sv=socSaved(u).some(x=>x.id===p.id);const bk=mk('button','',sv?'🔖 সংরক্ষিত':'🔖');bk.className='change-btn';bk.title='সংরক্ষণ';bk.onclick=()=>{const on=socSaveToggle(p,u);bk.textContent=on?'🔖 সংরক্ষিত':'🔖';showToast(on?'পোস্ট সংরক্ষণ হয়েছে':'সংরক্ষণ থেকে সরানো হয়েছে')};act.appendChild(bk);const shb=mk('button','','📤');shb.className='change-btn';shb.title='শেয়ার';shb.onclick=()=>socShare(p);act.appendChild(shb)}
       if(!own)act.appendChild(msgBtnSoc(p.uid,p.name));card.appendChild(act);
       const cbox=mk('div','margin-top:8px;display:'+(soc.openC[p.id]?'block':'none'));
       (p.comments||[]).forEach(c=>{const r=mk('div','padding:6px 0;border-top:1px solid rgba(16,185,129,.12);font-size:12.5px;line-height:1.6');r.appendChild(mk('b','color:#6ee7b7',c.name+': '));r.appendChild(document.createTextNode(c.text));if(c.uid===u.id||socIsAdmin()){const dl=mk('button','','✕');dl.style.cssText='margin-left:8px;color:#fca5a5;background:none;border:0;cursor:pointer';dl.onclick=()=>{const q=SOCN.posts.find(x=>x.id===p.id);if(q){q.comments=q.comments.filter(x=>x.id!==c.id);socRender();const at=(c.uid!==u.id&&p.uid!==u.id&&socIsAdmin())?sbTok():undefined;socOp(()=>socRpc('soc_comment_delete',{p_tok:SOCN.tok,p_id:p.id,p_cid:c.id},at))}};r.appendChild(dl)}cbox.appendChild(r)});
@@ -2359,8 +2479,12 @@
       const row=(par,icon,t,sub,fn)=>{const r=mk('div','display:flex;gap:11px;align-items:center;padding:10px 4px;border-top:1px solid rgba(16,185,129,.15);cursor:pointer');r.appendChild(mk('span','font-size:21px;width:28px;text-align:center',icon));const m=mk('div','flex:1;min-width:0');m.appendChild(mk('b','font-size:13.5px;display:block',t));if(sub)m.appendChild(mk('span','font-size:11.5px;color:#a7f3d0;line-height:1.5;display:block',sub));r.appendChild(m);r.appendChild(mk('span','color:#6ee7b7;font-size:18px','›'));r.onclick=fn;par.appendChild(r);return r};
       const h=mk('div','display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#065f46,#0f766e);border-radius:16px;padding:14px;margin-bottom:12px;cursor:pointer');h.appendChild(avatarEl(u,56));const hm=mk('div','flex:1;min-width:0');hm.appendChild(mk('b','font-size:16px;display:block',u.name));hm.appendChild(mk('span','font-size:12px;color:#d1fae5',u.phone||''));hm.appendChild(mk('span','font-size:11px;color:#a7f3d0;display:block;margin-top:2px','প্রোফাইল দেখুন ও বদলান ›'));h.appendChild(hm);h.onclick=()=>{soc.tab='me';soc.view=null;socRender()};body.appendChild(h);
       let c=card('💬 কথা (মেসেঞ্জার)');
-      row(c,'🎨','চ্যাটের রং, ব্যাকগ্রাউন্ড ও লেখার আকার','মেসেঞ্জারের মতো নিজের পছন্দমতো সাজান',()=>{openInbox();msgSettings('inbox')});
-      row(c,'🚫','ব্লক ও হোল্ড তালিকা','যাদের কথা বন্ধ বা জমা রেখেছেন',()=>{openInbox();setTimeout(()=>{try{document.querySelectorAll('#msgBody details').forEach(d=>d.open=true)}catch(e){}},80)});
+      row(c,'⚙️','কথার সম্পূর্ণ সেটিংস','চেহারা, নোটিফিকেশন, দ্রুত উত্তর, আর্কাইভ, তারকা মেসেজ…',()=>{openInbox();msgSettings('inbox')});
+      row(c,'🚫','ব্লক ও হোল্ড তালিকা','যাদের কথা বন্ধ বা জমা রেখেছেন',()=>{openInbox();msgSettings('inbox','block')});
+      c=card('📰 ফিড ও পোস্ট');
+      row(c,'🔖','সংরক্ষিত পোস্ট','যেসব পোস্ট পরে পড়তে রেখেছেন: '+fmt(socSaved(u).length)+'টি',()=>{soc.tab='saved';soc.view=null;socRender()});
+      row(c,'🙈','লুকানো পোস্ট ফিরিয়ে আনুন','লুকানো: '+fmt(readJSON(SOC_HIDE_KEY,[]).length)+'টি',()=>{const n=readJSON(SOC_HIDE_KEY,[]).length;if(!n){showToast('কোনো পোস্ট লুকানো নেই');return}if(!confirm(fmt(n)+'টি লুকানো পোস্ট আবার ফিডে দেখাবেন?'))return;writeJSON(SOC_HIDE_KEY,[]);socRender();showToast('ফিরিয়ে আনা হয়েছে')});
+      row(c,'🏠','ফিড-এ ফিরুন','',()=>{soc.tab='feed';soc.view=null;socRender()});
       c=card('🔒 গোপনীয়তা');
       {const l=document.createElement('label');l.style.cssText='display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.6;padding:4px';const k=document.createElement('input');k.type='checkbox';k.checked=!!u.friendsOnly;k.onchange=async()=>{try{await socProfSave({friendsOnly:k.checked});showToast(k.checked?'এখন শুধু বন্ধুরা কথা পাঠাতে পারবে':'সবাই কথা পাঠাতে পারবে')}catch(e){k.checked=!k.checked;alert('সংরক্ষণ করা যায়নি।')}};l.appendChild(k);const sp=mk('span','');sp.appendChild(mk('b','display:block','শুধু বন্ধুরাই আমাকে কথা পাঠাতে পারবে'));sp.appendChild(mk('span','font-size:11.5px;color:#a7f3d0','বন্ধু নয় এমন কেউ প্রথমে বন্ধুত্বের অনুরোধ পাঠাবে।'));l.appendChild(sp);c.appendChild(l)}
       c=card('🔔 নোটিফিকেশন');
@@ -3218,7 +3342,7 @@
       row('📤 বন্ধুকে অ্যাপ শেয়ার করুন',()=>{const u='https://adnan1497.github.io/My-bangladesh-app/MyBangladesh_App.html';const t='আমার বাংলাদেশ — জরুরি সেবা, হাসপাতাল, রক্ত, ব্যবসা হিসাব, সরকারি সেবা সব এক অ্যাপে।';if(navigator.share)navigator.share({title:'আমার বাংলাদেশ',text:t,url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(t+' '+u);alert('লিংক কপি হয়েছে')}catch(e){prompt('কপি করুন:',t+' '+u)}}try{amTrack('share')}catch(e){}});
       row('📝 অ্যাডমিনকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২৩ · তৈরি: মোঃ রাজীব আল আদনান'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২৪ · তৈরি: মোঃ রাজীব আল আদনান'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -6209,11 +6333,13 @@
       if(SHP.err){const c=mk('div',SHP_CARD);c.appendChild(mk('p','color:#fecaca;font-size:13px;line-height:1.7;margin-bottom:8px',SHP.err));shpBtn(c,'🔄 আবার চেষ্টা',()=>{SHP.err='';shpRender()},'change-btn');body.appendChild(c);return true}
       if(!SHP.loading){SHP.loading=true;shpLoad().catch(e=>{SHP.err=shpErr(e)}).then(()=>{SHP.loading=false;shpRender()})}
       body.appendChild(mk('p','color:#a7f3d0;font-size:13px;padding:14px 4px','⏳ লোড হচ্ছে…'));return true}
-    function renderShop(list){SHP.list=list;SHP.tab='shop';SHP.products=null;SHP.err='';shpRender()}
+    function renderAdminShop(){SHP.admOnly=true;SHP.list=document.getElementById('adShopBox');SHP.tab='admin';SHP.products=null;SHP.err='';shpRender()}
+    function renderShop(list){SHP.admOnly=false;SHP.list=list;SHP.tab='shop';SHP.products=null;SHP.err='';shpRender()}
     function shpRender(){
       const list=SHP.list;if(!list)return;list.innerHTML='';
+      if(SHP.admOnly)SHP.tab='admin';
       if(SHP.tab==='admin'&&!sbTok())SHP.tab='shop';
-      const bar=mk('div','display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;-webkit-overflow-scrolling:touch');
+      const bar=mk('div','display:'+(SHP.admOnly?'none':'flex')+';gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;-webkit-overflow-scrolling:touch');
       const tabs=[['shop','🛍️ পণ্য'],['cart','🧺 কার্ট ('+fmt(shpCount())+')'],['orders','📦 আমার অর্ডার']];if(sbTok())tabs.push(['admin','⚙️ ম্যানেজার']);
       tabs.forEach(([k,l])=>{const b=mk('button','',l);if(k==='cart')b.id='shpTabCart';const on=SHP.tab===k||(SHP.tab==='checkout'&&k==='cart');b.style.cssText='flex:0 0 auto;padding:9px 13px;border-radius:999px;border:1px solid rgba(16,185,129,.5);color:#fff;font-size:13px;cursor:pointer;white-space:nowrap;background:'+(on?'#059669':'#061812');b.onclick=()=>{SHP.tab=k;shpRender()};bar.appendChild(b)});
       list.appendChild(bar);
@@ -7353,7 +7479,7 @@
     }
     function showAdminTab(tab){
       adTab=tab;
-      ['add','about','cats','cover','manage','reg','stats','backup'].forEach(t=>{$('ad_'+t).style.display=(t===tab)?'block':'none';$('tab_'+t).classList.toggle('active',t===tab)});
+      ['add','about','cats','cover','manage','reg','stats','shop','backup'].forEach(t=>{$('ad_'+t).style.display=(t===tab)?'block':'none';$('tab_'+t).classList.toggle('active',t===tab)});
       $('adPicker').style.display=(tab==='add'||tab==='about'||tab==='cover')?'block':'none';
       if(tab==='cover')renderAdminCover();
       if(tab==='add')adFillCategorySelect();
@@ -7363,6 +7489,7 @@
       if(tab==='reg')renderAdminReg();
       if(tab==='backup')$('backupText').value='';
       if(tab==='stats')renderAdminStats();
+      if(tab==='shop')renderAdminShop();
     }
 
     // তথ্য যোগ/সম্পাদনা
