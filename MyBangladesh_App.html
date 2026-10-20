@@ -3123,7 +3123,7 @@
       row('📤 বন্ধুকে অ্যাপ শেয়ার করুন',()=>{const u='https://adnan1497.github.io/My-bangladesh-app/MyBangladesh_App.html';const t='আমার বাংলাদেশ — জরুরি সেবা, হাসপাতাল, রক্ত, ব্যবসা হিসাব, সরকারি সেবা সব এক অ্যাপে।';if(navigator.share)navigator.share({title:'আমার বাংলাদেশ',text:t,url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(t+' '+u);alert('লিংক কপি হয়েছে')}catch(e){prompt('কপি করুন:',t+' '+u)}}try{amTrack('share')}catch(e){}});
       row('📝 অ্যাডমিনকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ১৯ · তৈরি: মোঃ রাজীব আল আদনান'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২০ · তৈরি: মোঃ রাজীব আল আদনান'));
       {const u=(typeof socMe==='function')?socMe():null;
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
         lo.onclick=()=>{if(u){if(!confirm('এই ফোন থেকে লগআউট করবেন?\n(আবার লগইন করলে সব ফিরে পাবেন)'))return;const t=SOCN.tok;socRpc('soc_logout',{p_tok:t}).catch(()=>{});socDrop();try{soc.tab='feed';soc.mode='login';socRender()}catch(e){}updateBadge();closeModal('settingsModal')}else{closeModal('settingsModal');entryShow('login')}};b.appendChild(lo)}}
@@ -6059,6 +6059,268 @@
         ]]
       ]);
     })();
+    // ===== 🛍️ অনলাইন শপ: পণ্য → কার্ট → বিকাশ/নগদ/রকেটে টাকা পাঠিয়ে ট্রানজেকশন আইডি দিয়ে অর্ডার =====
+    // দাম ও মোট টাকা সবসময় সার্ভার গণনা করে; ট্রানজেকশন আইডি অ্যাডমিন নিজের বিকাশ/নগদ অ্যাপে মিলিয়ে "নিশ্চিত" করেন।
+    const SHP={tab:'shop',q:'',cat:'',zone:'out',products:null,cfg:null,list:null,body:null,loading:false,err:'',offline:false,adm:'orders',admF:'',form:{}};
+    const SHP_CART='amarShopCart_v1',SHP_CACHE='amarShopCache_v1';
+    const SHP_CARD='background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:12px;margin-bottom:10px';
+    const SHP_ST={pending:['⏳','যাচাই চলছে','#fcd34d'],paid:['✅','পেমেন্ট নিশ্চিত','#34d399'],shipped:['🚚','পাঠানো হয়েছে','#38bdf8'],delivered:['📦','পৌঁছেছে','#6ee7b7'],rejected:['❌','পেমেন্ট মেলেনি','#fca5a5'],cancelled:['🚫','বাতিল','#94a3b8']};
+    const SHP_PAY={bkash:['বিকাশ','#e2136e'],nagad:['নগদ','#f6921e'],rocket:['রকেট','#a855f7']};
+    const shpTaka=n=>'৳'+fmt(n||0);
+    const shpCart=()=>{try{const o=JSON.parse(localStorage.getItem(SHP_CART)||'{}');return o&&typeof o==='object'&&!Array.isArray(o)?o:{}}catch(e){return {}}};
+    const shpCartSave=o=>{try{localStorage.setItem(SHP_CART,JSON.stringify(o))}catch(e){}};
+    const shpCount=()=>Object.values(shpCart()).reduce((a,b)=>a+(+b||0),0);
+    const shpProd=id=>(SHP.products||[]).find(p=>p.id===id);
+    const shpMax=p=>Math.min(20,p.stock==null?20:Math.max(0,p.stock));
+    const shpDigits=v=>String(v||'').replace(/[০-৯]/g,c=>'০১২৩৪৫৬৭৮৯'.indexOf(c));
+    function shpSet(id,q){const c=shpCart(),p=shpProd(id);const m=p?shpMax(p):20;q=Math.max(0,Math.min(m,q|0));if(q)c[id]=q;else delete c[id];shpCartSave(c);const b=document.getElementById('shpTabCart');if(b)b.textContent='🧺 কার্ট ('+fmt(shpCount())+')'}
+    function shpErr(e){const t=String(e&&e.message||e||'');
+      if(/shop closed/.test(t))return'শপ এখন বন্ধ আছে।';
+      if(/trx used/.test(t))return'এই ট্রানজেকশন আইডি আগেই ব্যবহার হয়েছে। আইডিটি আবার দেখে লিখুন।';
+      if(/stock:/.test(t)){try{localStorage.removeItem(SHP_CACHE)}catch(_){}SHP.products=null;return'স্টকে যথেষ্ট নেই: '+t.split('stock:')[1]+'। কার্ট ঠিক করে আবার চেষ্টা করুন।'}
+      if(/gone/.test(t)){try{localStorage.removeItem(SHP_CACHE)}catch(_){}SHP.products=null;return'কার্টের কোনো পণ্য আর পাওয়া যায় না। কার্ট ঠিক করুন।'}
+      if(/bad trx/.test(t))return'ট্রানজেকশন আইডি ৬–২০ অক্ষরের (ইংরেজি অক্ষর/সংখ্যা) দিন।';
+      if(/bad from/.test(t))return'যে নম্বর থেকে টাকা পাঠিয়েছেন সেটি লিখুন (১০–১৫ সংখ্যা)।';
+      if(/bad phone/.test(t))return'আপনার সঠিক মোবাইল নম্বর লিখুন।';
+      if(/bad addr/.test(t))return'পুরো ঠিকানা লিখুন (কমপক্ষে ৮ অক্ষর)।';
+      if(/bad name/.test(t))return'আপনার নাম লিখুন।';
+      if(/bad method/.test(t))return'এই পেমেন্ট মাধ্যম এখন চালু নেই।';
+      if(/too many pending/.test(t))return'আগের কয়েকটি অর্ডার এখনো যাচাই বাকি — যাচাই হলে নতুন অর্ডার দিন।';
+      if(/cannot cancel/.test(t))return'এই অর্ডার আর বাতিল করা যায় না।';
+      if(/not allowed|JWT|permission denied/i.test(t))return'অ্যাডমিন লগইন লাগবে (অ্যাডমিন লগইন করে আবার চেষ্টা করুন)।';
+      if(/final/.test(t))return'বাতিল/মেলেনি হয়ে যাওয়া অর্ডারের অবস্থা আর বদলানো যায় না।';
+      if(/bad image/.test(t))return'ছবিটি বেশি বড় বা ভুল ধরনের। ছোট ছবি দিন।';
+      if(/bad price|bad stock|bad name/.test(t))return'নাম, দাম বা স্টক ঠিক করে আবার চেষ্টা করুন।';
+      if(/could not find the function|PGRST202|404/i.test(t))return'সার্ভারের সেটআপ বাকি (অ্যাডমিন: Supabase-এ 9_shop.sql চালান)।';
+      return msgErrText2(e)}
+    async function shpLoad(){
+      let c=null;try{c=JSON.parse(localStorage.getItem(SHP_CACHE)||'null')}catch(e){}
+      try{
+        const v=await socRpc('shop_ver',{});
+        if(c&&c.ver&&c.ver===v&&Array.isArray(c.products)){SHP.cfg=c.cfg||{};SHP.products=c.products;SHP.offline=false;return}
+        const r=await socRpc('shop_catalog',{});
+        SHP.cfg=(r&&r.cfg)||{};SHP.products=(r&&r.products)||[];SHP.offline=false;
+        try{localStorage.setItem(SHP_CACHE,JSON.stringify({ver:r.ver,cfg:SHP.cfg,products:SHP.products}))}catch(e){}
+      }catch(e){
+        if(c&&Array.isArray(c.products)){SHP.cfg=c.cfg||{};SHP.products=c.products;SHP.offline=true;return}
+        throw e}
+    }
+    const shpIn=(p,label,o)=>{o=o||{};if(label)p.appendChild(mk('label','',label)).className='field-label';const i=document.createElement(o.area?'textarea':(o.select?'select':'input'));i.className='form-field';if(o.area)i.rows=o.rows||3;if(o.type)i.type=o.type;if(o.mode)i.setAttribute('inputmode',o.mode);if(o.ph)i.placeholder=o.ph;if(o.max)i.maxLength=o.max;if(o.select)o.select.forEach(([v,t])=>{const op=document.createElement('option');op.value=v;op.textContent=t;i.appendChild(op)});if(o.val!=null)i.value=o.val;p.appendChild(i);return i};
+    const shpBtn=(p,t,fn,cls,css)=>{const b=mk('button','',t);b.className=cls||'change-btn';b.style.cssText+=';cursor:pointer;'+(css||'');b.onclick=fn;p.appendChild(b);return b};
+    const shpNote=(t,col)=>mk('div','font-size:12.5px;line-height:1.7;color:'+(col||'#fde68a')+';background:#0a251c;border:1px solid rgba(250,204,21,.3);border-radius:12px;padding:9px 12px;margin-bottom:10px',t);
+    function shpNeedData(body){
+      if(SHP.products)return false;
+      if(SHP.err){const c=mk('div',SHP_CARD);c.appendChild(mk('p','color:#fecaca;font-size:13px;line-height:1.7;margin-bottom:8px',SHP.err));shpBtn(c,'🔄 আবার চেষ্টা',()=>{SHP.err='';shpRender()},'change-btn');body.appendChild(c);return true}
+      if(!SHP.loading){SHP.loading=true;shpLoad().catch(e=>{SHP.err=shpErr(e)}).then(()=>{SHP.loading=false;shpRender()})}
+      body.appendChild(mk('p','color:#a7f3d0;font-size:13px;padding:14px 4px','⏳ লোড হচ্ছে…'));return true}
+    function renderShop(list){SHP.list=list;SHP.tab='shop';SHP.products=null;SHP.err='';shpRender()}
+    function shpRender(){
+      const list=SHP.list;if(!list)return;list.innerHTML='';
+      if(SHP.tab==='admin'&&!sbTok())SHP.tab='shop';
+      const bar=mk('div','display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px;-webkit-overflow-scrolling:touch');
+      const tabs=[['shop','🛍️ পণ্য'],['cart','🧺 কার্ট ('+fmt(shpCount())+')'],['orders','📦 আমার অর্ডার']];if(sbTok())tabs.push(['admin','⚙️ ম্যানেজার']);
+      tabs.forEach(([k,l])=>{const b=mk('button','',l);if(k==='cart')b.id='shpTabCart';const on=SHP.tab===k||(SHP.tab==='checkout'&&k==='cart');b.style.cssText='flex:0 0 auto;padding:9px 13px;border-radius:999px;border:1px solid rgba(16,185,129,.5);color:#fff;font-size:13px;cursor:pointer;white-space:nowrap;background:'+(on?'#059669':'#061812');b.onclick=()=>{SHP.tab=k;shpRender()};bar.appendChild(b)});
+      list.appendChild(bar);
+      const body=mk('div','');list.appendChild(body);SHP.body=body;
+      ({shop:shpShop,cart:shpCartView,checkout:shpCheckout,orders:shpOrders,admin:shpAdmin})[SHP.tab](body)}
+
+    // ---------- পণ্যের তালিকা ----------
+    function shpShop(body){
+      if(shpNeedData(body))return;
+      const cfg=SHP.cfg||{},ps=SHP.products||[],adm=!!sbTok();
+      if(cfg.open!==true&&!adm){const c=mk('div',SHP_CARD+';text-align:center');c.appendChild(mk('div','font-size:40px','🔒'));c.appendChild(mk('h3','margin:6px 0','শপ এখন বন্ধ আছে'));c.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.7',cfg.note||'শীঘ্রই চালু হবে — একটু পরে আবার দেখুন।'));body.appendChild(c);return}
+      if(cfg.open!==true)body.appendChild(shpNote('⚠️ শপ এখন "বন্ধ" — শুধু আপনি (অ্যাডমিন) দেখছেন। ম্যানেজার → সেটিংসে গিয়ে চালু করুন।'));
+      if(SHP.offline)body.appendChild(shpNote('📡 ইন্টারনেট নেই — আগে দেখা তালিকা দেখাচ্ছি।','#a7f3d0'));
+      if(cfg.note)body.appendChild(shpNote('📢 '+cfg.note,'#a7f3d0'));
+      if(!ps.length){body.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.8;padding:12px 2px',adm?'এখনো কোনো পণ্য নেই। "⚙️ ম্যানেজার → পণ্য" থেকে প্রথম পণ্য যোগ করুন।':'এখনো কোনো পণ্য যোগ হয়নি। শীঘ্রই আসছে!'));return}
+      const q=shpIn(body,'',{ph:'🔍 পণ্য খুঁজুন…',val:SHP.q,max:40});q.style.marginBottom='8px';
+      const cats=[...new Set(ps.map(p=>p.cat).filter(Boolean))];
+      if(cats.length){const row=mk('div','display:flex;gap:6px;overflow-x:auto;padding-bottom:8px');[['','সব'],...cats.map(c=>[c,c])].forEach(([k,l])=>{const b=mk('button','',l);b.style.cssText='flex:0 0 auto;padding:6px 12px;border-radius:999px;border:1px solid rgba(16,185,129,.5);color:#fff;font-size:12.5px;cursor:pointer;white-space:nowrap;background:'+(SHP.cat===k?'#059669':'#061812');b.onclick=()=>{SHP.cat=k;shpRender()};row.appendChild(b)});body.appendChild(row)}
+      const grid=mk('div','display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px');body.appendChild(grid);
+      const draw=()=>{grid.innerHTML='';const t=SHP.q.trim().toLowerCase();const f=ps.filter(p=>(!SHP.cat||p.cat===SHP.cat)&&(!t||(p.name+' '+(p.descr||'')+' '+(p.cat||'')).toLowerCase().includes(t)));
+        if(!f.length)grid.appendChild(mk('p','grid-column:1/-1;font-size:13px;color:#a7f3d0;padding:10px 2px','কিছু পাওয়া যায়নি।'));f.forEach(p=>grid.appendChild(shpCard(p)))};
+      q.oninput=()=>{SHP.q=q.value;draw()};draw()}
+    function shpCard(p){
+      const c=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:14px;overflow:hidden;display:flex;flex-direction:column');
+      const im=mk('div','aspect-ratio:1/1;background:#061812;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative;overflow:hidden');
+      if(p.img){const i=document.createElement('img');i.src=p.img;i.alt=p.name;i.loading='lazy';i.style.cssText='width:100%;height:100%;object-fit:cover;display:block';im.appendChild(i)}else im.textContent='🛍️';
+      if(p.old&&p.old>p.price){im.appendChild(mk('span','position:absolute;top:6px;left:6px;background:#ef4444;color:#fff;font-size:11px;font-weight:700;border-radius:8px;padding:2px 7px','-'+fmt(Math.round((p.old-p.price)/p.old*100))+'%'))}
+      if(p.stock===0)im.appendChild(mk('span','position:absolute;inset:0;background:#000a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700','স্টক শেষ'));
+      c.appendChild(im);
+      const b=mk('div','padding:9px 10px;display:flex;flex-direction:column;gap:5px;flex:1');
+      b.appendChild(mk('div','font-size:13.5px;font-weight:700;line-height:1.4',p.name));
+      const pr=mk('div','display:flex;gap:6px;align-items:baseline;flex-wrap:wrap');pr.appendChild(mk('b','font-size:15px;color:#fcd34d',shpTaka(p.price)));if(p.old&&p.old>p.price)pr.appendChild(mk('s','font-size:11.5px;color:#94a3b8',shpTaka(p.old)));b.appendChild(pr);
+      if(p.stock!=null&&p.stock>0&&p.stock<=5)b.appendChild(mk('div','font-size:11px;color:#fca5a5','মাত্র '+fmt(p.stock)+'টি বাকি'));
+      if(p.descr){const d=document.createElement('details');d.style.cssText='font-size:12px;color:#a7f3d0;line-height:1.6';d.appendChild(mk('summary','cursor:pointer;color:#6ee7b7','বিস্তারিত'));d.appendChild(mk('div','margin-top:4px;white-space:pre-wrap',p.descr));b.appendChild(d)}
+      const ctl=mk('div','margin-top:auto;padding-top:4px');b.appendChild(ctl);
+      const drawCtl=()=>{ctl.innerHTML='';const q=+shpCart()[p.id]||0;
+        if(p.stock===0){ctl.appendChild(mk('div','font-size:12px;color:#94a3b8;text-align:center;padding:8px','এখন পাওয়া যাচ্ছে না'));return}
+        if(!q){shpBtn(ctl,'🧺 কার্টে দিন',()=>{shpSet(p.id,1);drawCtl()},'primary-btn','width:100%;padding:9px;font-size:13px;margin:0');return}
+        const st=mk('div','display:flex;align-items:center;justify-content:space-between;gap:6px');
+        const bt=(t,fn)=>{const x=mk('button','',t);x.style.cssText='width:36px;height:34px;border-radius:10px;border:1px solid rgba(16,185,129,.6);background:#061812;color:#fff;font-size:18px;cursor:pointer';x.onclick=fn;return x};
+        st.appendChild(bt('−',()=>{shpSet(p.id,q-1);drawCtl()}));st.appendChild(mk('b','font-size:15px',fmt(q)));st.appendChild(bt('+',()=>{if(q>=shpMax(p)){showToast('এর বেশি এখন দেওয়া যাবে না')}else{shpSet(p.id,q+1)}drawCtl()}));ctl.appendChild(st)};
+      drawCtl();c.appendChild(b);return c}
+
+    // ---------- কার্ট ----------
+    function shpTotals(){const cfg=SHP.cfg||{},c=shpCart();let sub=0;const rows=[];Object.keys(c).forEach(id=>{const p=shpProd(id);if(p){rows.push([p,c[id]]);sub+=p.price*c[id]}});
+      let fee=SHP.zone==='in'?(+cfg.fee_in||0):(+cfg.fee_out||0);if((+cfg.free_over||0)>0&&sub>=+cfg.free_over)fee=0;return{rows,sub,fee,total:sub+fee}}
+    function shpCartView(body){
+      if(shpNeedData(body))return;
+      const cfg=SHP.cfg||{},c=shpCart();
+      Object.keys(c).forEach(id=>{if(!shpProd(id))delete c[id]});shpCartSave(c);
+      const T=shpTotals();
+      if(!T.rows.length){body.appendChild(mk('p','font-size:13.5px;color:#a7f3d0;line-height:1.8;padding:14px 2px','🧺 কার্ট খালি। "🛍️ পণ্য" ট্যাব থেকে পছন্দের পণ্য কার্টে দিন।'));shpBtn(body,'🛍️ পণ্য দেখুন',()=>{SHP.tab='shop';shpRender()},'primary-btn');return}
+      const card=mk('div',SHP_CARD);body.appendChild(card);
+      T.rows.forEach(([p,q])=>{const r=mk('div','display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(16,185,129,.15)');
+        const th=mk('div','width:52px;height:52px;border-radius:10px;background:#061812;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;flex:none');if(p.img){const i=document.createElement('img');i.src=p.img;i.style.cssText='width:100%;height:100%;object-fit:cover';th.appendChild(i)}else th.textContent='🛍️';r.appendChild(th);
+        const mid=mk('div','flex:1;min-width:0');mid.appendChild(mk('div','font-size:13.5px;font-weight:700;line-height:1.4',p.name));mid.appendChild(mk('div','font-size:12px;color:#a7f3d0',shpTaka(p.price)+' × '+fmt(q)+' = '+shpTaka(p.price*q)));r.appendChild(mid);
+        const st=mk('div','display:flex;align-items:center;gap:6px;flex:none');const bt=(t,fn)=>{const x=mk('button','',t);x.style.cssText='width:32px;height:32px;border-radius:9px;border:1px solid rgba(16,185,129,.6);background:#061812;color:#fff;font-size:17px;cursor:pointer';x.onclick=fn;return x};
+        st.appendChild(bt('−',()=>{shpSet(p.id,q-1);shpRender()}));st.appendChild(mk('b','min-width:18px;text-align:center',fmt(q)));st.appendChild(bt('+',()=>{if(q>=shpMax(p)){showToast('এর বেশি এখন দেওয়া যাবে না');return}shpSet(p.id,q+1);shpRender()}));r.appendChild(st);card.appendChild(r)});
+      const z=mk('div','margin-top:10px');z.appendChild(mk('div','font-size:12.5px;color:#a7f3d0;margin-bottom:6px','ডেলিভারি কোথায়?'));
+      const zr=mk('div','display:flex;gap:6px');[['in','🏙️ ঢাকার ভেতরে ('+shpTaka(cfg.fee_in)+')'],['out','🚚 ঢাকার বাইরে ('+shpTaka(cfg.fee_out)+')']].forEach(([k,l])=>{const b=mk('button','',l);b.style.cssText='flex:1;padding:9px 6px;border-radius:10px;border:1px solid rgba(16,185,129,.5);color:#fff;font-size:12.5px;cursor:pointer;background:'+(SHP.zone===k?'#059669':'#061812');b.onclick=()=>{SHP.zone=k;shpRender()};zr.appendChild(b)});z.appendChild(zr);card.appendChild(z);
+      const sum=mk('div','margin-top:12px;font-size:13.5px;line-height:2');
+      const line=(a,b,big)=>{const r=mk('div','display:flex;justify-content:space-between'+(big?';font-size:17px;font-weight:800;color:#fcd34d;border-top:1px dashed rgba(16,185,129,.4);margin-top:4px;padding-top:6px':''));r.appendChild(mk('span','',a));r.appendChild(mk('span','',b));sum.appendChild(r)};
+      line('পণ্যের দাম',shpTaka(T.sub));line('ডেলিভারি চার্জ',T.fee?shpTaka(T.fee):'ফ্রি');line('সর্বমোট',shpTaka(T.total),true);card.appendChild(sum);
+      if((+cfg.free_over||0)>0&&T.sub<+cfg.free_over)card.appendChild(mk('p','font-size:11.5px;color:#6ee7b7;margin-top:6px',shpTaka(cfg.free_over)+'-এর বেশি কিনলে ডেলিভারি ফ্রি (আর '+shpTaka(+cfg.free_over-T.sub)+' বাকি)'));
+      shpBtn(card,'এগিয়ে যান — ঠিকানা ও পেমেন্ট →',()=>{SHP.tab='checkout';shpRender()},'primary-btn','width:100%;margin-top:10px');
+      shpBtn(card,'🗑️ কার্ট খালি করুন',()=>{if(!confirm('কার্টের সব পণ্য সরাবেন?'))return;shpCartSave({});shpRender()},'danger-btn','width:100%;margin-top:6px')}
+
+    // ---------- চেকআউট ও পেমেন্ট ----------
+    function shpLoginBox(body,msg){const c=mk('div',SHP_CARD+';text-align:center');c.appendChild(mk('div','font-size:38px','🔑'));c.appendChild(mk('p','font-size:13.5px;color:#d1fae5;line-height:1.8;margin:6px 0 10px',msg));shpBtn(c,'লগইন / নতুন অ্যাকাউন্ট',()=>{try{entryShow('login')}catch(e){}},'primary-btn');shpBtn(c,'আমি লগইন করেছি — চালিয়ে যান',()=>shpRender(),'change-btn','width:100%;margin-top:8px');body.appendChild(c)}
+    function shpCheckout(body){
+      if(shpNeedData(body))return;
+      const cfg=SHP.cfg||{},T=shpTotals();
+      if(!T.rows.length){SHP.tab='cart';shpRender();return}
+      if(cfg.open!==true){body.appendChild(shpNote('শপ এখন বন্ধ আছে, অর্ডার নেওয়া যাচ্ছে না।'));return}
+      const me=socMe();if(!me){shpLoginBox(body,'অর্ডার দিতে একটি অ্যাকাউন্ট লাগে (মোবাইল নম্বর + পাসওয়ার্ড) — যাতে আপনার অর্ডারের অবস্থা দেখতে পারেন।');return}
+      const pay=(cfg.pay||[]).filter(x=>x&&x.m&&x.n);
+      if(!pay.length){body.appendChild(shpNote('এখনো পেমেন্টের নম্বর ঠিক করা হয়নি। একটু পরে চেষ্টা করুন।'));return}
+      const F=SHP.form;if(F.name==null)F.name=me.name||'';if(F.phone==null)F.phone=me.phone||'';if(!F.method||!pay.some(x=>x.m===F.method))F.method=pay[0].m;
+      const back=shpBtn(body,'← কার্টে ফিরুন',()=>{SHP.tab='cart';shpRender()},'change-btn','margin-bottom:8px');
+      const c1=mk('div',SHP_CARD);body.appendChild(c1);c1.appendChild(mk('b','font-size:14px;display:block;margin-bottom:6px','📍 ডেলিভারির তথ্য'));
+      const nm=shpIn(c1,'আপনার নাম',{val:F.name,max:60}),ph=shpIn(c1,'মোবাইল নম্বর (যোগাযোগের)',{type:'tel',mode:'tel',val:F.phone,max:20}),ad=shpIn(c1,'পুরো ঠিকানা (এলাকা, থানা, জেলা)',{area:true,rows:3,val:F.addr||'',max:300}),nt=shpIn(c1,'বিশেষ কিছু বলার থাকলে (ঐচ্ছিক)',{val:F.note||'',max:200});
+      const c2=mk('div',SHP_CARD);body.appendChild(c2);c2.appendChild(mk('b','font-size:14px;display:block;margin-bottom:6px','💳 পেমেন্ট'));
+      const mrow=mk('div','display:flex;gap:6px;margin-bottom:8px');c2.appendChild(mrow);const instr=mk('div','');c2.appendChild(instr);
+      const drawPay=()=>{mrow.innerHTML='';pay.forEach(x=>{const b=mk('button','',(SHP_PAY[x.m]||[x.m])[0]);b.style.cssText='flex:1;padding:9px 6px;border-radius:10px;border:2px solid '+((SHP_PAY[x.m]||[0,'#34d399'])[1])+';color:#fff;font-size:13.5px;font-weight:700;cursor:pointer;background:'+(F.method===x.m?((SHP_PAY[x.m]||[0,'#059669'])[1]):'#061812');b.onclick=()=>{F.method=x.m;drawPay()};mrow.appendChild(b)});
+        const x=pay.find(y=>y.m===F.method),nmz=(SHP_PAY[x.m]||[x.m])[0];instr.innerHTML='';
+        const box=mk('div','background:#061812;border:1px dashed rgba(252,211,77,.6);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.9');
+        box.appendChild(mk('div','','১) আপনার '+nmz+' অ্যাপ থেকে এই নম্বরে টাকা পাঠান'+(x.t?' ('+x.t+')':'')+':'));
+        const nr=mk('div','display:flex;align-items:center;gap:8px;margin:2px 0');nr.appendChild(mk('b','font-size:20px;letter-spacing:1px;color:#fde68a;user-select:all',x.n));shpBtn(nr,'📋 কপি',()=>{try{navigator.clipboard.writeText(x.n);showToast('নম্বর কপি হয়েছে')}catch(e){}},'change-btn','padding:5px 10px;font-size:12px');box.appendChild(nr);
+        box.appendChild(mk('div','','টাকার অঙ্ক: ঠিক ')).appendChild(mk('b','color:#fcd34d;font-size:16px',shpTaka(T.total)));
+        box.appendChild(mk('div','','২) টাকা পাঠানো হলে '+nmz+' থেকে একটি ট্রানজেকশন আইডি (TrxID) পাবেন — নিচে সেটি লিখুন।'));
+        box.appendChild(mk('div','color:#fca5a5;font-size:12px','⚠️ ভুল আইডি বা কম টাকা হলে অর্ডার নিশ্চিত হবে না।'));instr.appendChild(box)};
+      drawPay();
+      const trx=shpIn(c2,'ট্রানজেকশন আইডি (TrxID)',{val:F.trx||'',max:24,ph:'যেমন: 8N7A6D5EF2'});trx.style.textTransform='uppercase';
+      const fr=shpIn(c2,'যে নম্বর থেকে টাকা পাঠিয়েছেন',{type:'tel',mode:'tel',val:F.from||'',max:20,ph:'01XXXXXXXXX'});
+      const er=mk('div','color:#fecaca;font-size:12.5px;min-height:18px;margin:8px 0 2px','');c2.appendChild(er);
+      const keep=()=>{F.name=nm.value;F.phone=ph.value;F.addr=ad.value;F.note=nt.value;F.trx=trx.value;F.from=fr.value};[nm,ph,ad,nt,trx,fr].forEach(i=>i.addEventListener('input',keep));
+      const go=shpBtn(c2,'✅ অর্ডার জমা দিন — '+shpTaka(T.total),async()=>{
+        keep();er.textContent='';const items=T.rows.map(([p,q])=>({id:p.id,qty:q}));
+        const phone=shpDigits(F.phone).replace(/\D/g,''),from=shpDigits(F.from).replace(/\D/g,''),tx=shpDigits(F.trx).replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+        if(String(F.name).trim().length<2)return er.textContent='আপনার নাম লিখুন।';if(phone.length<10)return er.textContent='সঠিক মোবাইল নম্বর লিখুন।';if(String(F.addr||'').trim().length<8)return er.textContent='পুরো ঠিকানা লিখুন।';
+        if(tx.length<6)return er.textContent='ট্রানজেকশন আইডি লিখুন (টাকা পাঠানোর পর পাওয়া যায়)।';if(from.length<10)return er.textContent='যে নম্বর থেকে টাকা পাঠিয়েছেন সেটি লিখুন।';
+        if(!confirm('ট্রানজেকশন আইডি '+tx+' — ঠিক আছে তো?\nমোট '+shpTaka(T.total)+' '+(SHP_PAY[F.method]||[F.method])[0]+'-এ পাঠিয়েছেন?'))return;
+        go.disabled=true;go.textContent='⏳ জমা হচ্ছে…';
+        try{const r=await socRpc('shop_order_create',{p_tok:SOCN.tok,p_items:items,p_name:String(F.name).trim(),p_phone:phone,p_addr:String(F.addr).trim(),p_note:String(F.note||'').trim(),p_zone:SHP.zone,p_method:F.method,p_trx:tx,p_from:from});
+          shpCartSave({});SHP.form={};SHP.tab='orders';SHP.justOrdered=r;shpRender()}
+        catch(e){er.textContent=shpErr(e);go.disabled=false;go.textContent='✅ অর্ডার জমা দিন — '+shpTaka(T.total);if(!SHP.products){setTimeout(shpRender,1200)}}},'primary-btn','width:100%')}
+
+    // ---------- আমার অর্ডার ----------
+    function shpOrderCard(o,admin){
+      const st=SHP_ST[o.status]||['•',o.status,'#a7f3d0'];const c=mk('div',SHP_CARD);
+      const h=mk('div','display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px');h.appendChild(mk('b','font-size:13.5px','অর্ডার #'+o.id));const chip=mk('span','font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;border:1px solid '+st[2]+';color:'+st[2],st[0]+' '+st[1]);h.appendChild(chip);c.appendChild(h);
+      c.appendChild(mk('div','font-size:11.5px;color:#6ee7b7;margin-bottom:6px',new Date(o.created_at).toLocaleString('bn-BD')));
+      (o.items||[]).forEach(it=>c.appendChild(mk('div','font-size:13px;line-height:1.7',it.name+' × '+fmt(it.qty)+'  — '+shpTaka(it.price*it.qty))));
+      const t=mk('div','font-size:12.5px;color:#a7f3d0;line-height:1.8;margin-top:6px;border-top:1px dashed rgba(16,185,129,.3);padding-top:6px');
+      t.appendChild(mk('div','','ডেলিভারি: '+(o.delivery?shpTaka(o.delivery):'ফ্রি')+' · সর্বমোট: ')).appendChild(mk('b','color:#fcd34d',shpTaka(o.total)));
+      const pm=(SHP_PAY[o.method]||[o.method])[0];const tr=mk('div','');tr.appendChild(document.createTextNode(pm+' · TrxID: '));tr.appendChild(mk('b','color:#fff;user-select:all;letter-spacing:.5px',o.trx));t.appendChild(tr);
+      if(admin){t.appendChild(mk('div','','পাঠানো নম্বর: '+o.pay_from));}
+      c.appendChild(t);
+      if(admin){const a=mk('div','font-size:12.5px;line-height:1.8;margin-top:6px;color:#d1fae5');a.appendChild(mk('div','','👤 '+o.name));const pl=document.createElement('a');pl.href='tel:'+o.phone;pl.textContent='📞 '+o.phone;pl.style.cssText='color:#6ee7b7;text-decoration:underline';const pr=mk('div','');pr.appendChild(pl);a.appendChild(pr);a.appendChild(mk('div','','📍 '+o.addr+(o.zone==='in'?' (ঢাকার ভেতরে)':' (ঢাকার বাইরে)')));if(o.note)a.appendChild(mk('div','','📝 '+o.note));c.appendChild(a)}
+      if(o.admin_note)c.appendChild(mk('div','font-size:12.5px;color:#fde68a;margin-top:6px','💬 '+(admin?'আপনার নোট: ':'দোকানের বার্তা: ')+o.admin_note));
+      return c}
+    async function shpOrders(body){
+      const me=socMe();
+      if(!me){shpLoginBox(body,'আপনার অর্ডারের অবস্থা দেখতে লগইন করুন।');return}
+      if(SHP.justOrdered){const j=SHP.justOrdered;SHP.justOrdered=null;const g=mk('div','background:#064e3b;border:1px solid #34d399;border-radius:14px;padding:12px 14px;margin-bottom:10px;font-size:13.5px;line-height:1.8');g.appendChild(mk('b','display:block;font-size:15px','✅ অর্ডার জমা হয়েছে — #'+j.id));g.appendChild(mk('div','','মোট '+shpTaka(j.total)+'। আপনার পেমেন্ট যাচাই হলে অবস্থা "✅ পেমেন্ট নিশ্চিত" হবে ও নোটিফিকেশন পাবেন। নিচে অর্ডারের অবস্থা দেখতে পারবেন।'));body.appendChild(g)}
+      const top=mk('div','display:flex;justify-content:flex-end;margin-bottom:6px');shpBtn(top,'🔄 রিফ্রেশ',()=>shpRender(),'change-btn','padding:6px 12px;font-size:12.5px');body.appendChild(top);
+      const box=mk('div','');body.appendChild(box);box.appendChild(mk('p','color:#a7f3d0;font-size:13px;padding:10px 2px','⏳ লোড হচ্ছে…'));
+      try{const rows=await socRpc('shop_my_orders',{p_tok:SOCN.tok});box.innerHTML='';
+        if(!rows||!rows.length){box.appendChild(mk('p','font-size:13.5px;color:#a7f3d0;line-height:1.8;padding:10px 2px','এখনো কোনো অর্ডার নেই।'));return}
+        rows.forEach(o=>{const c=shpOrderCard(o,false);
+          if(o.status==='pending'){c.appendChild(mk('p','font-size:11.5px;color:#fcd34d;margin-top:8px','⏳ দোকান আপনার ট্রানজেকশন আইডি মিলিয়ে দেখছে।'));shpBtn(c,'অর্ডার বাতিল করুন',async()=>{if(!confirm('অর্ডারটি বাতিল করবেন?'))return;try{await socRpc('shop_cancel_order',{p_tok:SOCN.tok,p_id:o.id});SHP.products=null;shpRender()}catch(e){alert(shpErr(e))}},'danger-btn','width:100%;margin-top:6px')}
+          box.appendChild(c)})
+      }catch(e){box.innerHTML='';box.appendChild(mk('p','color:#fecaca;font-size:13px;line-height:1.7',shpErr(e)))}}
+
+    // ---------- ম্যানেজার (শুধু অ্যাডমিন) ----------
+    function shpAdmin(body){
+      if(!sbTok()){body.appendChild(shpNote('ম্যানেজার ব্যবহার করতে অ্যাডমিন হিসেবে লগইন করুন।'));return}
+      const sub=mk('div','display:flex;gap:6px;margin-bottom:10px');[['orders','📋 অর্ডার'],['products','🏷️ পণ্য'],['cfg','⚙️ সেটিংস']].forEach(([k,l])=>{const b=mk('button','',l);b.style.cssText='flex:1;padding:9px 6px;border-radius:10px;border:1px solid rgba(252,211,77,.5);color:#fff;font-size:13px;cursor:pointer;background:'+(SHP.adm===k?'#b45309':'#061812');b.onclick=()=>{SHP.adm=k;shpRender()};sub.appendChild(b)});body.appendChild(sub);
+      const area=mk('div','');body.appendChild(area);({orders:shpAdmOrders,products:shpAdmProducts,cfg:shpAdmCfg})[SHP.adm](area)}
+    async function shpAdmSet(id,status,note){try{await socRpc('admin_shop_set_status',{p_id:id,p_status:status,p_note:note==null?null:note},sbTok());SHP.products=null;shpRender()}catch(e){alert(shpErr(e))}}
+    async function shpAdmOrders(area){
+      const fl=[['','সব'],['pending','⏳ যাচাই বাকি'],['paid','✅ নিশ্চিত'],['shipped','🚚 পাঠানো'],['delivered','📦 পৌঁছেছে'],['rejected','❌ মেলেনি'],['cancelled','🚫 বাতিল']];
+      const row=mk('div','display:flex;gap:6px;overflow-x:auto;padding-bottom:8px');fl.forEach(([k,l])=>{const b=mk('button','',l);b.style.cssText='flex:0 0 auto;padding:6px 12px;border-radius:999px;border:1px solid rgba(16,185,129,.5);color:#fff;font-size:12.5px;cursor:pointer;white-space:nowrap;background:'+(SHP.admF===k?'#059669':'#061812');b.onclick=()=>{SHP.admF=k;shpRender()};row.appendChild(b)});area.appendChild(row);
+      area.appendChild(shpNote('💡 প্রতিটি অর্ডারের TrxID, টাকার অঙ্ক ও পাঠানো নম্বর আপনার বিকাশ/নগদ অ্যাপের লেনদেন-তালিকার সাথে মিলিয়ে তবেই "পেমেন্ট নিশ্চিত" চাপুন।','#a7f3d0'));
+      const box=mk('div','');area.appendChild(box);box.appendChild(mk('p','color:#a7f3d0;font-size:13px;padding:10px 2px','⏳ লোড হচ্ছে…'));
+      try{const rows=await socRpc('admin_shop_orders',{p_status:SHP.admF||null},sbTok());box.innerHTML='';
+        if(!rows||!rows.length){box.appendChild(mk('p','font-size:13.5px;color:#a7f3d0;padding:10px 2px','কোনো অর্ডার নেই।'));return}
+        rows.forEach(o=>{const c=shpOrderCard(o,true);const ac=mk('div','display:flex;gap:6px;flex-wrap:wrap;margin-top:8px');
+          const A=(t,st,cls,ask)=>shpBtn(ac,t,()=>{let n=null;if(ask){n=prompt(ask,'');if(n===null)return}else if(!confirm(t+' — নিশ্চিত?'))return;shpAdmSet(o.id,st,n)},cls||'change-btn','flex:1 1 40%;padding:9px 8px;font-size:13px');
+          if(o.status==='pending'){A('✅ পেমেন্ট নিশ্চিত','paid','primary-btn');A('❌ মেলেনি','rejected','danger-btn','কেন মেলেনি? (কাস্টমারকে এই বার্তা দেখানো হবে)')}
+          if(o.status==='paid')A('🚚 পাঠানো হয়েছে','shipped','primary-btn','ট্র্যাকিং/কুরিয়ারের তথ্য (ঐচ্ছিক):');
+          if(o.status==='shipped')A('📦 পৌঁছে গেছে','delivered','primary-btn');
+          if(o.status==='paid'||o.status==='shipped')A('🚫 বাতিল করুন','cancelled','danger-btn','বাতিলের কারণ:');
+          if(ac.childNodes.length)c.appendChild(ac);box.appendChild(c)})
+      }catch(e){box.innerHTML='';box.appendChild(mk('p','color:#fecaca;font-size:13px;line-height:1.7',shpErr(e)))}}
+    async function shpAdmProducts(area){
+      const top=mk('div','display:flex;gap:6px;margin-bottom:8px');shpBtn(top,'➕ নতুন পণ্য',()=>shpProdForm(area,null),'primary-btn','flex:1;margin:0');area.appendChild(top);
+      const box=mk('div','');area.appendChild(box);box.appendChild(mk('p','color:#a7f3d0;font-size:13px;padding:10px 2px','⏳ লোড হচ্ছে…'));
+      try{const rows=await socRpc('admin_shop_products',{},sbTok());box.innerHTML='';
+        if(!rows||!rows.length){box.appendChild(mk('p','font-size:13.5px;color:#a7f3d0;line-height:1.8;padding:10px 2px','এখনো কোনো পণ্য নেই। "➕ নতুন পণ্য" চাপুন।'));return}
+        rows.forEach(p=>{const c=mk('div',SHP_CARD+';display:flex;gap:10px;align-items:center'+(p.active?'':';opacity:.6'));
+          const th=mk('div','width:54px;height:54px;border-radius:10px;background:#061812;display:flex;align-items:center;justify-content:center;font-size:24px;overflow:hidden;flex:none');if(p.img){const i=document.createElement('img');i.src=p.img;i.style.cssText='width:100%;height:100%;object-fit:cover';th.appendChild(i)}else th.textContent='🛍️';c.appendChild(th);
+          const mid=mk('div','flex:1;min-width:0');mid.appendChild(mk('b','font-size:13.5px;display:block',p.name));mid.appendChild(mk('span','font-size:12px;color:#a7f3d0',shpTaka(p.price)+' · স্টক: '+(p.stock==null?'সীমাহীন':fmt(p.stock))+(p.active?'':' · 🙈 লুকানো')));c.appendChild(mid);
+          const ac=mk('div','display:flex;flex-direction:column;gap:5px;flex:none');shpBtn(ac,'✏️ বদলান',()=>shpProdForm(area,p),'change-btn','padding:6px 10px;font-size:12px');
+          shpBtn(ac,'🗑️',async()=>{if(!confirm('"'+p.name+'" মুছবেন? (পুরোনো অর্ডারে নাম থেকে যাবে)'))return;try{await socRpc('admin_shop_delete_product',{p_id:p.id},sbTok());SHP.products=null;shpRender()}catch(e){alert(shpErr(e))}},'danger-btn','padding:6px 10px;font-size:12px');c.appendChild(ac);box.appendChild(c)})
+      }catch(e){box.innerHTML='';box.appendChild(mk('p','color:#fecaca;font-size:13px;line-height:1.7',shpErr(e)))}}
+    function shpProdForm(area,p){
+      area.innerHTML='';const c=mk('div',SHP_CARD);area.appendChild(c);p=p||{};
+      c.appendChild(mk('b','font-size:14px;display:block;margin-bottom:6px',p.id?'✏️ পণ্য বদলান':'➕ নতুন পণ্য'));
+      const nm=shpIn(c,'পণ্যের নাম *',{val:p.name||'',max:120}),pr=shpIn(c,'দাম (টাকা) *',{mode:'numeric',val:p.price==null?'':p.price,max:9}),old=shpIn(c,'আগের দাম (ঐচ্ছিক — ছাড় দেখাতে)',{mode:'numeric',val:p.old||'',max:9}),st=shpIn(c,'স্টক (খালি রাখলে সীমাহীন)',{mode:'numeric',val:p.stock==null?'':p.stock,max:6}),ct=shpIn(c,'ক্যাটাগরি (যেমন: পোশাক, খাবার)',{val:p.cat||'',max:40}),ds=shpIn(c,'বিবরণ',{area:true,rows:4,val:p.descr||'',max:1500});
+      let img=p.img||'';c.appendChild(mk('label','','ছবি (ঐচ্ছিক — ছোট করে সংরক্ষণ হবে)')).className='field-label';
+      const pv=mk('div','width:110px;height:110px;border-radius:12px;background:#061812;display:flex;align-items:center;justify-content:center;font-size:34px;overflow:hidden;margin:4px 0');c.appendChild(pv);
+      const drawPv=()=>{pv.innerHTML='';if(img){const i=document.createElement('img');i.src=img;i.style.cssText='width:100%;height:100%;object-fit:cover';pv.appendChild(i)}else pv.textContent='🛍️'};drawPv();
+      const fi=document.createElement('input');fi.type='file';fi.accept='image/*';fi.style.cssText='margin:4px 0 8px;font-size:12.5px;color:#a7f3d0';c.appendChild(fi);
+      fi.onchange=async()=>{try{let u='';for(const m of [340,280,220,170]){u=await socImage(fi.files[0],m);if(u.length<=110000)break}if(u.length>110000)throw new Error('ছবিটি বেশি জটিল। অন্য ছবি দিন।');img=u;drawPv()}catch(e){alert(e.message||'ছবি দেওয়া যায়নি')}};
+      if(img)shpBtn(c,'ছবি সরান',()=>{img='';fi.value='';drawPv()},'change-btn','padding:6px 10px;font-size:12px');
+      const lb=document.createElement('label');lb.style.cssText='display:flex;gap:8px;align-items:center;font-size:13px;margin:8px 0;color:#d1fae5';const ac=document.createElement('input');ac.type='checkbox';ac.checked=p.active!==false;lb.appendChild(ac);lb.appendChild(mk('span','','সবাইকে দেখাও (টিক তুললে লুকানো থাকবে)'));c.appendChild(lb);
+      const er=mk('div','color:#fecaca;font-size:12.5px;min-height:18px','');c.appendChild(er);
+      shpBtn(c,'সংরক্ষণ করুন',async()=>{const price=parseInt(shpDigits(pr.value),10);if(!nm.value.trim())return er.textContent='নাম লিখুন।';if(!(price>=0))return er.textContent='দাম লিখুন।';
+        const o=old.value.trim()?parseInt(shpDigits(old.value),10):null,s=st.value.trim()?parseInt(shpDigits(st.value),10):null;
+        try{await socRpc('admin_shop_save_product',{p:{id:p.id||'',name:nm.value.trim(),price,old:o,stock:s,cat:ct.value.trim(),descr:ds.value.trim(),img,active:ac.checked,sort:p.sort||0}},sbTok());SHP.products=null;showToast('✅ সংরক্ষিত');shpRender()}catch(e){er.textContent=shpErr(e)}},'primary-btn');
+      shpBtn(c,'বাতিল',()=>shpRender(),'change-btn','width:100%;margin-top:6px')}
+    async function shpAdmCfg(area){
+      if(shpNeedDataAdm(area))return;
+      const cfg=SHP.cfg||{};const c=mk('div',SHP_CARD);area.appendChild(c);c.appendChild(mk('b','font-size:14px;display:block;margin-bottom:6px','⚙️ শপের সেটিংস'));
+      const lb=document.createElement('label');lb.style.cssText='display:flex;gap:8px;align-items:center;font-size:14px;margin:4px 0 10px;color:#fde68a;font-weight:700';const op=document.createElement('input');op.type='checkbox';op.checked=cfg.open===true;lb.appendChild(op);lb.appendChild(mk('span','','🟢 শপ চালু (টিক না থাকলে সবার কাছে "বন্ধ" দেখাবে)'));c.appendChild(lb);
+      const nm=shpIn(c,'শপের নাম',{val:cfg.name||'',max:60});
+      c.appendChild(mk('div','font-size:13px;font-weight:700;margin:10px 0 4px;color:#6ee7b7','💳 পেমেন্ট নম্বর (ফাঁকা রাখলে ওই মাধ্যম বন্ধ)'));
+      const cur={};(cfg.pay||[]).forEach(x=>cur[x.m]=x);const pf={};
+      Object.keys(SHP_PAY).forEach(m=>{const r=mk('div','display:flex;gap:6px;margin-bottom:6px');const n=document.createElement('input');n.className='form-field';n.type='tel';n.setAttribute('inputmode','tel');n.placeholder=SHP_PAY[m][0]+' নম্বর';n.value=(cur[m]&&cur[m].n)||'';n.style.cssText='margin:0;flex:1.4';const t=document.createElement('input');t.className='form-field';t.placeholder='ধরন (পার্সোনাল/এজেন্ট/মার্চেন্ট)';t.value=(cur[m]&&cur[m].t)||'';t.style.cssText='margin:0;flex:1';r.appendChild(n);r.appendChild(t);c.appendChild(r);pf[m]=[n,t]});
+      c.appendChild(shpNote('ℹ️ ব্যক্তিগত (পার্সোনাল) নম্বরে ব্যবসার টাকা নিলে বিকাশ/নগদ নিয়ম অনুযায়ী অ্যাকাউন্ট সীমিত করতে পারে — নিয়মিত বিক্রি হলে মার্চেন্ট অ্যাকাউন্ট নেওয়া নিরাপদ।','#a7f3d0'));
+      const fi=shpIn(c,'ডেলিভারি চার্জ — ঢাকার ভেতরে (টাকা)',{mode:'numeric',val:cfg.fee_in||0,max:6}),fo=shpIn(c,'ডেলিভারি চার্জ — ঢাকার বাইরে (টাকা)',{mode:'numeric',val:cfg.fee_out||0,max:6}),fr=shpIn(c,'এই টাকার বেশি কিনলে ডেলিভারি ফ্রি (০ = বন্ধ)',{mode:'numeric',val:cfg.free_over||0,max:7}),nt=shpIn(c,'কাস্টমারদের জন্য ঘোষণা (ঐচ্ছিক)',{area:true,rows:2,val:cfg.note||'',max:300});
+      const er=mk('div','color:#fecaca;font-size:12.5px;min-height:18px','');c.appendChild(er);
+      shpBtn(c,'সংরক্ষণ করুন',async()=>{const pay=[];Object.keys(pf).forEach(m=>{const n=shpDigits(pf[m][0].value).replace(/\D/g,'');if(n)pay.push({m,n,t:pf[m][1].value.trim()})});
+        if(op.checked&&!pay.length)return er.textContent='চালু করতে কমপক্ষে একটি পেমেন্ট নম্বর দিন।';
+        try{await socRpc('admin_shop_set_cfg',{p:{open:op.checked,name:nm.value.trim(),pay,fee_in:parseInt(shpDigits(fi.value),10)||0,fee_out:parseInt(shpDigits(fo.value),10)||0,free_over:parseInt(shpDigits(fr.value),10)||0,note:nt.value.trim()}},sbTok());SHP.products=null;showToast('✅ সংরক্ষিত');shpRender()}catch(e){er.textContent=shpErr(e)}},'primary-btn')}
+    function shpNeedDataAdm(area){if(SHP.products)return false;if(SHP.err){area.appendChild(shpNote(SHP.err,'#fecaca'));shpBtn(area,'🔄 আবার চেষ্টা',()=>{SHP.err='';shpRender()},'change-btn');return true}
+      if(!SHP.loading){SHP.loading=true;shpLoad().catch(e=>{SHP.err=shpErr(e)}).then(()=>{SHP.loading=false;shpRender()})}area.appendChild(mk('p','color:#a7f3d0;font-size:13px;padding:14px 4px','⏳ লোড হচ্ছে…'));return true}
+
+    (function shopReg(){
+      if(!CATEGORIES.some(c=>c.id==='shop')){const i=CATEGORIES.findIndex(c=>c.id==='market');CATEGORIES.splice(i<0?CATEGORIES.length:i+1,0,{id:'shop',name:'অনলাইন শপ (কেনাকাটা)',icon:'🛍️'})}
+      CATEGORY_SEARCH_TERMS.shop='অনলাইন শপ কেনাকাটা অর্ডার পণ্য কার্ট বিকাশ নগদ রকেট ট্রানজেকশন ডেলিভারি দোকান shop order bkash nagad';
+    })();
     // ===== নতুন ক্যাটাগরি: স্বাস্থ্য সচেতনতা ও রোগ প্রতিরোধ (v16) =====
     (function healthGK(){
       if(!CATEGORIES.some(c=>c.id==='healthgk')){
@@ -6229,6 +6491,7 @@
       if (GUIDES[id]) { renderGuide(list, id); special = true; }
       if (CIVIC_GUIDES[id]) { renderCivicGuide(list, id); special = true; }
       if (id === 'bizacc') { renderBizAcc(list); special = true; }
+      if (id === 'shop') { renderShop(list); special = true; }
     if (id === 'mymoney') { renderMyMoney(list); special = true; }
     if (id === 'maternal') { renderMaternal(list); special = true; }
     if (id === 'healthlog') { renderHealthLog(list); special = true; }
