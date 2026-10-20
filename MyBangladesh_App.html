@@ -2150,6 +2150,10 @@
     }
     function msgErrText2(e){const t=String(e&&e.message||e||'');if(/abort|failed to fetch|network|load failed/i.test(t))return'ইন্টারনেট সংযোগ নেই বা ধীর। সংযোগ দেখে আবার চেষ্টা করুন।';if(/could not find the function|PGRST202/i.test(t))return'সার্ভারের সেটআপ বাকি আছে (অ্যাডমিন: Supabase-এ SQL চালান)।';return t.slice(0,140)||'অজানা সমস্যা'}
     // অ্যাকাউন্ট সরঞ্জাম (প্রোফাইল পাতায়): পাসওয়ার্ড বদল, নতুন রিকভারি কোড
+    const accAddEmail=async()=>{const em=String(prompt('আপনার জিমেইল ঠিকানা লিখুন:')||'').trim().toLowerCase();if(!em)return;if(!emOk(em)){alert('সঠিক ইমেইল লিখুন।');return}
+        try{await emSend(em)}catch(e){alert('কোড পাঠানো যায়নি: '+emErr(e));return}
+        const c=prompt('ইমেইলে একটি কোড গেছে (ইনবক্স/স্প্যাম দেখুন)। কোডটি লিখুন:');if(!c)return;
+        try{const at=await emVerify(em,c);await socRpc('soc_set_email',{p_tok:SOCN.tok},at);alert('✅ জিমেইল যোগ হয়েছে। পাসওয়ার্ড ভুলে গেলে লগইন পাতায় "ভুলে গেছি" → "জিমেইলে কোড পাঠান" চাপুন।')}catch(e){alert('হয়নি: '+(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: 8_email_recovery.sql চালান)।':emErr(e)))}};
     function accTools(body){
       const u=socMe();if(!u)return;const box=mk('div','background:#0a251c;border:1px solid rgba(250,204,21,.35);border-radius:14px;padding:12px;margin-top:12px');body.appendChild(box);
       box.appendChild(mk('b','font-size:14px;display:block;margin-bottom:6px','🔐 আমার অ্যাকাউন্ট'));
@@ -2159,10 +2163,7 @@
       const b2=mk('button','','🆕 নতুন রিকভারি কোড বানান');b2.className='change-btn';b2.style.cssText='width:100%;padding:10px;cursor:pointer';
       b2.onclick=async()=>{if(!confirm('নতুন কোড বানালে আগের কোড আর কাজ করবে না। এগিয়ে যাবেন?'))return;try{const c=rcNew();await socRpc('soc_set_recovery',{p_tok:SOCN.tok,p_rhash:await rcHash(c)});prompt('আপনার নতুন রিকভারি কোড (লিখে বা কপি করে রাখুন):',c)}catch(e){alert('হয়নি: '+msgErrText2(e))}};box.appendChild(b2);
       const b3=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');b3.className='change-btn';b3.style.cssText='width:100%;padding:10px;margin-top:8px;cursor:pointer';
-      b3.onclick=async()=>{const em=String(prompt('আপনার জিমেইল ঠিকানা লিখুন:')||'').trim().toLowerCase();if(!em)return;if(!emOk(em)){alert('সঠিক ইমেইল লিখুন।');return}
-        try{await emSend(em)}catch(e){alert('কোড পাঠানো যায়নি: '+emErr(e));return}
-        const c=prompt('ইমেইলে একটি কোড গেছে (ইনবক্স/স্প্যাম দেখুন)। কোডটি লিখুন:');if(!c)return;
-        try{const at=await emVerify(em,c);await socRpc('soc_set_email',{p_tok:SOCN.tok},at);alert('✅ জিমেইল যোগ হয়েছে। পাসওয়ার্ড ভুলে গেলে লগইন পাতায় "ভুলে গেছি" → "জিমেইলে কোড পাঠান" চাপুন।')}catch(e){alert('হয়নি: '+(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: 8_email_recovery.sql চালান)।':emErr(e)))}};box.appendChild(b3);
+      b3.onclick=accAddEmail;box.appendChild(b3);
       box.appendChild(mk('p','font-size:11px;color:#fcd34d;line-height:1.6;margin-top:8px','পাসওয়ার্ড ভুলে গেলে লগইন পাতায় "ভুলে গেছি" চেপে এই কোড দিয়ে নতুন পাসওয়ার্ড বানানো যায়।'));
     }
     function pwCheck(pw,phone){if(String(pw||'').length<4)return 'পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন।';return ''}
@@ -3123,8 +3124,9 @@
       row('📤 বন্ধুকে অ্যাপ শেয়ার করুন',()=>{const u='https://adnan1497.github.io/My-bangladesh-app/MyBangladesh_App.html';const t='আমার বাংলাদেশ — জরুরি সেবা, হাসপাতাল, রক্ত, ব্যবসা হিসাব, সরকারি সেবা সব এক অ্যাপে।';if(navigator.share)navigator.share({title:'আমার বাংলাদেশ',text:t,url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(t+' '+u);alert('লিংক কপি হয়েছে')}catch(e){prompt('কপি করুন:',t+' '+u)}}try{amTrack('share')}catch(e){}});
       row('📝 অ্যাডমিনকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২০ · তৈরি: মোঃ রাজীব আল আদনান'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২১ · তৈরি: মোঃ রাজীব আল আদনান'));
       {const u=(typeof socMe==='function')?socMe():null;
+        if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
         lo.onclick=()=>{if(u){if(!confirm('এই ফোন থেকে লগআউট করবেন?\n(আবার লগইন করলে সব ফিরে পাবেন)'))return;const t=SOCN.tok;socRpc('soc_logout',{p_tok:t}).catch(()=>{});socDrop();try{soc.tab='feed';soc.mode='login';socRender()}catch(e){}updateBadge();closeModal('settingsModal')}else{closeModal('settingsModal');entryShow('login')}};b.appendChild(lo)}}
 
