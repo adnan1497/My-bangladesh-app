@@ -1337,7 +1337,7 @@
       start(m,onChange){
         this.me=m;this.cb=onChange;this.srv=[];this.soc=[];this.um=[];this.localList=[];this.sig='';this._claimed=false;this.grp=[];try{const su=socMe();if(su&&!(m.key===ADMIN_MSG_KEY)){if(GRP.uid!==su.id)grpCacheLoad(su.id);this.grp=grpMsgs()}else{GRP.uid=''}}catch(e){}
         LocalBackend.start(m,l=>{this.localList=l.filter(x=>x.to!==ADMIN_MSG_KEY&&x.from!==ADMIN_MSG_KEY);this.emit(true)});
-        clearInterval(this.timer);const go=()=>this.pull().catch(()=>{});go();this.timer=setInterval(()=>{if(!document.hidden)go()},6000);
+        clearInterval(this.timer);const go=()=>this.pull().catch(()=>{});this._lp=Date.now();go();this.timer=setInterval(()=>{if(document.hidden)return;const mm=document.getElementById('msgModal'),open=mm&&mm.classList.contains('active'),idle=Date.now()-(window.__lastAct||0)>180000,need=open?(idle?20000:6000):(idle?90000:30000);if(Date.now()-(this._lp||0)>=need){this._lp=Date.now();go()}},3000);
       },
       emit(force){const a=this.localList.concat(this.srv,this.soc,this.um,this.grp||[]).sort((x,y)=>x.ts-y.ts);const sg=a.length+':'+(a.length?a[a.length-1].id:'')+':'+a.filter(x=>x.dts).length+':'+a.filter(x=>x.rts).length;if(force||sg!==this.sig){this.sig=sg;this.cb&&this.cb(a)}},
       async pull(){
@@ -2359,7 +2359,7 @@
       await socRpc('soc_update_profile',{p_tok:SOCN.tok,p_name:n.name,p_bio:n.bio||'',p_photo:n.photo||'',p_friends_only:!!n.friendsOnly,p_area:n.area||{}});
       SOCN.me=n;socSave();
     }
-    setInterval(()=>{if(SOCN.tok&&!document.hidden&&socBox&&socBox.isConnected)socPull(false)},20000);
+    window.__lastAct=Date.now();['touchstart','click','keydown','scroll'].forEach(e=>document.addEventListener(e,()=>{window.__lastAct=Date.now()},{passive:true}));setInterval(()=>{if(SOCN.tok&&!document.hidden&&socBox&&socBox.isConnected&&Date.now()-window.__lastAct<300000)socPull(false)},30000);
     function socMe_dummy(){}
     const socIsAdmin=()=>{try{return sessionStorage.getItem(ADMIN_FLAG)==='1'}catch(e){return false}};
     let socBox=null,soc={mode:'login',tab:'feed',view:null,onlyMine:false,openC:{}},socLastPost=0;
@@ -3482,7 +3482,7 @@
       row('📤 বন্ধুকে অ্যাপ শেয়ার করুন',()=>{const u='https://adnan1497.github.io/My-bangladesh-app/MyBangladesh_App.html';const t='আমার বাংলাদেশ — জরুরি সেবা, হাসপাতাল, রক্ত, ব্যবসা হিসাব, সরকারি সেবা সব এক অ্যাপে।';if(navigator.share)navigator.share({title:'আমার বাংলাদেশ',text:t,url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(t+' '+u);alert('লিংক কপি হয়েছে')}catch(e){prompt('কপি করুন:',t+' '+u)}}try{amTrack('share')}catch(e){}});
       row('📝 কাস্টমার কেয়ারকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২৮'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২৯'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
