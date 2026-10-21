@@ -3482,7 +3482,7 @@
       row('📤 বন্ধুকে অ্যাপ শেয়ার করুন',()=>{const u='https://adnan1497.github.io/My-bangladesh-app/MyBangladesh_App.html';const t='আমার বাংলাদেশ — জরুরি সেবা, হাসপাতাল, রক্ত, ব্যবসা হিসাব, সরকারি সেবা সব এক অ্যাপে।';if(navigator.share)navigator.share({title:'আমার বাংলাদেশ',text:t,url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(t+' '+u);alert('লিংক কপি হয়েছে')}catch(e){prompt('কপি করুন:',t+' '+u)}}try{amTrack('share')}catch(e){}});
       row('📝 কাস্টমার কেয়ারকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২৭'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২৮'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -7923,6 +7923,7 @@
       var sv=0;try{sv=u?socSaved(u).length:0}catch(e){}
       var items=[['🛍️','#f59e0b','শপ','কেনাকাটা ও অর্ডার',function(){openCategoryModal('shop')}],
         ['💬','#10b981','কথা','মেসেজ ও গ্রুপ',function(){openInbox()}],
+        ['✨','#a78bfa','এআই সহায়ক','যেকোনো প্রশ্ন করুন',function(){openAI()}],
         ['📱','#38bdf8','সমাজ','ফিড, বন্ধু, পোস্ট',function(){openCategoryModal('social')}],
         ['🔖','#c084fc','সংরক্ষিত','পরে পড়ার পোস্ট',function(){try{soc.tab='settings';soc.view=null}catch(e){}openCategoryModal('social')},sv?fmt(sv):''],
         ['🩸','#f43f5e','রক্তদান','দাতা খুঁজুন',function(){openCategoryModal('blood')}],
@@ -7950,6 +7951,49 @@
       top.forEach(function(r,i){var nm=r[0]==='_'?{n:'অন্যান্য',i:'•'}:catName(r[0]),pc=Math.round(r[1]/all*100);var rw=el('div');rw.className='mn-rw';var rt=el('div');rt.className='mn-rt';var dt=el('i','background:'+COL[i%COL.length]);dt.className='mn-dot';rt.appendChild(dt);rt.appendChild(el('span','',nm.i+' '+nm.n));rt.appendChild(el('small','color:#a7f3d0',fmt(r[1])+' বার'));var ch=el('b','',fmt(pc)+'%');ch.className='mn-chip';rt.appendChild(ch);rw.appendChild(rt);var br=el('div');br.className='mn-bar';br.appendChild(el('i','width:'+pc+'%;background:'+COL[i%COL.length]));rw.appendChild(br);bx.appendChild(rw)});
       w.appendChild(bx)}
   };
+})();
+</script>
+
+<script>
+/* ===== পূর্ণ পাতা + আমার বাংলাদেশ এআই সহায়ক (v28) ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent='.amar-full{background:#09221a!important;backdrop-filter:none!important;align-items:stretch!important}.amar-full .modal-content{max-width:none!important;width:100%!important;height:100%!important;max-height:100%!important;border-radius:0!important;border:0!important;animation:none!important}.ai-wrap{display:flex;flex-direction:column;height:100%}.ai-log{flex:1;overflow-y:auto;padding:6px 2px 10px}.ai-b{max-width:86%;padding:10px 13px;border-radius:18px;margin:6px 0;font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-word}.ai-b.bot{background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-bottom-left-radius:6px}.ai-b.me{background:#059669;margin-left:auto;border-bottom-right-radius:6px}.ai-ch{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}.ai-ch button{border:1px solid rgba(16,185,129,.5);background:#061812;color:#fff;border-radius:99px;padding:7px 12px;font-size:12.5px;cursor:pointer}.ai-in{display:flex;gap:8px;padding:8px 0 4px;position:sticky;bottom:0;background:#09221a}.ai-in input{flex:1;border-radius:99px;padding:12px 16px;font-size:16px}.ai-in button{width:46px;height:46px;border-radius:50%;border:0;background:#10b981;color:#fff;font-size:18px;cursor:pointer}';
+  document.head.appendChild(st);
+  var _oc=window.openCategoryModal;
+  window.openCategoryModal=function(id){var r=_oc.apply(this,arguments);try{var d=document.getElementById('detailModal');if(d)d.classList.toggle('amar-full',id==='social')}catch(e){}return r};
+  var _cm=window.closeModal;
+  window.closeModal=function(id){var r=_cm.apply(this,arguments);try{if(id==='detailModal')document.getElementById('detailModal').classList.remove('amar-full')}catch(e){}return r};
+  function el(t,c,x){var e=document.createElement(t);if(c)e.style.cssText=c;if(x!=null)e.textContent=x;return e}
+  var B=function(n){return String(n).replace(/[0-9]/g,function(d){return '০১২৩৪৫৬৭৮৯'[d]})};
+  var HOT={'৯৯৯':'জাতীয় জরুরি সেবা — পুলিশ, ফায়ার সার্ভিস ও অ্যাম্বুলেন্সের জন্য।','৩৩৩':'জাতীয় তথ্য সেবা — সরকারি সেবা ও তথ্যের জন্য।','১০৯':'নারী ও শিশু নির্যাতন প্রতিরোধে জাতীয় হেল্পলাইন।','১০৯৮':'শিশু হেল্পলাইন।','১৬২৬৩':'স্বাস্থ্য বাতায়ন — স্বাস্থ্য পরামর্শ।','১০৬':'দুর্নীতি দমন কমিশন (দুদক) হটলাইন।','১৬৪৩০':'জাতীয় আইনগত সহায়তা হেল্পলাইন।'};
+  var FACT=[[/রাজধানী/,'বাংলাদেশের রাজধানী ঢাকা।'],[/স্বাধীনতা দিবস/,'স্বাধীনতা দিবস ২৬ মার্চ।'],[/বিজয় দিবস/,'বিজয় দিবস ১৬ ডিসেম্বর।'],[/ভাষা দিবস|শহীদ দিবস/,'আন্তর্জাতিক মাতৃভাষা দিবস ২১ ফেব্রুয়ারি।'],[/জাতীয় ফল/,'জাতীয় ফল কাঁঠাল।'],[/জাতীয় ফুল/,'জাতীয় ফুল শাপলা।'],[/জাতীয় পাখি/,'জাতীয় পাখি দোয়েল।'],[/জাতীয় মাছ/,'জাতীয় মাছ ইলিশ।'],[/জাতীয় পশু/,'জাতীয় পশু রয়েল বেঙ্গল টাইগার।'],[/জাতীয় সংগীত/,'জাতীয় সংগীত "আমার সোনার বাংলা" — রচনা রবীন্দ্রনাথ ঠাকুর।'],[/কয়টি জেলা|কত জেলা|জেলা কয়/,'বাংলাদেশে ৬৪টি জেলা।'],[/কয়টি বিভাগ|কত বিভাগ|বিভাগ কয়/,'বাংলাদেশে ৮টি প্রশাসনিক বিভাগ: ঢাকা, চট্টগ্রাম, রাজশাহী, খুলনা, বরিশাল, সিলেট, রংপুর ও ময়মনসিংহ।'],[/মুদ্রা/,'বাংলাদেশের মুদ্রা টাকা (৳)।']];
+  var GO=[[/রক্ত|ব্লাড/,'blood','রক্তদাতা'],[/চাকরি|জব/,'jobs','চাকরি'],[/ডাক্তার|চিকিৎসক|হাসপাতাল/,'doctor','ডাক্তার'],[/উকিল|আইনজীবী|মামলা/,'lawyer','আইনজীবী'],[/শপ|কেনা|অর্ডার|পণ্য/,'shop','শপ'],[/নামাজ|কোরআন|কুরআন|হাদিস|দোয়া|ইসলাম/,'islamic','ইসলামিক'],[/পত্রিকা|সংবাদ|খবর/,'news','পত্রিকা'],[/ম্যাপ|মানচিত্র/,'maps','ম্যাপ'],[/হারানো|হারিয়ে/,'lost','হারানো-প্রাপ্তি'],[/পুলিশ|ফায়ার|অ্যাম্বুলেন্স|জরুরি/,'emergency','জরুরি সেবা'],[/ভ্রমণ|ঘুরতে|পাসপোর্ট/,'travel','ভ্রমণ'],[/সমাজ|পোস্ট|বন্ধু/,'social','সমাজ'],[/ইভেন্ট|অনুষ্ঠান/,'events','ইভেন্ট'],[/নোট/,'notes','নোট'],[/ক্যালকুলেটর|টুল/,'tools','টুলস']];
+  function calc(q){var t=q.replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)}).replace(/[×x]/g,'*').replace(/÷/g,'/').replace(/[^0-9+\-*/().% ]/g,'').trim();if(!/\d/.test(t)||!/[+\-*/%]/.test(t)||t.length>40)return null;try{var v=Function('"use strict";return ('+t.replace(/(\d+(?:\.\d+)?)%/g,'($1/100)')+')')();if(typeof v==='number'&&isFinite(v))return B(Math.round(v*1e6)/1e6)}catch(e){}return null}
+  function answer(q){var s=q.trim(),acts=[];
+    var h=s.replace(/[০-৯]/g,function(d){return String('০১২৩৪৫৬৭৮৯'.indexOf(d))});
+    for(var k in HOT){var kk=k.replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)});if(h.indexOf(kk)>=0)return{t:k+' — '+HOT[k],a:[['📞 ডায়াল করুন',function(){location.href='tel:'+kk}]]}}
+    if(/সময়|কয়টা বাজে|কটা বাজে/.test(s)){var n=new Date();return{t:'এখন সময় '+B(n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}))+'।'}}
+    if(/আজ.*(তারিখ|দিন|বার)|তারিখ কত|আজকের/.test(s)){return{t:'আজ '+new Date().toLocaleDateString('bn-BD',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'।'}}
+    for(var i=0;i<FACT.length;i++)if(FACT[i][0].test(s))return{t:FACT[i][1]};
+    var c=calc(s);if(c!==null)return{t:'উত্তর: '+c};
+    for(var j=0;j<GO.length;j++)if(GO[j][0].test(s))acts.push(['➡️ '+GO[j][2]+' খুলুন',(function(id){return function(){closeModal('aiModal');setTimeout(function(){openCategoryModal(id)},30)}})(GO[j][1])]);
+    if(acts.length)return{t:'এ বিষয়ে অ্যাপে সরাসরি সেবা আছে — নিচের বোতামে চাপুন।',a:acts.slice(0,3)};
+    if(/^(হাই|হ্যালো|সালাম|আসসালামু|হ্যালো)/.test(s))return{t:'ওয়ালাইকুম আসসালাম! আমি আমার বাংলাদেশ এআই। জরুরি নম্বর, দেশের তথ্য, তারিখ-সময়, হিসাব বা অ্যাপের সেবা — যা জানতে চান জিজ্ঞাসা করুন।'};
+    if(/ধন্যবাদ|থ্যাংক/.test(s))return{t:'আপনাকেও ধন্যবাদ! আর কিছু জানতে চাইলে বলুন।'};
+    return{t:'দুঃখিত, এই প্রশ্নের উত্তর আমার জানা নেই। অন্যভাবে লিখে দেখুন, অথবা কাস্টমার কেয়ারকে জিজ্ঞাসা করুন।',a:[['🎧 কাস্টমার কেয়ার',function(){closeModal('aiModal');setTimeout(openAdminChat,30)}]]}}
+  window.openAI=function(){var m=document.getElementById('aiModal');
+    if(!m){m=document.createElement('div');m.className='modal-overlay amar-full';m.id='aiModal';m.innerHTML='<div class="modal-content"><div class="ai-wrap"></div></div>';document.body.appendChild(m)}
+    var w=m.querySelector('.ai-wrap');w.textContent='';
+    var h=el('div');h.className='modal-header';h.appendChild(el('h3','font-size:18px','✨ আমার বাংলাদেশ এআই'));var x=el('button','','✕');x.className='close-btn';x.onclick=function(){closeModal('aiModal')};h.appendChild(x);w.appendChild(h);
+    var log=el('div');log.className='ai-log';w.appendChild(log);
+    function bub(t,k){var b=el('div','',t);b.className='ai-b '+k;log.appendChild(b);log.scrollTop=log.scrollHeight}
+    function chips(a){var c=el('div');c.className='ai-ch';a.forEach(function(x){var b=el('button','',x[0]);b.onclick=x[1];c.appendChild(b)});log.appendChild(c);log.scrollTop=log.scrollHeight}
+    function ask(q){if(!q.trim())return;bub(q,'me');var r=answer(q);setTimeout(function(){bub(r.t,'bot');if(r.a)chips(r.a)},250)}
+    bub('আসসালামু আলাইকুম! আমি আমার বাংলাদেশ এআই 👋\nজরুরি নম্বর, দেশের তথ্য, তারিখ-সময়, হিসাব বা অ্যাপের যেকোনো সেবা — জিজ্ঞাসা করুন।','bot');
+    chips([['🚨 জরুরি নম্বর কী?',function(){ask('৯৯৯')}],['🏙️ রাজধানী কোথায়?',function(){ask('রাজধানী')}],['🩸 রক্ত লাগবে',function(){ask('রক্ত লাগবে')}],['🧮 ১২৫ × ৪',function(){ask('১২৫ × ৪')}],['📅 আজ কত তারিখ?',function(){ask('আজ কত তারিখ')}]]);
+    var f=el('div');f.className='ai-in';var i=document.createElement('input');i.className='form-field';i.placeholder='প্রশ্ন লিখুন…';i.autocomplete='off';var sb=el('button','','➤');sb.setAttribute('aria-label','পাঠান');
+    var go=function(){var v=i.value;i.value='';ask(v)};sb.onclick=go;i.onkeydown=function(e){if(e.key==='Enter')go()};f.appendChild(i);f.appendChild(sb);w.appendChild(f);m.classList.add('active')};
 })();
 </script>
 
