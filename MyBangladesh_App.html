@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>My Bangladesh | আমার বাংলাদেশ</title>
   <meta name="theme-color" content="#061a14">
   <link rel="manifest" href="manifest.webmanifest">
@@ -163,10 +163,18 @@
       background-color: #0b241c;
       border: 1px solid rgba(16, 185, 129, 0.25);
       display: flex;
-      justify-content: space-around;
-      gap: 4px;
+      justify-content: flex-start;
+      gap: 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
     }
+    .quick-ribbon::-webkit-scrollbar{display:none}
     .quick-item {
+      flex: 0 0 auto;
+      min-width: 52px;
+      scroll-snap-align: start;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -431,6 +439,19 @@
     .modal-content{animation:amarPop .22s ease-out}
     @keyframes amarPop{from{opacity:.4;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
     @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+    /* v25 অ্যাপ-শেল: সবসময় দৃশ্যমান পিছনে-বাটন, নেটিভ-অনুভূতি */
+    html{overscroll-behavior-y:none;-webkit-text-size-adjust:100%}
+    button,.nav-item,.quick-item,.card-banner,.close-btn,.chip,.cat-card,.step-btn{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+    .bottom-nav{padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+    .modal-content{padding:0 20px 20px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;animation:slideUp .27s cubic-bezier(.2,.8,.2,1)}
+    .overlay-center .modal-content{animation:amarPop .22s ease-out}
+    .modal-content>*:first-child:not(.modal-header){margin-top:20px}
+    .modal-header{position:sticky;top:0;z-index:8;background:#09221a;margin:0 -20px 14px;padding:14px 20px 12px;gap:8px;box-shadow:0 6px 10px -8px rgba(0,0,0,.6)}
+    .modal-header>.amar-back+*{flex:1;min-width:0}
+    .close-btn{width:40px;height:40px;font-size:17px;flex:none;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+    .amar-back{flex:none;height:40px;padding:0 14px 0 11px;border-radius:999px;border:1px solid #10b981;background:#0f3a2b;color:#d1fae5;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+    .amar-back:active{background:#10b981;color:#042016}
   </style>
 </head>
 <body>
@@ -439,7 +460,7 @@
     <header class="app-header">
       <div class="profile-bar">
         <div class="user-info">
-          <button class="change-btn" onclick="openSettings()" aria-label="মেনু" style="font-size:20px;padding:4px 9px;line-height:1.2;font-weight:800;margin-right:2px;align-self:center">☰</button>
+          <button class="change-btn" onclick="openMenu()" aria-label="মেনু" style="font-size:20px;padding:4px 9px;line-height:1.2;font-weight:800;margin-right:2px;align-self:center">☰</button>
           <div class="avatar" onclick="goHome()" style="cursor:pointer">🇧🇩</div>
           <div>
             <span id="helloWho" style="font-size: 11px; color: #a7f3d0;">হ্যালো, নাগরিক</span>
@@ -456,8 +477,8 @@
         </div>
       </div>
       <div id="adminBar" style="display:flex;align-items:center;gap:8px;margin-top:10px;background:linear-gradient(90deg,#064e3b,#0f766e);border:1px solid rgba(52,211,153,.5);border-radius:14px;padding:8px 10px">
-        <span onclick="openAdminEntry()" title="অ্যাডমিন লগইন" style="cursor:pointer;font-size:22px">👨‍💼</span>
-        <div style="flex:1;min-width:0;line-height:1.35"><div style="font-size:10px;color:#a7f3d0;letter-spacing:.5px">তথ্য ভুল বা পুরোনো হলে অ্যাডমিনকে জানান</div><div id="adminBarName" style="font-size:14px;font-weight:700;color:#fde68a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">আপনার সহায়তায় তথ্য নির্ভুল থাকে</div></div>
+        <span onclick="openAdminEntry()" title="কেয়ার লগইন" style="cursor:pointer;font-size:22px">👨‍💼</span>
+        <div style="flex:1;min-width:0;line-height:1.35"><div style="font-size:10px;color:#a7f3d0;letter-spacing:.5px">তথ্য ভুল বা পুরোনো হলে কাস্টমার কেয়ারকে জানান</div><div id="adminBarName" style="font-size:14px;font-weight:700;color:#fde68a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">আপনার সহায়তায় তথ্য নির্ভুল থাকে</div></div>
         <button class="change-btn" onclick="openAdminChat()" style="font-size:11.5px;padding:7px 11px;white-space:nowrap">📝 আপডেট জানান</button>
       </div>
     </header>
@@ -498,6 +519,18 @@
       <button class="quick-item" onclick="openCategoryModal('eservices')">
         <div class="quick-icon" style="color: #34d399;">🌐</div>
         <span>ই-সেবা</span>
+      </button>
+      <button class="quick-item" onclick="openCategoryModal('shop')">
+        <div class="quick-icon" style="color: #facc15;">🛍️</div>
+        <span>শপ</span>
+      </button>
+      <button class="quick-item" onclick="openInbox()">
+        <div class="quick-icon" style="color: #38bdf8;">💬</div>
+        <span>কথা</span>
+      </button>
+      <button class="quick-item" onclick="openCategoryModal('social')">
+        <div class="quick-icon" style="color: #f472b6;">📱</div>
+        <span>সমাজ</span>
       </button>
     </div>
 
@@ -668,7 +701,7 @@
   <div class="modal-overlay overlay-center" id="adminLoginModal" style="z-index:95">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 style="font-size:19px">🔐 অ্যাডমিন লগইন</h3>
+        <h3 style="font-size:19px">🔐 কেয়ার লগইন</h3>
         <button class="close-btn" onclick="closeModal('adminLoginModal')">✕</button>
       </div>
       <label class="field-label" for="adEmail">জিমেইল</label>
@@ -771,7 +804,7 @@
   <div class="modal-overlay overlay-center" id="adminModal" style="z-index:90">
     <div class="modal-content">
       <div class="modal-header">
-        <div><h3 style="font-size:19px">অ্যাডমিন প্যানেল</h3><p id="adminUserLabel" style="font-size:11px;color:#6ee7b7">সব এলাকা ও সব বিষয়ে তথ্য লিখুন</p></div>
+        <div><h3 style="font-size:19px">কেয়ার প্যানেল</h3><p id="adminUserLabel" style="font-size:11px;color:#6ee7b7">সব এলাকা ও সব বিষয়ে তথ্য লিখুন</p></div>
         <button class="close-btn" onclick="closeModal('adminModal')">✕</button>
       </div>
       <div class="admin-tabs" style="grid-template-columns:repeat(3,1fr)">
@@ -868,7 +901,7 @@
         <button class="primary-btn" style="background:#064e3b;color:#fff;border:1px solid #10b981" onclick="importData()">ইমপোর্ট (টেক্সট থেকে যুক্ত করুন)</button>
       </div>
 
-      <button class="change-btn" style="width:100%;padding:10px;margin-top:12px" onclick="logoutLocal()">অ্যাডমিন লগ আউট</button>
+      <button class="change-btn" style="width:100%;padding:10px;margin-top:12px" onclick="logoutLocal()">কাস্টমার কেয়ার লগ আউট</button>
     </div>
   </div>
 
@@ -997,7 +1030,7 @@
     function openDonorForm(adm){
       dnAdminMode=adm===true;
       $('donorModal').style.zIndex=dnAdminMode?'95':'70';
-      $('dnTitle').textContent=dnAdminMode?'🩸 রক্তদাতা নিবন্ধন (অ্যাডমিন)':'🩸 রক্তদাতা নিবন্ধন';
+      $('dnTitle').textContent=dnAdminMode?'🩸 রক্তদাতা নিবন্ধন (কাস্টমার কেয়ার)':'🩸 রক্তদাতা নিবন্ধন';
       $('dnSub').textContent=dnAdminMode?'যেকোনো ব্যক্তির পক্ষে রক্তদাতা যোগ করুন':'নিজের তথ্য নিজেই যোগ করুন';
       $('dnConsentTx').textContent=dnAdminMode?'এই ব্যক্তির সম্মতি নিয়েছি — তাঁর নাম, মোবাইল নম্বর, রক্তের গ্রুপ ও এলাকা অ্যাপে অন্যদের দেখানো যাবে।':'আমার নাম, মোবাইল নম্বর, রক্তের গ্রুপ ও এলাকা এই অ্যাপে অন্যদের দেখানোর অনুমতি দিচ্ছি। রক্তের প্রয়োজনে লোকজন আমাকে ফোন করতে পারবে।';
       $('dnSaveBtn').textContent=dnAdminMode?'রক্তদাতা যোগ করুন':'নিবন্ধন করুন';
@@ -1069,7 +1102,7 @@
       let total=0;scope.forEach(sc=>sc.ds.forEach(d=>total+=thanasOfDistrict(d).length));
       const input=mk('input','width:100%;padding:10px 14px;border-radius:12px;background:#061812;border:1px solid #10b981;color:#fff;font-size:13px;margin-bottom:6px;outline:none');
       input.placeholder='থানার নাম খুঁজুন…';list.appendChild(input);
-      list.appendChild(mk('p','font-size:11px;color:#6ee7b7;line-height:1.6;margin:0 0 8px',`এই এলাকায় মোট ${fmt(total)}টি থানা। উপজেলা থানার সঙ্গে ঢাকা, চট্টগ্রাম, সিলেট, বরিশাল, রাজশাহী ও খুলনার মেট্রোপলিটন থানাও আছে। সর্বশেষ পূর্ণ তালিকা police.gov.bd-তে যাচাই করুন; কোনো থানা বাদ থাকলে অ্যাডমিন প্যানেল থেকে যোগ করা যাবে।`));
+      list.appendChild(mk('p','font-size:11px;color:#6ee7b7;line-height:1.6;margin:0 0 8px',`এই এলাকায় মোট ${fmt(total)}টি থানা। উপজেলা থানার সঙ্গে ঢাকা, চট্টগ্রাম, সিলেট, বরিশাল, রাজশাহী ও খুলনার মেট্রোপলিটন থানাও আছে। সর্বশেষ পূর্ণ তালিকা police.gov.bd-তে যাচাই করুন; কোনো থানা বাদ থাকলে কেয়ার প্যানেল থেকে যোগ করা যাবে।`));
       if(state.union&&state.upazila)list.appendChild(mk('p','font-size:12px;color:#fcd34d;line-height:1.7;background:#2b2410;border:1px solid rgba(251,191,36,.4);border-radius:12px;padding:10px;margin:0 0 8px','📍 '+state.union+' ইউনিয়ন সাধারণত '+state.upazila+' উপজেলার থানার আওতায়। মেট্রোপলিটন এলাকায় বা সীমানায় থানা ভিন্ন হতে পারে — নিশ্চিত হতে ৯৯৯ বা স্থানীয় থানায় জানুন।'));
       const row=mk('div','display:flex;gap:8px;margin-bottom:10px');
       const call=mk('a','','📞 জরুরি ৯৯৯');call.className='call-btn';call.style.background='#dc2626';call.style.color='#fff';call.href='tel:999';
@@ -1147,7 +1180,7 @@
       docs.forEach(d=>{
         const card=mk('div','background:#0b2b20;border:1px solid rgba(56,189,248,.35);border-radius:14px;padding:12px;margin-bottom:10px');
         card.appendChild(mk('b','font-size:15px;display:block',d.name+(d.verified?' ✅':'')));
-        if(d.verified)card.appendChild(mk('div','font-size:10.5px;color:#6ee7b7;margin:2px 0','✅ অ্যাডমিন যাচাইকৃত'));else card.appendChild(mk('div','font-size:10.5px;color:#fde68a;margin:2px 0','⏳ পেন্ডিং — অ্যাডমিন অনুমোদনের অপেক্ষায়'));
+        if(d.verified)card.appendChild(mk('div','font-size:10.5px;color:#6ee7b7;margin:2px 0','✅ কাস্টমার কেয়ার যাচাইকৃত'));else card.appendChild(mk('div','font-size:10.5px;color:#fde68a;margin:2px 0','⏳ পেন্ডিং — কাস্টমার কেয়ার অনুমোদনের অপেক্ষায়'));
         const chip=mk('span','',d.specialty||'');chip.className='chip';chip.style.marginLeft='0';card.appendChild(chip);
         const loc=d.location||{};
         const meta=[d.degrees,d.exp?`অভিজ্ঞতা ${fmt(d.exp)} বছর`:'',d.bmdc?`বিএমডিসি: ${d.bmdc}`:'',[loc.upazila,loc.district].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
@@ -1231,7 +1264,7 @@
     const MSG_KEY='amarBangladeshMessages_v1',MSG_READ_KEY='amarBangladeshMsgRead_v1',MSG_BLOCK_KEY='amarBangladeshBlocked_v1';
     const phoneKey=p=>{let d=String(p||'').replace(/[০-৯]/g,c=>'০১২৩৪৫৬৭৮৯'.indexOf(c)).replace(/[^0-9]/g,'');if(d.startsWith('880')&&d.length===13)d='0'+d.slice(3);return d};
     function me(){const su=(typeof socMe==='function')?socMe():null;if(su)return{name:su.name,key:su.phone||su.id};let m=currentProfile;if(!m){try{m=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null')}catch(e){}}return m&&m.phone?{name:String(m.name||'').slice(0,80),key:phoneKey(m.phone)}:null}
-    const ADMIN_MSG_KEY='admin',ADMIN_MSG_NAME='অ্যাডমিন';
+    const ADMIN_MSG_KEY='admin',ADMIN_MSG_NAME='কাস্টমার কেয়ার';
     function msgMe(){try{if(window.__admMsg&&sessionStorage.getItem('amarBangladeshAdminIn_v1')==='1')return{name:ADMIN_MSG_NAME,key:ADMIN_MSG_KEY}}catch(e){}return me()}
     function admMsgLeave(){if(window.__admMsg){window.__admMsg=false;msgAll=[];msgPeer=null;try{msgInit()}catch(e){}try{updateBadge()}catch(e){}}}
     const MSG_HOLD_KEY='amarBangladeshHold_v1',MSG_BNAME_KEY='amarBangladeshBlockNames_v1';
@@ -1251,7 +1284,7 @@
       const nm=readJSON(MSG_BNAME_KEY,{});if(on&&name){nm[peer]=String(name).slice(0,80);writeJSON(MSG_BNAME_KEY,nm)}}
     function openAdminInbox(){
       let ok=false;try{ok=sessionStorage.getItem('amarBangladeshAdminIn_v1')==='1'}catch(e){}
-      if(!ok){alert('আগে অ্যাডমিন লগইন করুন।');return}
+      if(!ok){alert('আগে কেয়ার লগইন করুন।');return}
       if(!sbTok()){alert('অনলাইন কথা দেখতে আগে "📝 নিবন্ধন" ট্যাবে Supabase জিমেইল-পাসওয়ার্ডে লগইন করুন, তারপর আবার 💬 কথা চাপুন।');try{showAdminTab('reg')}catch(e){}return}
       window.__admMsg=true;msgAll=[];msgPeer=null;msgInit();ensureMsgModal();$('msgModal').style.zIndex='400';$('msgModal').classList.add('active');drawInbox();
     }
@@ -1261,7 +1294,7 @@
       const n=(window.__admSrv||[]).filter(x=>x&&x.to===ADMIN_MSG_KEY&&!bl.includes(x.from)&&x.ts>(rm[x.from]||0)).length;
       b.textContent=fmt(n);b.style.display=n?'inline-block':'none';
     }
-    // অ্যাডমিন প্যানেল খোলা থাকলে ব্যাজের জন্য ১৫ সেকেন্ড পরপর নতুন বার্তা দেখা
+    // কেয়ার প্যানেল খোলা থাকলে ব্যাজের জন্য ১৫ সেকেন্ড পরপর নতুন বার্তা দেখা
     let admPollT=null;
     function admPollStart(){clearInterval(admPollT);const go=async()=>{const t=sbTok();const am=document.getElementById('adminModal');if(!t||!am||!am.classList.contains('active'))return;try{let pc=0;try{const a=await sbReq('/rest/v1/registrations?select=id&status=eq.pending&limit=500',{token:t});pc+=Array.isArray(a)?a.length:0}catch(e){}pc+=await SH.pendingCount(t);if(pc!==window.__admPendSrv){window.__admPendSrv=pc;try{updRegTab()}catch(e){}}}catch(e){}try{const rows=await sbReq('/rest/v1/admin_messages?select=id,user_key,user_name,dir,text,ts,dts,rts&order=ts.asc&limit=1000',{token:t});if(Array.isArray(rows)){window.__admSrv=rows.map(r=>HybridBackend.conv(r));admBadge()}}catch(e){}};go();admPollT=setInterval(go,15000)}
     function openAdminChat(){
@@ -1290,11 +1323,11 @@
       async mark(ids,field){if(!this.db)return;const now=Date.now();ids.forEach(id=>{this.db.collection('messages').doc(id).update({[field]:now}).catch(()=>{})})},
       async send(msg){if(!this.db)throw new Error('offline');const o=Object.assign({},msg);delete o.id;o.participants=[msg.from,msg.to];await this.db.collection('messages').add(o)}
     };
-    // ইউজার ↔ অ্যাডমিন বার্তা অনলাইনে (Supabase); ইউজার ↔ ইউজার বার্তা আগের মতো এই ফোনে
+    // ইউজার ↔ কাস্টমার কেয়ার বার্তা অনলাইনে (Supabase); ইউজার ↔ ইউজার বার্তা আগের মতো এই ফোনে
     function msgErrText(e){const t=String(e&&e.message||e||'');
-      if(/not allowed/i.test(t))return'এই নম্বরটি অন্য কোনো ফোন/অ্যাকাউন্টে আগে থেকে নেওয়া আছে। অ্যাডমিনকে জানান, তিনি আপনার নম্বর মুক্ত করে দেবেন।';
+      if(/not allowed/i.test(t))return'এই নম্বরটি অন্য কোনো ফোন/অ্যাকাউন্টে আগে থেকে নেওয়া আছে। কাস্টমার কেয়ারকে জানান, তিনি আপনার নম্বর মুক্ত করে দেবেন।';
       if(/too many/i.test(t))return'অল্প সময়ে অনেক কথা পাঠানো হয়েছে, একটু পরে চেষ্টা করুন।';
-      if(/could not find the function|PGRST202|HTTP 404/i.test(t))return'সার্ভারের সেটআপ বাকি আছে (অ্যাডমিন: Supabase-এ 4_user_msgs.sql চালান)।';
+      if(/could not find the function|PGRST202|HTTP 404/i.test(t))return'সার্ভারের সেটআপ বাকি আছে (কাস্টমার কেয়ার: Supabase-এ 4_user_msgs.sql চালান)।';
       if(/abort|failed to fetch|network/i.test(t))return'ইন্টারনেট সংযোগ নেই বা ধীর।';
       return t.slice(0,140)||'অজানা সমস্যা'}
     const HybridBackend={
@@ -1302,11 +1335,11 @@
       isAdminView(){return this.me&&this.me.key===ADMIN_MSG_KEY},
       conv(r){const u2a=r.dir==='u2a';return{id:r.id,from:u2a?r.user_key:ADMIN_MSG_KEY,fromName:u2a?(r.user_name||''):ADMIN_MSG_NAME,to:u2a?ADMIN_MSG_KEY:r.user_key,toName:u2a?ADMIN_MSG_NAME:(r.user_name||''),text:r.text,ts:+r.ts,dts:r.dts?+r.dts:0,rts:r.rts?+r.rts:0,_srv:1}},
       start(m,onChange){
-        this.me=m;this.cb=onChange;this.srv=[];this.soc=[];this.um=[];this.localList=[];this.sig='';this._claimed=false;
+        this.me=m;this.cb=onChange;this.srv=[];this.soc=[];this.um=[];this.localList=[];this.sig='';this._claimed=false;this.grp=[];try{const su=socMe();if(su&&!(m.key===ADMIN_MSG_KEY)){if(GRP.uid!==su.id)grpCacheLoad(su.id);this.grp=grpMsgs()}else{GRP.uid=''}}catch(e){}
         LocalBackend.start(m,l=>{this.localList=l.filter(x=>x.to!==ADMIN_MSG_KEY&&x.from!==ADMIN_MSG_KEY);this.emit(true)});
         clearInterval(this.timer);const go=()=>this.pull().catch(()=>{});go();this.timer=setInterval(()=>{if(!document.hidden)go()},6000);
       },
-      emit(force){const a=this.localList.concat(this.srv,this.soc,this.um).sort((x,y)=>x.ts-y.ts);const sg=a.length+':'+(a.length?a[a.length-1].id:'')+':'+a.filter(x=>x.dts).length+':'+a.filter(x=>x.rts).length;if(force||sg!==this.sig){this.sig=sg;this.cb&&this.cb(a)}},
+      emit(force){const a=this.localList.concat(this.srv,this.soc,this.um,this.grp||[]).sort((x,y)=>x.ts-y.ts);const sg=a.length+':'+(a.length?a[a.length-1].id:'')+':'+a.filter(x=>x.dts).length+':'+a.filter(x=>x.rts).length;if(force||sg!==this.sig){this.sig=sg;this.cb&&this.cb(a)}},
       async pull(){
         const m=this.me;if(!m)return;let rows;
         if(this.isAdminView()){const t=sbTok();if(!t){return}
@@ -1317,11 +1350,13 @@
           try{const ur=await sbReq('/rest/v1/rpc/um_thread',{method:'POST',body:{p_key:m.key,p_secret:ownerKey()}});if(Array.isArray(ur))this.um=ur.map(r=>({id:r.id,from:r.from_key,fromName:r.from_name||'',to:r.to_key,toName:r.to_name||'',text:r.text,ts:+r.ts,dts:r.dts?+r.dts:0,rts:r.rts?+r.rts:0,_um:1}))}catch(e){}}
         if(!this.isAdminView()&&SOCN.tok){try{const sr=await socRpc('soc_msg_thread',{p_tok:SOCN.tok});if(Array.isArray(sr))this.soc=sr.map(r=>({id:r.id,from:r.from_key,fromName:r.from_name||'',to:r.to_key,toName:r.to_name||'',text:r.text,ts:+r.ts,dts:r.dts?+r.dts:0,rts:r.rts?+r.rts:0,_soc:1}))}catch(e){if(/invalid session/.test(String(e&&e.message))){socDrop();socUiRefresh()}}}
         else this.soc=[];
+        if(!this.isAdminView()&&SOCN.tok){const ch=await grpPull();this.grp=grpMsgs();if(ch)this.sig=''}else this.grp=[];
         if(!Array.isArray(rows)){this.emit(false);return}this.srv=rows.map(r=>this.conv(r)).sort((a,b)=>a.ts-b.ts);
         if(this.isAdminView()){window.__admSrv=this.srv;try{admBadge()}catch(e){}}
         this.emit(false);
       },
       async send(msg){
+        if(isGrpKey(msg.to)){if(!SOCN.tok)throw new Error('login');await socRpc('soc_group_send',{p_tok:SOCN.tok,p_id:msg.id,p_gid:String(msg.to).slice(2),p_text:msg.text});GRP.t=0;await this.pull();return}
         if(msg.to!==ADMIN_MSG_KEY&&msg.from!==ADMIN_MSG_KEY){if(!SOCN.tok){await this.umSend(msg);return}await socRpc('soc_msg_send',{p_tok:SOCN.tok,p_id:msg.id,p_to:msg.to,p_text:msg.text,p_to_name:String(msg.toName||'').slice(0,80)});await this.pull();return}
         if(this.isAdminView()){const t=sbTok();if(!t)throw new Error('admin login');
           await sbReq('/rest/v1/admin_messages',{method:'POST',token:t,body:{id:msg.id,user_key:msg.to,user_name:String(msg.toName||'').slice(0,80),dir:'a2u',text:msg.text,ts:msg.ts},prefer:'return=minimal'})}
@@ -1361,21 +1396,24 @@
       msgBackend.start(m,list=>{
         const bl=blockedList();const cl=new Set(clrArr());
         const mySoc=window.__admMsg?null:socMe();const sentTo=new Set(list.filter(x=>x&&x.from===m.key).map(x=>x.to));
-        const ok=list.filter(x=>x&&typeof x.text==='string'&&!cl.has(x.id)&&!bl.includes(x.from===m.key?x.to:x.from)&&!(mySoc&&mySoc.friendsOnly&&x.from!==m.key&&!sentTo.has(x.from)&&frRel(mySoc.id,x.from)!=='friends'));
+        const ok=list.filter(x=>x&&typeof x.text==='string'&&!cl.has(x.id)&&!bl.includes(x.from===m.key?x.to:x.from)&&(x._grp||!(mySoc&&mySoc.friendsOnly&&x.from!==m.key&&!sentTo.has(x.from)&&frRel(mySoc.id,x.from)!=='friends')));
         try{msgBackend.mark(ok.filter(x=>x.to===m.key&&!x.dts).map(x=>x.id),'dts')}catch(e){}
         const hs=new Set(holdList());const nt=notifiedSet();const warm=Date.now()-(window.__msgT0||0)<9000;
         const incoming=ok.filter(x=>x.to===m.key&&!msgSeen.has(x.id)&&!hs.has(x.from));
         const fresh=(msgLoaded&&!warm)?incoming.filter(x=>!nt.has(x.id)&&Date.now()-(+x.ts||0)<180000):[];
-        ok.filter(x=>x.to===m.key).forEach(x=>nt.add(x.id));notifiedSave(nt);
+        const gfresh=(msgLoaded&&!warm)?ok.filter(x=>x._grp&&x.kind!=='sys'&&!x.del&&x.from!==m.key&&!msgSeen.has(x.id)&&!nt.has(x.id)&&Date.now()-(+x.ts||0)<180000&&!((GRP.map[String(x.to).slice(2)]||{}).muted)):[];
+        ok.filter(x=>x.to===m.key||x._grp).forEach(x=>nt.add(x.id));notifiedSave(nt);
         ok.forEach(x=>msgSeen.add(x.id));msgAll=ok;msgLoaded=true;
         fresh.forEach(x=>{if(!(msgPeer&&msgPeer.key===x.from&&$('msgModal')&&$('msgModal').classList.contains('active')))notifyMsg(x)});
+        gfresh.forEach(x=>{if(!(msgPeer&&msgPeer.key===x.to&&$('msgModal')&&$('msgModal').classList.contains('active')))notifyGroupMsg(x)});
         if(msgPeer&&$('msgModal')&&$('msgModal').classList.contains('active')&&$('chatList'))drawChat();else if($('msgModal')&&$('msgModal').classList.contains('active')&&!msgPeer)drawInbox();
         updateBadge();
       });
     }
-    function unreadFor(peer){const r=readMap()[peer]||0,m=msgMe();return msgAll.filter(x=>m&&x.to===m.key&&x.from===peer&&x.ts>r).length}
+    function unreadFor(peer){const r=readMap()[peer]||0,m=msgMe();if(isGrpKey(peer))return msgAll.filter(x=>m&&x._grp&&x.to===peer&&x.from!==m.key&&x.kind!=='sys'&&x.ts>r).length;return msgAll.filter(x=>m&&x.to===m.key&&x.from===peer&&x.ts>r).length}
     function updateBadge(){
       const m=msgMe();const hsB=new Set(holdList());const keys=new Set(msgAll.filter(x=>m&&x.to===m.key&&!hsB.has(x.from)).map(x=>x.from));let n=0;keys.forEach(k=>n+=unreadFor(k));
+      try{const gk=new Set(msgAll.filter(x=>x._grp).map(x=>x.to));gk.forEach(k=>{const g=grpOf(k);if(g&&!g.muted)n+=unreadFor(k)})}catch(e){}
       const b=$('msgBadge');if(b){b.textContent=fmt(n);b.style.display=n?'inline-block':'none'}
       try{document.title=(n?`(${n}) `:'')+'আমার বাংলাদেশ'}catch(e){}
       try{admBadge()}catch(e){}
@@ -1436,6 +1474,7 @@
       const c=mk('button','','বন্ধ করুন');c.style.cssText='display:block;width:100%;margin-top:8px;padding:11px;border-radius:12px;border:1px solid rgba(16,185,129,.4);background:#061812;color:#a7f3d0;font-size:13.5px;cursor:pointer';c.onclick=()=>ov.remove();sh.appendChild(c);document.body.appendChild(ov)}
     function msgBlockPeer(k,name){const a=blockedList();if(!a.includes(k))a.push(k);writeJSON(MSG_BLOCK_KEY,a);{const nm=readJSON(MSG_BNAME_KEY,{});nm[k]=name||k;writeJSON(MSG_BNAME_KEY,nm)}holdSet(k,name,false);msgInit()}
     function msgRowMenu(p){
+      if(p.isGroup){const g=grpOf(p.key);if(!g)return;msgSheet('👥 '+g.name,[[mlist(MSG_PIN_KEY).includes(p.key)?'📌 পিন সরান':'📌 উপরে পিন করুন',()=>{mtoggle(MSG_PIN_KEY,p.key);drawInbox()}],[mlist(MSG_ARC_KEY).includes(p.key)?'📤 আর্কাইভ থেকে ফেরান':'🗄️ আর্কাইভ করুন',()=>{mtoggle(MSG_ARC_KEY,p.key);drawInbox()}],[g.muted?'🔔 নোটিফিকেশন চালু করুন':'🔕 নোটিফিকেশন বন্ধ (মিউট)',()=>grpAct(()=>socRpc('soc_group_mute',{p_tok:SOCN.tok,p_gid:g.id,p_on:!g.muted}),g.muted?'চালু হয়েছে':'মিউট হয়েছে',()=>drawInbox())],['🚪 গ্রুপ ছেড়ে যান',()=>{if(!confirm('"'+g.name+'" গ্রুপ ছেড়ে যাবেন?'))return;grpAct(()=>socRpc('soc_group_leave',{p_tok:SOCN.tok,p_gid:g.id}),'গ্রুপ ছেড়েছেন',()=>drawInbox())},true]]);return}
       const pinned=mlist(MSG_PIN_KEY).includes(p.key),arc=mlist(MSG_ARC_KEY).includes(p.key),held=holdList().includes(p.key),isAdm=p.key===ADMIN_MSG_KEY;
       const it=[[pinned?'📌 পিন সরান':'📌 উপরে পিন করুন',()=>{mtoggle(MSG_PIN_KEY,p.key);drawInbox()}],[arc?'📤 আর্কাইভ থেকে ফেরান':'🗄️ আর্কাইভ করুন',()=>{mtoggle(MSG_ARC_KEY,p.key);drawInbox()}]];
       if(!isAdm)it.push([held?'▶️ হোল্ড থেকে ছাড়ুন':'⏳ হোল্ডে রাখুন (নোটিফিকেশন বন্ধ)',()=>{holdSet(p.key,p.name,!held);msgInit();setTimeout(drawInbox,60)}]);
@@ -1488,10 +1527,10 @@
       if(!al.length)b.appendChild(mk('p','font-size:13px;color:#a7f3d0;padding:12px 2px','কোনো চ্যাট আর্কাইভে নেই। ইনবক্সে চ্যাটের ⋮ চেপে আর্কাইভ করুন।'));
       al.forEach(k=>{const r=mk('div','display:flex;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(16,185,129,.15)');r.appendChild(mk('span','font-size:22px','🗄️'));const m=mk('div','flex:1;min-width:0;cursor:pointer');m.appendChild(mk('b','font-size:13.5px;display:block',peerName(k)));m.onclick=()=>openChat(k,peerName(k));r.appendChild(m);const u=mk('button','','ফেরান');u.className='change-btn';u.style.cursor='pointer';u.onclick=()=>{mtoggle(MSG_ARC_KEY,k);msgSettings(back,'arc')};r.appendChild(u);b.appendChild(r)})}
     function msgPgStar(b,back,toHub,onlyPeer){
-      b.innerHTML='';msgSub(b,'⭐ তারকা চিহ্নিত মেসেজ','',onlyPeer?()=>msgInfo():toHub);const ids=new Set(mlist(MSG_STAR_KEY)),m=msgMe();
+      b.innerHTML='';msgSub(b,'⭐ তারকা চিহ্নিত মেসেজ','',onlyPeer?(isGrpKey(onlyPeer)?()=>groupInfo():()=>msgInfo()):toHub);const ids=new Set(mlist(MSG_STAR_KEY)),m=msgMe();
       const rows=msgAll.filter(x=>ids.has(x.id)&&(!onlyPeer||x.from===onlyPeer||x.to===onlyPeer)).sort((a,c)=>c.ts-a.ts);
       if(!rows.length)b.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.8;padding:12px 2px','কোনো মেসেজে তারকা দেওয়া নেই। চ্যাটে কোনো মেসেজে চেপে "⭐ তারকা দিন" বাছুন।'));
-      rows.forEach(x=>{const mine=m&&x.from===m.key,pk=mine?x.to:x.from;const c=mk('div','background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:10px 12px;margin-top:8px;cursor:pointer');c.appendChild(mk('div','font-size:11px;color:#6ee7b7;margin-bottom:3px',(mine?'আপনি → '+peerName(pk):peerName(pk)+' →')+' · '+new Date(x.ts).toLocaleString('bn-BD')));c.appendChild(mk('div','font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word',x.text));c.onclick=()=>openChat(pk,peerName(pk));const rm=mk('button','','⭐ সরান');rm.className='change-btn';rm.style.cssText='margin-top:6px;cursor:pointer;font-size:11.5px';rm.onclick=e=>{e.stopPropagation();mtoggle(MSG_STAR_KEY,x.id);msgPgStar($('msgBody'),back,toHub,onlyPeer)};c.appendChild(rm);b.appendChild(c)})}
+      rows.forEach(x=>{const mine=m&&x.from===m.key,pk=x._grp?x.to:(mine?x.to:x.from);const c=mk('div','background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:10px 12px;margin-top:8px;cursor:pointer');c.appendChild(mk('div','font-size:11px;color:#6ee7b7;margin-bottom:3px',(x._grp?'👥 '+((grpOf(pk)||{}).name||'গ্রুপ')+' · '+(mine?'আপনি':(x.fromName||'')):(mine?'আপনি → '+peerName(pk):peerName(pk)+' →'))+' · '+new Date(x.ts).toLocaleString('bn-BD')));c.appendChild(mk('div','font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word',x.text));c.onclick=()=>x._grp?openGroupChat(pk):openChat(pk,peerName(pk));const rm=mk('button','','⭐ সরান');rm.className='change-btn';rm.style.cssText='margin-top:6px;cursor:pointer;font-size:11.5px';rm.onclick=e=>{e.stopPropagation();mtoggle(MSG_STAR_KEY,x.id);msgPgStar($('msgBody'),back,toHub,onlyPeer)};c.appendChild(rm);b.appendChild(c)})}
     function msgPgQr(b,back,toHub){
       msgSub(b,'⚡ দ্রুত উত্তর','চ্যাটে ⚡ চাপলে এগুলো দেখা যায়',toHub);const l=qrList();
       l.forEach((t,i)=>{const r=mk('div','display:flex;gap:8px;align-items:center;padding:9px 4px;border-bottom:1px solid rgba(16,185,129,.15)');r.appendChild(mk('span','flex:1;font-size:13.5px;line-height:1.5',t));const d=mk('button','','🗑️');d.className='danger-btn';d.style.cursor='pointer';d.onclick=()=>{l.splice(i,1);writeJSON(MSG_QR_KEY,l);msgSettings(back,'qr')};r.appendChild(d);b.appendChild(r)});
@@ -1501,7 +1540,7 @@
     function msgPgData(b,back,toHub){
       msgSub(b,'🧹 ডেটা ও পরিষ্কার','শুধু এই ফোনের ডেটা, অন্যজনের কপি থাকে',toHub);
       const bt=(t,fn,cls)=>{const x=mk('button','',t);x.className=cls||'change-btn';x.style.cssText='width:100%;padding:12px;margin-top:8px;cursor:pointer';x.onclick=fn;b.appendChild(x)};
-      bt('🗑️ সব কথোপকথন এই ফোন থেকে মুছুন',()=>{if(!confirm('এই ফোনের সব কথোপকথন লুকানো হবে (অন্যজনের কপি থাকবে)। নিশ্চিত?'))return;const m=msgMe();if(!m)return;const keys=new Set();msgAll.forEach(x=>keys.add(x.from===m.key?x.to:x.from));let n=0;keys.forEach(k=>{n+=clearChatWith(k)});updateBadge();showToast('🗑️ '+fmt(n)+'টি মেসেজ মুছেছে');msgSettings(back,'data')},'danger-btn');
+      bt('🗑️ সব কথোপকথন এই ফোন থেকে মুছুন',()=>{if(!confirm('এই ফোনের সব কথোপকথন লুকানো হবে (অন্যজনের কপি থাকবে)। নিশ্চিত?'))return;const m=msgMe();if(!m)return;const keys=new Set();msgAll.forEach(x=>{if(!x._grp)keys.add(x.from===m.key?x.to:x.from)});let n=0;keys.forEach(k=>{n+=clearChatWith(k)});updateBadge();showToast('🗑️ '+fmt(n)+'টি মেসেজ মুছেছে');msgSettings(back,'data')},'danger-btn');
       bt('✏️ সব খসড়া মুছুন',()=>{const m=msgMe();if(!m)return;let o=readJSON(MSG_DRAFT_KEY,{});if(o&&typeof o==='object')delete o[m.key];writeJSON(MSG_DRAFT_KEY,o||{});showToast('খসড়া মোছা হয়েছে')});
       bt('⭐ সব তারকা সরান',()=>{mlistSet(MSG_STAR_KEY,[]);showToast('তারকা সরানো হয়েছে')});
       bt('📌 সব পিন সরান',()=>{mlistSet(MSG_PIN_KEY,[]);showToast('পিন সরানো হয়েছে')});
@@ -1510,7 +1549,7 @@
     function msgInfo(){
       if(!msgPeer)return;const b=$('msgBody');b.innerHTML='';const k=msgPeer.key,isAdm=k===ADMIN_MSG_KEY,m=msgMe();
       b.appendChild(modalHead('ⓘ চ্যাটের তথ্য','',()=>buildChat()));
-      const h=mk('div','text-align:center;padding:10px 0 6px');h.appendChild(mk('div','width:76px;height:76px;border-radius:50%;background:#047857;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:32px;margin:0 auto 8px',(msgPeer.name||'?').trim().charAt(0)));h.appendChild(mk('b','font-size:17px;display:block',msgPeer.name));h.appendChild(mk('span','font-size:12px;color:#a7f3d0',isAdm?'অ্যাডমিন':(/^u[0-9a-f]{16}$/.test(k)?'সদস্য':'ফোন: '+k)));
+      const h=mk('div','text-align:center;padding:10px 0 6px');h.appendChild(mk('div','width:76px;height:76px;border-radius:50%;background:#047857;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:32px;margin:0 auto 8px',(msgPeer.name||'?').trim().charAt(0)));h.appendChild(mk('b','font-size:17px;display:block',msgPeer.name));h.appendChild(mk('span','font-size:12px;color:#a7f3d0',isAdm?'কাস্টমার কেয়ার':(/^u[0-9a-f]{16}$/.test(k)?'সদস্য':'ফোন: '+k)));
       const n=msgAll.filter(x=>(x.from===m.key&&x.to===k)||(x.from===k&&x.to===m.key)).length;h.appendChild(mk('div','font-size:11.5px;color:#6ee7b7;margin-top:4px','মোট মেসেজ: '+fmt(n)));b.appendChild(h);
       const row=(ic,t,fn,danger)=>{const r=mk('div','display:flex;gap:12px;align-items:center;padding:12px 6px;border-top:1px solid rgba(16,185,129,.15);cursor:pointer;color:'+(danger?'#fca5a5':'#fff'));r.appendChild(mk('span','font-size:21px;width:28px;text-align:center',ic));r.appendChild(mk('b','font-size:14px;font-weight:600;flex:1',t));r.onclick=fn;b.appendChild(r)};
       if(/^u[0-9a-f]{16}$/.test(k))row('👤','প্রোফাইল দেখুন',()=>{closeModal('msgModal');msgPeer=null;openCategoryModal('social');setTimeout(()=>{try{soc.view=k;socRender()}catch(e){}},700)});
@@ -1524,33 +1563,130 @@
     // ---------- মেসেজ রেন্ডার সহায়ক ----------
     function msgLinkify(par,text){const re=/(https?:\/\/[^\s<>"']+)/g;let last=0,mt;while((mt=re.exec(text))){if(mt.index>last)par.appendChild(document.createTextNode(text.slice(last,mt.index)));const a=document.createElement('a');a.href=mt[1];a.textContent=mt[1];a.target='_blank';a.rel='noopener noreferrer';a.style.cssText='color:#7dd3fc;text-decoration:underline;word-break:break-all';a.onclick=e=>e.stopPropagation();par.appendChild(a);last=mt.index+mt[1].length}if(last<text.length)par.appendChild(document.createTextNode(text.slice(last)))}
     function msgForward(x){
-      const m=msgMe();if(!m)return;const seen=new Map();msgAll.forEach(y=>{const k=y.from===m.key?y.to:y.from;if(k&&k!==m.key&&k!==ADMIN_MSG_KEY&&!blockedList().includes(k)&&!seen.has(k))seen.set(k,peerName(k))});
+      const m=msgMe();if(!m)return;const seen=new Map();msgAll.forEach(y=>{if(y._grp)return;const k=y.from===m.key?y.to:y.from;if(k&&k!==m.key&&k!==ADMIN_MSG_KEY&&!blockedList().includes(k)&&!seen.has(k))seen.set(k,peerName(k))});
       if(!seen.size){showToast('ফরোয়ার্ড করার মতো চ্যাট নেই');return}
       msgSheet('↪️ কার কাছে পাঠাবেন?',[...seen.entries()].slice(0,25).map(([k,n])=>[n,async()=>{if(!canMessage(k)){alert('এই ব্যক্তি শুধু বন্ধুদের কাছ থেকে কথা নেন।');return}const t=(x.text.startsWith('↪️ ')?x.text:'↪️ '+x.text).slice(0,500);try{await msgBackend.send({id:newId(),from:m.key,fromName:m.name,to:k,toName:n,text:t,ts:Date.now()});showToast('✅ ফরোয়ার্ড হয়েছে')}catch(e){alert('পাঠানো যায়নি।\nকারণ: '+msgErrText(e))}}]))}
     function msgBubbleMenu(bub,x,mineMsg){
       const starred=mlist(MSG_STAR_KEY).includes(x.id),m=msgMe();
       msgSheet(new Date(x.ts).toLocaleString('bn-BD'),[
-        ['↩️ উত্তর দিন',()=>{CHAT.reply={who:mineMsg?'আপনি':(msgPeer&&msgPeer.name)||'',text:x.text.replace(/^↩️ [^\n]*\n/,'').replace(/^↪️ /,'').slice(0,60)};drawReplyBar();try{$('chatInput').focus()}catch(e){}}],
+        ['↩️ উত্তর দিন',()=>{CHAT.reply={who:mineMsg?'আপনি':(msgPeer&&msgPeer.isGroup?(x.fromName||'সদস্য'):(msgPeer&&msgPeer.name)||''),text:x.text.replace(/^↩️ [^\n]*\n/,'').replace(/^↪️ /,'').slice(0,60)};drawReplyBar();try{$('chatInput').focus()}catch(e){}}],
         ['📋 কপি করুন',()=>{try{navigator.clipboard.writeText(x.text);showToast('কপি হয়েছে')}catch(e){}}],
         [starred?'⭐ তারকা সরান':'⭐ তারকা দিন',()=>{mtoggle(MSG_STAR_KEY,x.id);drawChat()}],
         ['↪️ ফরোয়ার্ড করুন',()=>msgForward(x)],
-        ['ℹ️ মেসেজের তথ্য',()=>{const st=mineMsg?(x.rts?'✓✓ দেখেছে':x.dts?'✓✓ পৌঁছেছে':'✓ পাঠানো হয়েছে'):'প্রাপ্ত';alert('সময়: '+new Date(x.ts).toLocaleString('bn-BD')+'\nঅবস্থা: '+st+'\nদৈর্ঘ্য: '+fmt(x.text.length)+' অক্ষর')}],
+        ...((x._grp&&(mineMsg||grpIsAdmin(grpOf(x.to))))?[['🗑️ সবার থেকে মুছুন',()=>{if(!confirm('মেসেজটি গ্রুপের সবার কাছ থেকে মুছে যাবে। নিশ্চিত?'))return;grpAct(()=>socRpc('soc_group_msg_delete',{p_tok:SOCN.tok,p_id:x.id}),'মুছে ফেলা হয়েছে',()=>{})},true]]:[]),
+        ['ℹ️ মেসেজের তথ্য',()=>{const st=x._grp?(mineMsg?'পাঠানো হয়েছে':'প্রাপ্ত'):mineMsg?(x.rts?'✓✓ দেখেছে':x.dts?'✓✓ পৌঁছেছে':'✓ পাঠানো হয়েছে'):'প্রাপ্ত';alert('সময়: '+new Date(x.ts).toLocaleString('bn-BD')+'\nঅবস্থা: '+st+'\nদৈর্ঘ্য: '+fmt(x.text.length)+' অক্ষর')}],
         ['🗑️ আমার থেকে মুছুন',()=>{const mm=msgMe();if(!mm)return;const o=clrMapAll();o[mm.key]=clrArr().concat([x.id]).slice(-5000);writeJSON(MSG_CLR_KEY,o);msgAll=msgAll.filter(y=>y!==x);drawChat()},true]])}
     const CHAT={peer:'',q:'',reply:null,search:false,tray:null};
     function drawReplyBar(){const old=document.getElementById('replyBar');if(old)old.remove();if(!CHAT.reply)return;const row=document.getElementById('chatRow');if(!row)return;const r=mk('div','display:flex;gap:8px;align-items:center;margin-top:8px;background:#0a251c;border-left:3px solid #38bdf8;border-radius:8px;padding:6px 10px;font-size:12px');r.id='replyBar';const t=mk('div','flex:1;min-width:0');t.appendChild(mk('b','color:#7dd3fc;display:block','↩️ '+CHAT.reply.who+'-কে উত্তর'));t.appendChild(mk('span','color:#a7f3d0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block',CHAT.reply.text));r.appendChild(t);const x=mk('button','','✕');x.style.cssText='border:0;background:transparent;color:#fff;font-size:16px;cursor:pointer';x.onclick=()=>{CHAT.reply=null;drawReplyBar()};r.appendChild(x);row.before(r)}
+    // ===== কথা: গ্রুপ চ্যাট (v26) =====
+    const GRP={list:[],map:{},loaded:false,t:0,missing:false,since:0,msgs:new Map(),uid:''};
+    const GRP_CACHE='amarGrpCache_v1';
+    const isGrpKey=k=>String(k||'').startsWith('g:');
+    const grpOf=k=>GRP.map[String(k).slice(2)]||null;
+    function grpErr(e){const t=String(e&&e.message||e||'');
+      if(/could not find the function|PGRST202|HTTP 404/i.test(t))return'সার্ভারের সেটআপ বাকি (কাস্টমার কেয়ার: Supabase-এ 10_groups.sql চালান)।';
+      if(/too many groups/.test(t))return'আপনি সর্বোচ্চ ১০টি গ্রুপ বানাতে পারেন।';
+      if(/bad name/.test(t))return'গ্রুপের নাম ২–৫০ অক্ষরের দিন।';
+      if(/not member/.test(t))return'আপনি এই গ্রুপের সদস্য নন।';
+      if(/slow/.test(t))return'অল্প সময়ে অনেক মেসেজ। একটু পরে পাঠান।';
+      if(/not allowed/.test(t))return'এটি করার অনুমতি শুধু কাস্টমার কেয়ারের।';
+      if(/owner/.test(t))return'গ্রুপের মালিককে এই কাজ করা যায় না।';
+      return msgErrText(e)}
+    function grpCacheLoad(uid){GRP.uid=uid;GRP.msgs=new Map();GRP.since=0;GRP.list=[];GRP.map={};GRP.loaded=false;GRP.t=0;
+      try{const c=JSON.parse(localStorage.getItem(GRP_CACHE+'_'+uid)||'null');if(c&&Array.isArray(c.msgs)){c.msgs.forEach(x=>GRP.msgs.set(x.id,x));GRP.since=+c.since||0;if(Array.isArray(c.list)){GRP.list=c.list;GRP.map={};c.list.forEach(g=>GRP.map[g.id]=g)}}}catch(e){}}
+    function grpCacheSave(){try{const a=[...GRP.msgs.values()].sort((x,y)=>y.ts-x.ts).slice(0,700);localStorage.setItem(GRP_CACHE+'_'+GRP.uid,JSON.stringify({since:GRP.since,msgs:a,list:GRP.list}))}catch(e){}}
+    async function grpPull(){
+      if(!SOCN.tok||GRP.missing)return false;let changed=false;
+      try{
+        const need=!GRP.loaded||Date.now()-GRP.t>(GRP.list.length?60000:45000);
+        if(GRP.list.length||!GRP.loaded){
+          const rows=await socRpc('soc_group_msgs',{p_tok:SOCN.tok,p_since:GRP.since});
+          if(Array.isArray(rows))rows.forEach(r=>{GRP.msgs.set(r.id,{id:r.id,from:r.from_pid||'',fromName:r.from_name||'',to:'g:'+r.gid,toName:'',text:r.del?'':String(r.text||''),ts:+r.ts,del:!!r.del,kind:r.kind||'m',_grp:1});if(+r.upd>GRP.since)GRP.since=+r.upd;changed=true;if(!GRP.map[r.gid])GRP.t=0});
+        }
+        if(need||!GRP.t){const l=await socRpc('soc_group_list',{p_tok:SOCN.tok});if(Array.isArray(l)){const sig=JSON.stringify(l);if(sig!==GRP._sig){GRP._sig=sig;changed=true}GRP.list=l;GRP.map={};l.forEach(g=>GRP.map[g.id]=g);for(const [id,x] of GRP.msgs)if(!GRP.map[x.to.slice(2)]){GRP.msgs.delete(id);changed=true}GRP.loaded=true;GRP.t=Date.now()}
+          if(GRP.list.length&&GRP.since===0){const rows=await socRpc('soc_group_msgs',{p_tok:SOCN.tok,p_since:0});if(Array.isArray(rows))rows.forEach(r=>{GRP.msgs.set(r.id,{id:r.id,from:r.from_pid||'',fromName:r.from_name||'',to:'g:'+r.gid,toName:'',text:r.del?'':String(r.text||''),ts:+r.ts,del:!!r.del,kind:r.kind||'m',_grp:1});if(+r.upd>GRP.since)GRP.since=+r.upd;changed=true})}}
+        if(changed)grpCacheSave();
+      }catch(e){if(/could not find the function|PGRST202|HTTP 404/i.test(String(e&&e.message||e)))GRP.missing=true}
+      return changed}
+    const grpMsgs=()=>[...GRP.msgs.values()].filter(x=>GRP.map[x.to.slice(2)]);
+    function notifyGroupMsg(x){const g=grpOf(x.to);const t=`👥 ${g?g.name:'গ্রুপ'} · ${x.fromName||''}: ${x.text.slice(0,60)}`;showToast(t,()=>openGroupChat(x.to));msgChime();if(document.hidden)sysNotify((g?g.name:'গ্রুপ'),(x.fromName?x.fromName+': ':'')+x.text.slice(0,100),{tag:'amar-grp'})}
+    function openGroupChat(key){
+      if(needLogin())return;const g=grpOf(key);if(!g){showToast('গ্রুপটি পাওয়া যায়নি');return}
+      ensureMsgModal();msgPeer={key,name:g.name,isGroup:true};$('msgModal').classList.add('active');buildChat()}
+    const grpMe=()=>{const u=socMe();return u?u.id:''};
+    const grpIsAdmin=g=>{const me=grpMe();return !!(g&&g.members&&g.members.some(m=>m.pid===me&&m.role==='admin'))};
+    async function grpAct(fn,okMsg,after){try{await fn();if(okMsg)showToast(okMsg);GRP.t=0;await (msgBackend&&msgBackend.pull?msgBackend.pull():Promise.resolve());if(after)after()}catch(e){alert(grpErr(e))}}
+    // ---------- সদস্য বাছাই (নতুন গ্রুপ ও সদস্য যোগ) ----------
+    function grpPicker(par,excl,onChange){
+      const sel=new Set();const me=grpMe();
+      const si=document.createElement('input');si.className='form-field';si.placeholder='🔍 নাম দিয়ে খুঁজুন…';si.maxLength=40;si.style.cssText='margin:0 0 8px;padding:9px 12px';par.appendChild(si);
+      const cnt=mk('div','font-size:12px;color:#fcd34d;margin:2px 0 6px','বাছা হয়েছে: ০ জন');par.appendChild(cnt);
+      const box=mk('div','max-height:36vh;overflow-y:auto;border:1px solid rgba(16,185,129,.25);border-radius:12px;padding:4px 8px');par.appendChild(box);
+      let srvUsers=[];const draw=()=>{box.innerHTML='';const t=si.value.trim().toLowerCase();let fr=[];try{fr=frFriends(me)||[]}catch(e){}
+        const all=new Map();socUsers().forEach(u=>all.set(u.id,u));srvUsers.forEach(u=>all.set(u.id,u));
+        const arr=[...all.values()].filter(u=>u.id!==me&&!excl.has(u.id)&&(!t||u.name.toLowerCase().includes(t))).sort((a,b)=>(fr.includes(b.id)-fr.includes(a.id))||a.name.localeCompare(b.name,'bn'));
+        if(!arr.length)box.appendChild(mk('p','font-size:12.5px;color:#a7f3d0;padding:10px 4px','কেউ পাওয়া যায়নি। নাম লিখে খুঁজুন।'));
+        arr.slice(0,60).forEach(u=>{const r=document.createElement('label');r.style.cssText='display:flex;gap:10px;align-items:center;padding:8px 2px;border-bottom:1px solid rgba(16,185,129,.12);cursor:pointer';const c=document.createElement('input');c.type='checkbox';c.checked=sel.has(u.id);c.onchange=()=>{if(c.checked){if(sel.size>=49){c.checked=false;showToast('সর্বোচ্চ ৪৯ জন');return}sel.add(u.id)}else sel.delete(u.id);cnt.textContent='বাছা হয়েছে: '+fmt(sel.size)+' জন';onChange&&onChange([...sel])};r.appendChild(c);r.appendChild(avatarEl(u,34));const m=mk('div','flex:1;min-width:0');m.appendChild(mk('b','font-size:13.5px;display:block',u.name));m.appendChild(mk('span','font-size:11px;color:#a7f3d0',fr.includes(u.id)?'🤝 বন্ধু':[(u.area||{}).upazila,(u.area||{}).district].filter(Boolean).join(', ')));r.appendChild(m);box.appendChild(r)})};
+      let qt=null;si.oninput=()=>{draw();clearTimeout(qt);qt=setTimeout(async()=>{const t=si.value.trim().replace(/[*,()%]/g,'');if(t.length<2)return;try{const rows=await sbReq('/rest/v1/soc_users?select=pid,name,area,bio,friends_only&order=created_at.desc&limit=30&name=ilike.*'+encodeURIComponent(t)+'*');if(Array.isArray(rows)){srvUsers=rows.map(socUserRow);rows.forEach(r=>{SOCN.users[r.pid]=socUserRow(r)});draw()}}catch(e){}},400)};
+      draw();(async()=>{try{const rows=await sbReq('/rest/v1/soc_users?select=pid,name,area,bio,friends_only&order=created_at.desc&limit=40');if(Array.isArray(rows)){srvUsers=rows.map(socUserRow);rows.forEach(r=>{SOCN.users[r.pid]=socUserRow(r)});draw()}}catch(e){}})();return {get:()=>[...sel]}}
+    // ---------- নতুন গ্রুপ ----------
+    function msgNewGroup(){
+      ensureMsgModal();msgPeer=null;const b=$('msgBody');b.innerHTML='';
+      if(!socMe()){showToast('গ্রুপ বানাতে সমাজ অ্যাকাউন্টে লগইন করুন');drawInbox();return}
+      b.appendChild(modalHead('👥 নতুন গ্রুপ','বন্ধুদের নিয়ে একসাথে কথা বলুন',()=>drawInbox()));
+      const nm=document.createElement('input');nm.className='form-field';nm.placeholder='গ্রুপের নাম (যেমন: পরিবার, বন্ধুরা)';nm.maxLength=50;b.appendChild(mk('label','','গ্রুপের নাম')).className='field-label';b.appendChild(nm);
+      b.appendChild(mk('label','','সদস্য বাছুন')).className='field-label';const pk=grpPicker(b,new Set(),null);
+      b.appendChild(mk('p','font-size:11.5px;color:#a7f3d0;line-height:1.7;margin-top:8px','• শুধু বন্ধুদের কাছ থেকে কথা নেন এমন সদস্যকে কেবল বন্ধু হলেই যোগ করা যায়।\n• গ্রুপে শুধু লেখা পাঠানো যায়। সর্বোচ্চ ৫০ জন সদস্য।')).style.whiteSpace='pre-line';
+      const er=mk('div','color:#fecaca;font-size:12.5px;min-height:18px;margin-top:6px','');b.appendChild(er);
+      const go=mk('button','','✅ গ্রুপ তৈরি করুন');go.className='primary-btn';go.onclick=async()=>{const name=nm.value.trim();if(name.length<2){er.textContent='গ্রুপের নাম লিখুন।';return}go.disabled=true;go.textContent='⏳ তৈরি হচ্ছে…';
+        try{const gid=await socRpc('soc_group_create',{p_tok:SOCN.tok,p_name:name,p_members:pk.get()});GRP.t=0;if(msgBackend&&msgBackend.pull)await msgBackend.pull();openGroupChat('g:'+String(gid).replace(/"/g,''))}catch(e){er.textContent=grpErr(e);go.disabled=false;go.textContent='✅ গ্রুপ তৈরি করুন'}};b.appendChild(go)}
+    // ---------- গ্রুপের তথ্য ----------
+    function groupInfo(){
+      if(!msgPeer||!msgPeer.isGroup)return;const g=grpOf(msgPeer.key);const b=$('msgBody');b.innerHTML='';
+      if(!g){drawInbox();return}
+      const me=grpMe(),adm=grpIsAdmin(g),isOwner=g.owner===me,gid=g.id;
+      b.appendChild(modalHead('ⓘ গ্রুপের তথ্য','',()=>buildChat()));
+      const h=mk('div','text-align:center;padding:10px 0 6px');h.appendChild(mk('div','width:76px;height:76px;border-radius:50%;background:#0f766e;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 8px','👥'));h.appendChild(mk('b','font-size:17px;display:block',g.name));h.appendChild(mk('span','font-size:12px;color:#a7f3d0','সদস্য '+fmt((g.members||[]).length)+' জন · তৈরি '+new Date(+g.created_at).toLocaleDateString('bn-BD')));b.appendChild(h);
+      const row=(ic,t,fn,danger)=>{const r=mk('div','display:flex;gap:12px;align-items:center;padding:12px 6px;border-top:1px solid rgba(16,185,129,.15);cursor:pointer;color:'+(danger?'#fca5a5':'#fff'));r.appendChild(mk('span','font-size:21px;width:28px;text-align:center',ic));r.appendChild(mk('b','font-size:14px;font-weight:600;flex:1',t));r.onclick=fn;b.appendChild(r)};
+      row('🔍','গ্রুপে মেসেজ খুঁজুন',()=>{CHAT.search=true;buildChat()});
+      row('⭐','এই গ্রুপের তারকা মেসেজ',()=>msgPgStar(b,'chat',()=>groupInfo(),g.id?msgPeer.key:null));
+      row(g.muted?'🔔':'🔕',g.muted?'নোটিফিকেশন চালু করুন':'নোটিফিকেশন বন্ধ (মিউট)',()=>grpAct(()=>socRpc('soc_group_mute',{p_tok:SOCN.tok,p_gid:gid,p_on:!g.muted}),g.muted?'চালু হয়েছে':'মিউট হয়েছে',()=>groupInfo()));
+      row(mlist(MSG_PIN_KEY).includes(msgPeer.key)?'📌':'📌',mlist(MSG_PIN_KEY).includes(msgPeer.key)?'ইনবক্সে পিন সরান':'ইনবক্সে উপরে পিন করুন',()=>{mtoggle(MSG_PIN_KEY,msgPeer.key);groupInfo()});
+      if(adm)row('✏️','গ্রুপের নাম বদলান',()=>{const n=prompt('গ্রুপের নতুন নাম:',g.name);if(n===null)return;grpAct(()=>socRpc('soc_group_rename',{p_tok:SOCN.tok,p_gid:gid,p_name:n}),'নাম বদলেছে',()=>{const gg=grpOf(msgPeer.key);if(gg)msgPeer.name=gg.name;groupInfo()})});
+      if(adm)row('➕','সদস্য যোগ করুন',()=>groupAddMembers(g));
+      b.appendChild(mk('div','font-size:12.5px;font-weight:700;color:#6ee7b7;margin:14px 2px 4px','সদস্য ('+fmt((g.members||[]).length)+')'));
+      (g.members||[]).forEach(m=>{const r=mk('div','display:flex;gap:10px;align-items:center;padding:9px 2px;border-bottom:1px solid rgba(16,185,129,.12)');
+        const u=socUsers().find(x=>x.id===m.pid)||{name:m.name||'?',id:m.pid};r.appendChild(avatarEl(u,36));
+        const mid=mk('div','flex:1;min-width:0;cursor:pointer');mid.appendChild(mk('b','font-size:13.5px;display:block',(m.name||'সদস্য')+(m.pid===me?' (আপনি)':'')));
+        mid.appendChild(mk('span','font-size:11px;color:'+(m.role==='admin'?'#fcd34d':'#a7f3d0'),m.pid===g.owner?'👑 মালিক':(m.role==='admin'?'🛡️ কাস্টমার কেয়ার':'সদস্য')));
+        if(m.pid!==me)mid.onclick=()=>{closeModal('msgModal');msgPeer=null;openChat(m.pid,m.name)};r.appendChild(mid);
+        if(m.pid!==me&&(adm||isOwner)){const mb=mk('button','','⋮');mb.style.cssText='flex:none;width:34px;height:34px;border-radius:50%;border:0;background:transparent;color:#a7f3d0;font-size:20px;font-weight:700;cursor:pointer';
+          mb.onclick=()=>{const it=[['💬 মেসেজ পাঠান',()=>{closeModal('msgModal');msgPeer=null;openChat(m.pid,m.name)}]];
+            if(isOwner&&m.pid!==g.owner)it.push([m.role==='admin'?'🛡️ কাস্টমার কেয়ার থেকে সরান':'🛡️ কাস্টমার কেয়ার বানান',()=>grpAct(()=>socRpc('soc_group_set_admin',{p_tok:SOCN.tok,p_gid:gid,p_pid:m.pid,p_admin:m.role!=='admin'}),'করা হয়েছে',()=>groupInfo())]);
+            if(adm&&m.pid!==g.owner)it.push(['➖ গ্রুপ থেকে সরান',()=>{if(!confirm((m.name||'এই সদস্য')+'-কে গ্রুপ থেকে সরাবেন?'))return;grpAct(()=>socRpc('soc_group_remove',{p_tok:SOCN.tok,p_gid:gid,p_pid:m.pid}),'সরানো হয়েছে',()=>groupInfo())},true]);
+            msgSheet(m.name||'সদস্য',it)};r.appendChild(mb)}
+        b.appendChild(r)});
+      row('🚪','গ্রুপ ছেড়ে যান',()=>{if(!confirm('"'+g.name+'" গ্রুপ ছেড়ে যাবেন?'))return;grpAct(()=>socRpc('soc_group_leave',{p_tok:SOCN.tok,p_gid:gid}),'গ্রুপ ছেড়েছেন',()=>{msgPeer=null;drawInbox()})},true);
+      if(isOwner)row('🗑️','গ্রুপটি সবার জন্য মুছে ফেলুন',()=>{if(!confirm('গ্রুপ ও সব মেসেজ সবার জন্য চিরতরে মুছে যাবে। নিশ্চিত?'))return;grpAct(()=>socRpc('soc_group_delete',{p_tok:SOCN.tok,p_gid:gid}),'গ্রুপ মোছা হয়েছে',()=>{msgPeer=null;drawInbox()})},true)}
+    function groupAddMembers(g){
+      const b=$('msgBody');b.innerHTML='';b.appendChild(modalHead('➕ সদস্য যোগ করুন',g.name,()=>groupInfo()));
+      const ex=new Set((g.members||[]).map(m=>m.pid));const pk=grpPicker(b,ex,null);
+      const go=mk('button','','✅ যোগ করুন');go.className='primary-btn';go.onclick=async()=>{const ids=pk.get();if(!ids.length){showToast('কাউকে বাছুন');return}go.disabled=true;
+        try{const n=await socRpc('soc_group_add',{p_tok:SOCN.tok,p_gid:g.id,p_pids:ids});showToast('✅ '+fmt(+n||0)+' জন যোগ হয়েছে'+((+n||0)<ids.length?' (বাকিদের শুধু বন্ধু হলেই যোগ করা যায়)':''));GRP.t=0;if(msgBackend&&msgBackend.pull)await msgBackend.pull();groupInfo()}catch(e){alert(grpErr(e));go.disabled=false}};b.appendChild(go)}
     function openInbox(){
       if(needLogin())return;ensureMsgModal();msgPeer=null;$('msgModal').classList.add('active');drawInbox();
     }
     function drawInbox(){
-      const m=msgMe(),b=$('msgBody');b.innerHTML='';b.appendChild(modalHead(window.__admMsg?'💬 অ্যাডমিনকে পাঠানো কথা':'💬 কথা',window.__admMsg?'যে কেউ অ্যাডমিনকে বার্তা পাঠালে এখানে আসবে':(FIREBASE_CONFIG?'সবার সঙ্গে সরাসরি':'পরীক্ষামূলক মোড: মেসেজ শুধু এই ডিভাইসে থাকে')));
+      const m=msgMe(),b=$('msgBody');b.innerHTML='';b.appendChild(modalHead(window.__admMsg?'💬 কাস্টমার কেয়ারকে পাঠানো কথা':'💬 কথা',window.__admMsg?'যে কেউ কাস্টমার কেয়ারকে বার্তা পাঠালে এখানে আসবে':(FIREBASE_CONFIG?'সবার সঙ্গে সরাসরি':'পরীক্ষামূলক মোড: মেসেজ শুধু এই ডিভাইসে থাকে')));
       if('Notification' in window&&Notification.permission==='default'){const nb=mk('button','','🔔 ফোনের নোটিফিকেশন চালু করুন');nb.className='change-btn';nb.style.cssText='width:100%;padding:9px;margin-bottom:10px';nb.onclick=()=>Notification.requestPermission().then(drawInbox);b.appendChild(nb)}
       {const sr=mk('div','display:flex;gap:6px;align-items:center;margin:2px 0 6px');const si=document.createElement('input');si.className='form-field';si.id='msgSearch';si.placeholder='🔍 নাম দিয়ে খুঁজুন…';si.value=MSGQ.q;si.maxLength=40;si.style.cssText='margin:0;flex:1;padding:9px 12px';
         si.oninput=()=>{MSGQ.q=si.value.trim().toLowerCase();const pos=si.selectionStart;drawInbox();const n=$('msgSearch');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}};sr.appendChild(si);
+        if(!window.__admMsg){const ng=mk('button','','👥 নতুন গ্রুপ');ng.style.cssText='flex:none;padding:9px 12px;border-radius:999px;font-size:12px;cursor:pointer;color:#042016;background:#34d399;border:0;font-weight:700';ng.onclick=msgNewGroup;sr.appendChild(ng)}
         b.appendChild(sr);
-        const fr=mk('div','display:flex;gap:6px;overflow-x:auto;padding-bottom:6px');[['all','সব'],['un','🔴 অপঠিত'],['pin','📌 পিন'],['arc','🗄️ আর্কাইভ']].forEach(([k,l])=>{const c=mk('button','',l);c.style.cssText='flex:0 0 auto;padding:6px 13px;border-radius:999px;font-size:12.5px;cursor:pointer;color:#fff;white-space:nowrap;border:1px solid rgba(16,185,129,.5);background:'+(MSGQ.f===k?'#059669':'#0a251c');c.onclick=()=>{MSGQ.f=k;drawInbox()};fr.appendChild(c)});b.appendChild(fr)}
-      const peers=new Map();msgAll.forEach(x=>{const k=x.from===m.key?x.to:x.from;const nm=x.from===m.key?x.toName:x.fromName;const p=peers.get(k)||{key:k,name:nm,last:x};p.last=x;if(x.from!==m.key&&nm)p.name=nm;peers.set(k,p)});
+        const fr=mk('div','display:flex;gap:6px;overflow-x:auto;padding-bottom:6px');[['all','সব'],['un','🔴 অপঠিত'],['grp','👥 গ্রুপ'],['pin','📌 পিন'],['arc','🗄️ আর্কাইভ']].forEach(([k,l])=>{const c=mk('button','',l);c.style.cssText='flex:0 0 auto;padding:6px 13px;border-radius:999px;font-size:12.5px;cursor:pointer;color:#fff;white-space:nowrap;border:1px solid rgba(16,185,129,.5);background:'+(MSGQ.f===k?'#059669':'#0a251c');c.onclick=()=>{MSGQ.f=k;drawInbox()};fr.appendChild(c)});b.appendChild(fr)}
+      const peers=new Map();msgAll.forEach(x=>{if(x._grp){const g=grpOf(x.to);if(!g)return;const p=peers.get(x.to)||{key:x.to,name:g.name,last:x,isGroup:true};p.last=x;p.name=g.name;peers.set(x.to,p);return}const k=x.from===m.key?x.to:x.from;const nm=x.from===m.key?x.toName:x.fromName;const p=peers.get(k)||{key:k,name:nm,last:x};p.last=x;if(x.from!==m.key&&nm)p.name=nm;peers.set(k,p)});
       const heldKeys=new Set(holdList());const arrAll=[...peers.values()].sort((a,c)=>c.last.ts-a.last.ts);const pinL=window.__admMsg?[]:mlist(MSG_PIN_KEY),arcL=window.__admMsg?[]:mlist(MSG_ARC_KEY);const isArc=x=>arcL.includes(x.key)&&!unreadFor(x.key);
-      const arr=arrAll.filter(x=>!heldKeys.has(x.key)&&(!MSGQ.q||String(x.name||x.key).toLowerCase().includes(MSGQ.q))&&(MSGQ.f==='arc'?isArc(x):!isArc(x))&&(MSGQ.f!=='un'||unreadFor(x.key))&&(MSGQ.f!=='pin'||pinL.includes(x.key))).sort((a,c)=>(pinL.includes(c.key)-pinL.includes(a.key))||(c.last.ts-a.last.ts));const heldArr=arrAll.filter(x=>heldKeys.has(x.key));
+      const arr=arrAll.filter(x=>!heldKeys.has(x.key)&&(!MSGQ.q||String(x.name||x.key).toLowerCase().includes(MSGQ.q))&&(MSGQ.f==='arc'?isArc(x):!isArc(x))&&(MSGQ.f!=='un'||unreadFor(x.key))&&(MSGQ.f!=='grp'||x.isGroup)&&(MSGQ.f!=='pin'||pinL.includes(x.key))).sort((a,c)=>(pinL.includes(c.key)-pinL.includes(a.key))||(c.last.ts-a.last.ts));const heldArr=arrAll.filter(x=>heldKeys.has(x.key));
       if(!arr.length)b.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.8;padding:10px 2px','এখনো কোনো মেসেজ নেই। রক্তদাতা, চিকিৎসক বা আইনজীবীর তালিকা থেকে "💬 কথা" চাপুন।'));
       arr.forEach(p=>{
         const u=unreadFor(p.key);
@@ -1559,10 +1695,11 @@
         const mid=mk('div','flex:1;min-width:0');mid.appendChild(mk('b','font-size:14px;display:block',p.name||p.key));
         mid.appendChild(mk('span','font-size:12px;color:'+(u?'#fff':'#a7f3d0')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block',(p.last.from===m.key?(p.last.rts?'✓✓ ':p.last.dts?'✓✓ ':'✓ ')+'আপনি: ':'')+p.last.text));row.appendChild(mid);
         if(u)row.appendChild(mk('span','background:#ef4444;color:#fff;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700',fmt(u)));
+        if(p.isGroup){try{row.firstChild.textContent='👥';row.firstChild.style.background='#0f766e';row.firstChild.style.fontSize='20px'}catch(e){}const sp=mid.querySelector('span');const L=p.last;if(sp){sp.textContent=L.kind==='sys'?L.text:((L.from===m.key?'আপনি: ':(L.fromName?L.fromName+': ':''))+(L.del?'🚫 মেসেজ মুছে ফেলা হয়েছে':L.text));sp.style.color=u?'#fff':'#a7f3d0'}const gg=grpOf(p.key);if(gg&&gg.muted)row.appendChild(mk('span','font-size:12px','🔕'))}
         if(pinL.includes(p.key))row.appendChild(mk('span','font-size:13px','📌'));
         if(!window.__admMsg){const mb=mk('button','','⋮');mb.setAttribute('aria-label','আরও');mb.style.cssText='flex:none;width:32px;height:32px;border-radius:50%;border:0;background:transparent;color:#a7f3d0;font-size:20px;font-weight:700;cursor:pointer';mb.onclick=e=>{e.stopPropagation();msgRowMenu(p)};row.appendChild(mb)}
         {const dr=window.__admMsg?'':draftGet(p.key);if(dr){const sp=mid.querySelector('span');if(sp){sp.textContent='✏️ খসড়া: '+dr;sp.style.color='#fcd34d'}}}
-        row.onclick=()=>openChat(p.key,p.name);b.appendChild(row);
+        row.onclick=()=>p.isGroup?openGroupChat(p.key):openChat(p.key,p.name);b.appendChild(row);
       });
       const secStyle='margin-top:14px;background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:8px 12px';
       if(window.__admMsg){const d=mk('details',secStyle);d.open=heldArr.length>0;d.appendChild(mk('summary','font-size:13px;color:#fcd34d;cursor:pointer;font-weight:700','⏳ হোল্ডে রাখা ('+fmt(heldArr.length)+')'));
@@ -1595,10 +1732,10 @@
     function buildChat(){
       const b=$('msgBody');b.innerHTML='';
       if(CHAT.peer!==msgPeer.key){CHAT.peer=msgPeer.key;CHAT.q='';CHAT.reply=null;CHAT.tray=null;CHAT.search=false}
-      b.appendChild(modalHead(msgPeer.name,msgPeer.key===ADMIN_MSG_KEY?'তথ্য আপডেটের অনুরোধ অ্যাডমিনকে জানান':(/^u[0-9a-f]{16}$/.test(msgPeer.key)?'সদস্য':'ফোন: '+msgPeer.key),()=>{msgPeer=null;drawInbox()}));
+      b.appendChild(modalHead(msgPeer.name,msgPeer.isGroup?('গ্রুপ · সদস্য '+fmt(((grpOf(msgPeer.key)||{}).members||[]).length)+' জন'):(msgPeer.key===ADMIN_MSG_KEY?'তথ্য আপডেটের অনুরোধ কাস্টমার কেয়ারকে জানান':(/^u[0-9a-f]{16}$/.test(msgPeer.key)?'সদস্য':'ফোন: '+msgPeer.key)),()=>{msgPeer=null;drawInbox()}));
       const ac=mk('div','display:flex;gap:6px;margin-bottom:8px;align-items:center');
       const chip=(t,fn)=>{const c=mk('button','',t);c.style.cssText='padding:6px 12px;border-radius:999px;font-size:12px;cursor:pointer;color:#fff;border:1px solid rgba(16,185,129,.5);background:#0a251c';c.onclick=fn;ac.appendChild(c)};
-      chip('🔍 খুঁজুন',()=>{CHAT.search=!CHAT.search;if(!CHAT.search)CHAT.q='';buildChat()});chip('ⓘ তথ্য',()=>msgInfo());
+      chip('🔍 খুঁজুন',()=>{CHAT.search=!CHAT.search;if(!CHAT.search)CHAT.q='';buildChat()});chip('ⓘ তথ্য',()=>msgPeer.isGroup?groupInfo():msgInfo());
       ac.appendChild(mk('span','font-size:10px;color:#fcd34d;line-height:1.4;flex:1;margin-left:4px','⚠️ ওটিপি/পাসওয়ার্ড পাঠাবেন না। জরুরি ৯৯৯।'));b.appendChild(ac);
       if(CHAT.search){const si=document.createElement('input');si.className='form-field';si.placeholder='🔍 এই চ্যাটে খুঁজুন…';si.value=CHAT.q;si.maxLength=40;si.style.cssText='margin:0 0 8px;padding:9px 12px';si.oninput=()=>{CHAT.q=si.value.trim().toLowerCase();drawChat()};b.appendChild(si);setTimeout(()=>{try{si.focus()}catch(e){}},50)}
       const list=mk('div','height:'+(CHAT.search?'38vh':'46vh')+';overflow-y:auto;background:'+MPF_BG[mpf().bg][1]+';border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px');list.id='chatList';b.appendChild(list);
@@ -1612,22 +1749,25 @@
     }
     function drawChat(){
       const m=msgMe(),list=$('chatList');if(!list||!msgPeer)return;list.innerHTML='';
-      let conv=msgAll.filter(x=>(x.from===m.key&&x.to===msgPeer.key)||(x.from===msgPeer.key&&x.to===m.key));
+      let conv=msgPeer.isGroup?msgAll.filter(x=>x._grp&&x.to===msgPeer.key):msgAll.filter(x=>(x.from===m.key&&x.to===msgPeer.key)||(x.from===msgPeer.key&&x.to===m.key));
       if(CHAT.q)conv=conv.filter(x=>String(x.text).toLowerCase().includes(CHAT.q));
       if(!conv.length)list.appendChild(mk('p','font-size:12px;color:#a7f3d0;text-align:center;margin:auto',CHAT.q?'কিছু পাওয়া যায়নি।':'কথা শুরু করুন 👋'));
       const PF=mpf(),stars=new Set(mlist(MSG_STAR_KEY));let lastDay='';
       conv.forEach(x=>{
         const mineMsg=x.from===m.key;
+        if(x.kind==='sys'){list.appendChild(mk('div','align-self:center;max-width:88%;text-align:center;font-size:11px;line-height:1.6;color:'+MPF_BG[PF.bg][2]+';background:rgba(0,0,0,.28);border-radius:12px;padding:4px 12px;margin:4px 0',x.text));return}
         if(PF.dates){const dk=new Date(x.ts).toDateString();if(dk!==lastDay){lastDay=dk;const ds=mk('div','align-self:center;font-size:10.5px;color:'+MPF_BG[PF.bg][2]+';background:rgba(0,0,0,.28);border-radius:999px;padding:3px 11px;margin:6px 0',msgDayLabel(x.ts));list.appendChild(ds)}}
         const bub=mk('div',`max-width:78%;padding:8px 12px;border-radius:14px;font-size:${MPF_FS[PF.fs][1]}px;line-height:1.5;word-break:break-word;cursor:pointer;align-self:${mineMsg?'flex-end':'flex-start'};background:${mineMsg?MPF_BUB[PF.bub][1]:'#1e293b'};color:#fff`);
-        bub.onclick=()=>msgBubbleMenu(bub,x,mineMsg);
+        bub.onclick=()=>{if(!x.del)msgBubbleMenu(bub,x,mineMsg)};
+        if(msgPeer.isGroup&&!mineMsg&&x.fromName){const cols=['#fcd34d','#7dd3fc','#f9a8d4','#86efac','#fdba74','#c4b5fd'];let hh=0;for(const ch of String(x.from))hh=(hh*31+ch.charCodeAt(0))%997;bub.appendChild(mk('div','font-size:11.5px;font-weight:700;margin-bottom:2px;color:'+cols[hh%cols.length],x.fromName))}
+        if(x.del){bub.appendChild(mk('div','font-style:italic;opacity:.75;font-size:12.5px','🚫 এই মেসেজটি মুছে ফেলা হয়েছে'));bub.style.cursor='default';bub.appendChild(mk('div','font-size:9.5px;opacity:.7;margin-top:3px;text-align:right',fmt(new Date(x.ts).getHours())+':'+String(new Date(x.ts).getMinutes()).padStart(2,'0')));list.appendChild(bub);return}
         let body=String(x.text),quote=null,fwd=false;
         if(body.startsWith('↩️ ')){const nl=body.indexOf('\n');if(nl>0){quote=body.slice(3,nl);body=body.slice(nl+1)}}else if(body.startsWith('↪️ ')){fwd=true;body=body.slice(3)}
         if(fwd)bub.appendChild(mk('div','font-size:10.5px;opacity:.8;margin-bottom:3px','↪️ ফরোয়ার্ড করা'));
         if(quote)bub.appendChild(mk('div','border-left:3px solid #7dd3fc;background:rgba(0,0,0,.22);border-radius:6px;padding:4px 8px;margin-bottom:5px;font-size:11.5px;opacity:.92;white-space:pre-wrap;word-break:break-word',quote));
         const tx=mk('div','white-space:pre-wrap');msgLinkify(tx,body);bub.appendChild(tx);
         const t=new Date(x.ts);const meta=mk('div','font-size:9.5px;opacity:.75;margin-top:3px;text-align:right;display:flex;gap:4px;justify-content:flex-end;align-items:center');if(stars.has(x.id))meta.appendChild(mk('span','font-size:10px','⭐'));meta.appendChild(mk('span','',fmt(t.getHours())+':'+String(t.getMinutes()).padStart(2,'0')));
-        if(mineMsg){const st=x.rts?'read':x.dts?'deliv':'sent';const tk=mk('span','font-size:12px;font-weight:700;letter-spacing:-3px;color:'+(st==='read'?'#38bdf8':'#d1fae5'),st==='sent'?'✓':'✓✓');tk.title=st==='read'?'দেখেছে':st==='deliv'?'পৌঁছেছে':'পাঠানো হয়েছে';tk.dataset.st=st;meta.appendChild(tk)}
+        if(mineMsg&&!x._grp){const st=x.rts?'read':x.dts?'deliv':'sent';const tk=mk('span','font-size:12px;font-weight:700;letter-spacing:-3px;color:'+(st==='read'?'#38bdf8':'#d1fae5'),st==='sent'?'✓':'✓✓');tk.title=st==='read'?'দেখেছে':st==='deliv'?'পৌঁছেছে':'পাঠানো হয়েছে';tk.dataset.st=st;meta.appendChild(tk)}
         bub.appendChild(meta);
         list.appendChild(bub);
       });
@@ -2157,7 +2297,7 @@
       ['📺 টিভি চ্যানেলের সংবাদ',[['সময় টিভি','https://www.somoynews.tv'],['যমুনা টিভি','https://jamuna.tv'],['চ্যানেল ২৪','https://www.channel24bd.tv'],['একাত্তর টিভি','https://ekattor.tv'],['এনটিভি','https://www.ntvbd.com'],['আরটিভি','https://www.rtvonline.com']]]
     ];
     function renderNews(list){
-      list.appendChild(mk('p','font-size:11px;color:#6ee7b7;line-height:1.6;margin:0 0 10px','পত্রিকা ও সংবাদমাধ্যমের অফিসিয়াল সাইট। ঠিকানা বদলাতে পারে, না খুললে অ্যাডমিন প্যানেল থেকে ঠিক করে নিন।'));
+      list.appendChild(mk('p','font-size:11px;color:#6ee7b7;line-height:1.6;margin:0 0 10px','পত্রিকা ও সংবাদমাধ্যমের অফিসিয়াল সাইট। ঠিকানা বদলাতে পারে, না খুললে কেয়ার প্যানেল থেকে ঠিক করে নিন।'));
       const sc=SCOPE_Q();
       list.appendChild(linkCard('📍 '+(sc||'বাংলাদেশ')+' — এলাকার খবর','গুগল নিউজে বাংলা সংবাদ','https://news.google.com/search?q='+encodeURIComponent(sc||'বাংলাদেশ')+'&hl=bn&gl=BD&ceid=BD:bn','পড়ুন'));
       NEWS.forEach(([t,rows],i)=>{const det=mk('details','background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:10px 12px;margin-bottom:8px');det.appendChild(mk('summary','cursor:pointer;font-weight:700;font-size:14px',t));if(i===0)det.open=true;
@@ -2235,7 +2375,7 @@
     async function emVerify(em,code){const j=await sbReq('/auth/v1/verify',{method:'POST',body:{type:'email',email:em,token:String(code||'').replace(/[^0-9]/g,'').replace(/^$/,'x')}});if(!j||!j.access_token)throw new Error('কোড মিলছে না');return j.access_token}
     function emErr(e){const t=String(e&&e.message||e||'');
       if(/only request this after|rate limit|too many|over_email_send_rate_limit/i.test(t))return'অল্প সময়ে অনেকবার চেষ্টা হয়েছে। ১ মিনিট পরে আবার চেষ্টা করুন।';
-      if(/error sending|smtp|sending .*email|unexpected_failure|550|535/i.test(t))return'ইমেইল পাঠানো যায়নি — অ্যাডমিনের ইমেইল-সেটআপ বাকি আছে।';
+      if(/error sending|smtp|sending .*email|unexpected_failure|550|535/i.test(t))return'ইমেইল পাঠানো যায়নি — কাস্টমার কেয়ারের ইমেইল-সেটআপ বাকি আছে।';
       if(/expired|invalid|otp|token/i.test(t))return'কোড ভুল বা মেয়াদ শেষ। আবার কোড পাঠিয়ে চেষ্টা করুন।';
       if(/email used/i.test(t))return'এই জিমেইল অন্য একটি অ্যাকাউন্টে ব্যবহৃত।';
       return msgErrText2(e)}
@@ -2287,7 +2427,7 @@
             try{await socRpc('soc_set_recovery',{p_tok:r.token,p_rhash:await rcHash(code)});shown=true}catch(e){}
             if(shown){entryCodeScreen(box,code,()=>entryDone(rr,k,name));b.disabled=false;return}
             entryDone(rr,k,name);
-          }catch(e){const m=String(e&&e.message||e);fail(/email used/.test(m)?'এই ইমেইল দিয়ে আগেই একটি অ্যাকাউন্ট খোলা হয়েছে।':/exists/.test(m)?'এই নম্বরে অ্যাকাউন্ট আগেই আছে। "লগইন" চাপুন।':/bad age/.test(m)?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: Supabase-এ 6_accounts.sql চালান)।':msgErrText2(e))}b.disabled=false};box.appendChild(b);skip();
+          }catch(e){const m=String(e&&e.message||e);fail(/email used/.test(m)?'এই ইমেইল দিয়ে আগেই একটি অ্যাকাউন্ট খোলা হয়েছে।':/exists/.test(m)?'এই নম্বরে অ্যাকাউন্ট আগেই আছে। "লগইন" চাপুন।':/bad age/.test(m)?'সার্ভারের সেটআপ বাকি (কাস্টমার কেয়ার: Supabase-এ 6_accounts.sql চালান)।':msgErrText2(e))}b.disabled=false};box.appendChild(b);skip();
       }else if(E.mode==='forgotmail'){
         const mkIn=(par,label,id,o)=>{o=o||{};par.appendChild(mk('label','',label)).className='field-label';const i=document.createElement('input');i.className='form-field';i.id=id;if(o.type)i.type=o.type;if(o.mode)i.setAttribute('inputmode',o.mode);i.maxLength=o.max||64;if(o.ac)i.autocomplete=o.ac;if(o.ph)i.placeholder=o.ph;if(o.val)i.value=o.val;par.appendChild(i);return i};
         box.appendChild(mk('h3','font-size:16px;margin-bottom:6px','📧 জিমেইলে কোড পাঠান'));
@@ -2305,8 +2445,8 @@
           if(!/^[0-9]{7,15}$/.test(k))return fail('সঠিক মোবাইল নম্বর লিখুন।');if(!emOk(em))return fail('সঠিক জিমেইল লিখুন।');if(String(c).replace(/\D/g,'').length<4)return fail('ইমেইলের কোড লিখুন।');if(p.length<4)return fail('নতুন পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন।');
           goB.disabled=true;try{const at=await emVerify(em,c);const salt=randHex(16),iter=100000;const hash=await deriveHash(k,p,salt,iter);
             const r=await socRpc('soc_recover_email',{p_phone:k,p_salt:salt,p_iter:iter,p_hash:hash},at);
-            if(r&&r.error==='email mismatch')fail('এই নম্বরের অ্যাকাউন্টে এই জিমেইল যোগ করা নেই। রিকভারি কোড দিয়ে চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।');else if(!r||r.error||!r.token)fail('হয়নি, আবার চেষ্টা করুন।');else entryDone(r,k)}
-          catch(e){fail(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: 8_email_recovery.sql চালান)।':emErr(e))}goB.disabled=false};
+            if(r&&r.error==='email mismatch')fail('এই নম্বরের অ্যাকাউন্টে এই জিমেইল যোগ করা নেই। রিকভারি কোড দিয়ে চেষ্টা করুন বা কাস্টমার কেয়ারের সাথে যোগাযোগ করুন।');else if(!r||r.error||!r.token)fail('হয়নি, আবার চেষ্টা করুন।');else entryDone(r,k)}
+          catch(e){fail(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (কাস্টমার কেয়ার: 8_email_recovery.sql চালান)।':emErr(e))}goB.disabled=false};
         const b1=mk('button','','🔑 রিকভারি কোড দিয়ে করুন');b1.className='change-btn';b1.style.cssText='width:100%;padding:10px;margin-top:10px;cursor:pointer';b1.onclick=()=>{E.pre={phone:$('eMPhone').value};E.mode='forgot';entryRender()};box.appendChild(b1);
         const bk=mk('button','','← লগইনে ফিরুন');bk.style.cssText='background:none;border:0;color:#6ee7b7;font-size:13px;margin-top:10px;cursor:pointer;width:100%';bk.onclick=()=>{E.mode='login';entryRender()};box.appendChild(bk);
       }else{
@@ -2317,19 +2457,19 @@
           if(!/^[0-9]{7,15}$/.test(k))return fail('সঠিক মোবাইল নম্বর লিখুন।');if(rcNorm(c).length<8)return fail('রিকভারি কোড লিখুন।');if(p.length<4)return fail('নতুন পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন।');
           const salt=randHex(16),iter=100000;const hash=await deriveHash(k,p,salt,iter);const nc=rcNew();
           b.disabled=true;try{const r=await socRpc('soc_recover',{p_phone:k,p_rhash:await rcHash(c),p_salt:salt,p_iter:iter,p_hash:hash,p_new_rhash:await rcHash(nc)});
-            if(r&&r.error==='locked')fail('অনেকবার ভুল কোড দেওয়া হয়েছে। ১৫ মিনিট পরে চেষ্টা করুন।');else if(r&&r.error==='no recovery')fail('এই অ্যাকাউন্টে রিকভারি কোড বানানো ছিল না। অ্যাডমিনের সাথে যোগাযোগ করে পাসওয়ার্ড রিসেট করিয়ে নিন।');else if(!r||r.error||!r.token)fail('নম্বর বা কোড মিলছে না।');
-            else entryCodeScreen(box,nc,()=>entryDone(r,k))}catch(e){fail(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: 6_accounts.sql চালান)।':msgErrText2(e))}b.disabled=false};box.appendChild(b);
+            if(r&&r.error==='locked')fail('অনেকবার ভুল কোড দেওয়া হয়েছে। ১৫ মিনিট পরে চেষ্টা করুন।');else if(r&&r.error==='no recovery')fail('এই অ্যাকাউন্টে রিকভারি কোড বানানো ছিল না। কাস্টমার কেয়ারের সাথে যোগাযোগ করে পাসওয়ার্ড রিসেট করিয়ে নিন।');else if(!r||r.error||!r.token)fail('নম্বর বা কোড মিলছে না।');
+            else entryCodeScreen(box,nc,()=>entryDone(r,k))}catch(e){fail(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (কাস্টমার কেয়ার: 6_accounts.sql চালান)।':msgErrText2(e))}b.disabled=false};box.appendChild(b);
         const bm=mk('button','','📧 কোড না থাকলে — জিমেইলে কোড পাঠান');bm.className='change-btn';bm.style.cssText='width:100%;padding:10px;margin-top:10px;cursor:pointer';bm.onclick=()=>{E.pre={phone:$('eFPhone').value};E.mode='forgotmail';entryRender()};box.appendChild(bm);
         const bk=mk('button','','← লগইনে ফিরুন');bk.style.cssText='background:none;border:0;color:#6ee7b7;font-size:13px;margin-top:10px;cursor:pointer;width:100%';bk.onclick=()=>{E.mode='login';entryRender()};box.appendChild(bk);
-        box.appendChild(mk('p','font-size:11.5px;color:#a7f3d0;line-height:1.7;margin-top:10px','কোডও হারিয়ে ফেললে অ্যাডমিনের সাথে যোগাযোগ করুন — তিনি আপনার নম্বরের জন্য একটি সাময়িক পাসওয়ার্ড বসিয়ে দেবেন।'));
+        box.appendChild(mk('p','font-size:11.5px;color:#a7f3d0;line-height:1.7;margin-top:10px','কোডও হারিয়ে ফেললে কাস্টমার কেয়ারের সাথে যোগাযোগ করুন — তিনি আপনার নম্বরের জন্য একটি সাময়িক পাসওয়ার্ড বসিয়ে দেবেন।'));
       }
     }
-    function msgErrText2(e){const t=String(e&&e.message||e||'');if(/abort|failed to fetch|network|load failed/i.test(t))return'ইন্টারনেট সংযোগ নেই বা ধীর। সংযোগ দেখে আবার চেষ্টা করুন।';if(/could not find the function|PGRST202/i.test(t))return'সার্ভারের সেটআপ বাকি আছে (অ্যাডমিন: Supabase-এ SQL চালান)।';return t.slice(0,140)||'অজানা সমস্যা'}
+    function msgErrText2(e){const t=String(e&&e.message||e||'');if(/abort|failed to fetch|network|load failed/i.test(t))return'ইন্টারনেট সংযোগ নেই বা ধীর। সংযোগ দেখে আবার চেষ্টা করুন।';if(/could not find the function|PGRST202/i.test(t))return'সার্ভারের সেটআপ বাকি আছে (কাস্টমার কেয়ার: Supabase-এ SQL চালান)।';return t.slice(0,140)||'অজানা সমস্যা'}
     // অ্যাকাউন্ট সরঞ্জাম (প্রোফাইল পাতায়): পাসওয়ার্ড বদল, নতুন রিকভারি কোড
     const accAddEmail=async()=>{const em=String(prompt('আপনার জিমেইল ঠিকানা লিখুন:')||'').trim().toLowerCase();if(!em)return;if(!emOk(em)){alert('সঠিক ইমেইল লিখুন।');return}
         try{await emSend(em)}catch(e){alert('কোড পাঠানো যায়নি: '+emErr(e));return}
         const c=prompt('ইমেইলে একটি কোড গেছে (ইনবক্স/স্প্যাম দেখুন)। কোডটি লিখুন:');if(!c)return;
-        try{const at=await emVerify(em,c);await socRpc('soc_set_email',{p_tok:SOCN.tok},at);try{const h=await baEmHash(em);localStorage.setItem('amarAccEmH',h);const bd=baData();bd.shop.em=h;baSave(bd)}catch(_){}alert('✅ জিমেইল যোগ হয়েছে। পাসওয়ার্ড ভুলে গেলে লগইন পাতায় "ভুলে গেছি" → "জিমেইলে কোড পাঠান" চাপুন।')}catch(e){alert('হয়নি: '+(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (অ্যাডমিন: 8_email_recovery.sql চালান)।':emErr(e)))}};
+        try{const at=await emVerify(em,c);await socRpc('soc_set_email',{p_tok:SOCN.tok},at);try{const h=await baEmHash(em);localStorage.setItem('amarAccEmH',h);const bd=baData();bd.shop.em=h;baSave(bd)}catch(_){}alert('✅ জিমেইল যোগ হয়েছে। পাসওয়ার্ড ভুলে গেলে লগইন পাতায় "ভুলে গেছি" → "জিমেইলে কোড পাঠান" চাপুন।')}catch(e){alert('হয়নি: '+(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি (কাস্টমার কেয়ার: 8_email_recovery.sql চালান)।':emErr(e)))}};
     function accTools(body){
       const u=socMe();if(!u)return;const box=mk('div','background:#0a251c;border:1px solid rgba(250,204,21,.35);border-radius:14px;padding:12px;margin-top:12px');body.appendChild(box);
       box.appendChild(mk('b','font-size:14px;display:block;margin-bottom:6px','🔐 আমার অ্যাকাউন্ট'));
@@ -3340,9 +3480,9 @@
       c=sec('📲 আরও');const row=(t,fn)=>{const y=mk('button','',t);y.className='change-btn';y.style.cssText+=';display:block;width:100%;text-align:left;margin-bottom:6px;padding:11px 12px;cursor:pointer';y.onclick=fn;c.appendChild(y)};
       row('🔄 অ্যাপ আপডেট করুন (নতুন সংস্করণ আনুন)',async()=>{try{const rs=await navigator.serviceWorker.getRegistrations();for(const r of rs)await r.unregister();const ks=await caches.keys();for(const k of ks)await caches.delete(k)}catch(e){}location.reload()});
       row('📤 বন্ধুকে অ্যাপ শেয়ার করুন',()=>{const u='https://adnan1497.github.io/My-bangladesh-app/MyBangladesh_App.html';const t='আমার বাংলাদেশ — জরুরি সেবা, হাসপাতাল, রক্ত, ব্যবসা হিসাব, সরকারি সেবা সব এক অ্যাপে।';if(navigator.share)navigator.share({title:'আমার বাংলাদেশ',text:t,url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(t+' '+u);alert('লিংক কপি হয়েছে')}catch(e){prompt('কপি করুন:',t+' '+u)}}try{amTrack('share')}catch(e){}});
-      row('📝 অ্যাডমিনকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
+      row('📝 কাস্টমার কেয়ারকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২৪ · তৈরি: মোঃ রাজীব আল আদনান'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২৭'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -3748,7 +3888,7 @@
       if(changed&&socBox&&socBox.isConnected&&!soc.view&&(soc.tab==='friends'||soc.tab==='people'))socRender();
     }
     // ===== নতুন গাইড-ক্যাটাগরি: প্রাথমিক চিকিৎসা, দুর্যোগ, নাগরিক অধিকার, প্রবাসী সেবা, কৃষি, ইউটিলিটি, ফলাফল =====
-    // হটলাইন নম্বরগুলো (৯৯৯, ১৬১২১, ১৬১২৩, ১৬১৩৫, ১৬৪৩০) সংবাদ/সরকারি সূত্রে যাচাই করা; বদলে গেলে অ্যাডমিন সংশোধন করবেন।
+    // হটলাইন নম্বরগুলো (৯৯৯, ১৬১২১, ১৬১২৩, ১৬১৩৫, ১৬৪৩০) সংবাদ/সরকারি সূত্রে যাচাই করা; বদলে গেলে কাস্টমার কেয়ার সংশোধন করবেন।
     const GUIDES={
       firstaid:{intro:'প্রাথমিক চিকিৎসা শুধু হাসপাতালে পৌঁছানোর আগের জন্য। গুরুতর হলে সঙ্গে সঙ্গে ৯৯৯ বা ১৬২৬৩-এ ফোন করুন ও দ্রুত হাসপাতালে নিন।',calls:[['৯৯৯','জাতীয় জরুরি সেবা','999'],['১৬২৬৩','স্বাস্থ্য বাতায়ন','16263']],
         sections:[
@@ -3811,7 +3951,7 @@
       ]};
     GUIDES.rights.sections.push(['⚖️ ভোক্তা অধিকার সংরক্ষণ আইন (২০০৯)',['ভোক্তা অধিকার সংরক্ষণ আইন, ২০০৯ অনুযায়ী মেয়াদোত্তীর্ণ পণ্য বিক্রি, ভেজাল, অতিরিক্ত দাম নেওয়া, ওজনে কম দেওয়া ইত্যাদি অপরাধ।','অভিযোগ জানান জাতীয় ভোক্তা অধিকার সংরক্ষণ অধিদপ্তরে — হটলাইন ১৬১২১।','অভিযোগে দোকানের নাম-ঠিকানা, সময়, রসিদ, ছবি/ভিডিও যুক্ত করুন।','এমআরপি (সর্বোচ্চ খুচরা মূল্য) এর বেশি দাম চাইতে পারে না; মেয়াদের তারিখ কেনার আগে দেখুন।']]);
     GUIDES.farming.links=(GUIDES.farming.links||[]).concat([['কৃষি বাতায়ন (কৃষি তথ্য পোর্টাল)','কৃষি মন্ত্রণালয়ের তথ্য ও পরামর্শ','https://krishi.gov.bd'],['বাংলাদেশ ধান গবেষণা ইনস্টিটিউট (বিআরআরআই)','ধানের জাত ও চাষ পদ্ধতি','https://brri.gov.bd'],['বাংলাদেশ কৃষি গবেষণা ইনস্টিটিউট (বারি)','সবজি, ফল ও ফসলের জাত','https://bari.gov.bd']]);
-    // ===== নিবন্ধন (ফার্মেসি, মল, কোচিং ইত্যাদি): অ্যাডমিন অনুমোদন ছাড়া "পেন্ডিং" থাকে =====
+    // ===== নিবন্ধন (ফার্মেসি, মল, কোচিং ইত্যাদি): কাস্টমার কেয়ার অনুমোদন ছাড়া "পেন্ডিং" থাকে =====
     // এখন তথ্য এই ফোনে সংরক্ষিত; অনলাইন সার্ভার (Firebase) চালু হলে একই কাঠামো সবার জন্য সিঙ্ক হবে।
     // ===== Supabase (অনলাইন): URL ও anon key জনসাধারণের জন্যই; নিরাপত্তা RLS নিয়ম থেকে =====
     const SB={url:'https://hbnylddicymdmlohkfua.supabase.co',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhibnlsZGRpY3ltZG1sb2hrZnVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4MzcwNTgsImV4cCI6MjEwNzQxMzA1OH0.qZuXq8_iCEw_TBojGh8HtbNk8jt8jnNiRmJC5Lh8eXQ'};
@@ -3824,7 +3964,7 @@
       try{const r=await fetch(SB.url+path,{method:o.method||'GET',headers:h,body:o.body?JSON.stringify(o.body):undefined,signal:ctl.signal});
         const t=await r.text();let j=null;try{j=t?JSON.parse(t):null}catch(e){}
         if(!r.ok)throw new Error((j&&(j.message||j.msg||j.error_description))||('HTTP '+r.status));return j}finally{clearTimeout(tm)}}
-    // নাম-পরিচয়হীন গণনা: অ্যাপ কতবার খোলা/ইনস্টল হলো (শুধু অ্যাডমিন দেখতে পায়)
+    // নাম-পরিচয়হীন গণনা: অ্যাপ কতবার খোলা/ইনস্টল হলো (শুধু কাস্টমার কেয়ার দেখতে পায়)
     function amTrack(ev){try{let v='';try{v=localStorage.getItem('amarVid_v1')||'';if(v.length<16){v=(Math.random().toString(36).slice(2)+Date.now().toString(36)+Math.random().toString(36).slice(2)).slice(0,32);localStorage.setItem('amarVid_v1',v)}}catch(e){v='anon'+Math.random().toString(36).slice(2,12)}
       const dv=/iphone|ipad|ios/i.test(navigator.userAgent)?'iOS':/android/i.test(navigator.userAgent)?'Android':'ডেস্কটপ';const pwa=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone;
       sbReq('/rest/v1/rpc/track_event',{method:'POST',body:{p_vid:v,p_ev:ev,p_src:pwa?'pwa':'web',p_ref:'',p_dev:dv}}).catch(()=>{})}catch(e){}}
@@ -3864,7 +4004,7 @@
       hotel:{ic:'🏨',noun:'হোটেল / থাকার জায়গা',lic:'ট্রেড লাইসেন্স নম্বর',licHint:'ঐচ্ছিক',extra:'রুম ও ভাড়া (যেমন: রাত প্রতি ১৫০০–৩০০০)',ph:'যেমন: হোটেল সোনারগাঁও'},
       fuel:{ic:'⛽',noun:'সিএনজি / পেট্রোল পাম্প',lic:'লাইসেন্স নম্বর',licHint:'ঐচ্ছিক',extra:'কী পাওয়া যায় (অকটেন, ডিজেল, সিএনজি)',ph:'যেমন: পদ্মা ফিলিং স্টেশন'}
     };
-    const BIZ_ST={pending:['⏳ পেন্ডিং — অ্যাডমিন অনুমোদনের অপেক্ষায়','#78350f','#fde68a'],approved:['✅ অনুমোদিত','#065f46','#a7f3d0'],rejected:['❌ বাতিল','#7f1d1d','#fecaca']};
+    const BIZ_ST={pending:['⏳ পেন্ডিং — কাস্টমার কেয়ার অনুমোদনের অপেক্ষায়','#78350f','#fde68a'],approved:['✅ অনুমোদিত','#065f46','#a7f3d0'],rejected:['❌ বাতিল','#7f1d1d','#fecaca']};
     const bizAll=()=>{const o=readJSON(BIZ_KEY,{});return o&&typeof o==='object'&&!Array.isArray(o)?o:{}};
     const bizPending=()=>Object.values(bizAll()).reduce((n,a)=>n+(Array.isArray(a)?a.filter(x=>x&&x.status==='pending').length:0),0);
     function bizCard(it,B,withBtns,onChange){
@@ -3886,7 +4026,7 @@
       const B=BIZ[id];if(!B)return;
       const box=mk('div','background:#0a251c;border:1px solid rgba(250,204,21,.45);border-radius:14px;padding:12px;margin-bottom:10px');
       box.appendChild(mk('div','font-weight:700;font-size:14px;color:#fcd34d;margin-bottom:4px',B.ic+' আপনার '+B.noun+' নিবন্ধন করুন'));
-      box.appendChild(mk('p','font-size:11px;color:#a7f3d0;line-height:1.7;margin:0 0 8px','নিবন্ধন জমা দিলে প্রথমে "⏳ পেন্ডিং" থাকবে। অ্যাডমিন যাচাই করে অনুমোদন দিলে তবেই "✅ অনুমোদিত" হবে ও সবার তালিকায় আসবে।'));
+      box.appendChild(mk('p','font-size:11px;color:#a7f3d0;line-height:1.7;margin:0 0 8px','নিবন্ধন জমা দিলে প্রথমে "⏳ পেন্ডিং" থাকবে। কাস্টমার কেয়ার যাচাই করে অনুমোদন দিলে তবেই "✅ অনুমোদিত" হবে ও সবার তালিকায় আসবে।'));
       const mine=mk('div','');const form=mk('div','');box.appendChild(mine);box.appendChild(form);
       const pub=mk('div','margin-bottom:10px');
       const inS='width:100%;padding:9px;border-radius:10px;background:#061812;border:1px solid #10b981;color:#fff;font-size:13px;margin:6px 0 0;outline:none;box-sizing:border-box';
@@ -3926,7 +4066,7 @@
       draw();fill(null);list.appendChild(box);list.appendChild(pub);
       bizSyncAll(id).then(ch=>{if(ch&&box.isConnected)draw()});
     }
-    // অ্যাডমিন: অনলাইন (Supabase) নিবন্ধন তালিকা ও অনুমোদন
+    // কাস্টমার কেয়ার: অনলাইন (Supabase) নিবন্ধন তালিকা ও অনুমোদন
     async function renderAdminRegServer(root){
       root.innerHTML='';
       const tok=sbTok();
@@ -3934,7 +4074,7 @@
       const out=mk('button','','লগআউট');out.className='change-btn';out.style.cssText='font-size:11px;padding:4px 10px;cursor:pointer';out.onclick=()=>{try{sessionStorage.removeItem(SB_TOK)}catch(e){}renderAdminReg()};top.appendChild(out);root.appendChild(top);
       const shBox=mk('div','');root.appendChild(shBox);renderSharedPending(shBox,tok);
       const body=mk('div','');root.appendChild(body);body.appendChild(mk('p','font-size:12px;color:#a7f3d0','লোড হচ্ছে…'));
-      let rows;try{rows=await sbReq('/rest/v1/registrations?select=id,cat,name,addr,phone,hours,lic,extra,loc,by_name,status,reason,created_at&order=created_at.desc&limit=500',{token:tok})}catch(e){body.innerHTML='';body.appendChild(mk('p','font-size:12px;color:#fca5a5;line-height:1.7','তালিকা আনা যায়নি: '+e.message+'\nআবার লগইন করুন বা SQL সেটআপ/অ্যাডমিন ইমেইল ঠিক আছে কিনা দেখুন।'));return}
+      let rows;try{rows=await sbReq('/rest/v1/registrations?select=id,cat,name,addr,phone,hours,lic,extra,loc,by_name,status,reason,created_at&order=created_at.desc&limit=500',{token:tok})}catch(e){body.innerHTML='';body.appendChild(mk('p','font-size:12px;color:#fca5a5;line-height:1.7','তালিকা আনা যায়নি: '+e.message+'\nআবার লগইন করুন বা SQL সেটআপ/কেয়ার ইমেইল ঠিক আছে কিনা দেখুন।'));return}
       body.innerHTML='';rows=Array.isArray(rows)?rows:[];
       const set=async(r,st,reason)=>{try{await sbReq('/rest/v1/registrations?id=eq.'+encodeURIComponent(r.id),{method:'PATCH',token:tok,body:{status:st,reason:reason||null,updated_at:new Date().toISOString()},prefer:'return=minimal'});renderAdminRegServer(root);try{updRegTab()}catch(e){}}catch(e){alert('ব্যর্থ: '+e.message)}};
       [['pending','⏳ পেন্ডিং'],['approved','✅ অনুমোদিত'],['rejected','❌ বাতিল']].forEach(([st,t])=>{
@@ -3951,12 +4091,12 @@
           c.insertBefore(mk('div','font-size:10.5px;color:#fcd34d;margin-top:2px',B.ic+' '+B.noun+(r.by_name?' · নিবন্ধনকারী: '+r.by_name:'')+(r.loc?' · '+r.loc:'')),c.children[1]);det.appendChild(c)});
         body.appendChild(det)});
     }
-    // অ্যাডমিন: অন্যান্য অপেক্ষমাণ জমা (রক্তদাতা, চিকিৎসক, তালিকা, নোটিশ) + এই ফোনের তথ্য অনলাইনে পাঠানো
+    // কাস্টমার কেয়ার: অন্যান্য অপেক্ষমাণ জমা (রক্তদাতা, চিকিৎসক, তালিকা, নোটিশ) + এই ফোনের তথ্য অনলাইনে পাঠানো
     const SH_LBL={donor:'🩸 রক্তদাতা',doctor:'👨‍⚕️ চিকিৎসক',listing:'🏷️ তালিকা',notice:'📢 নোটিশ'};
     async function renderSharedPending(box,tok){
       box.innerHTML='';
-      const up=mk('button','','🌐 এই ফোনের সব তথ্য অনলাইনে পাঠান (অ্যাডমিন তথ্য, রক্তদাতা, চিকিৎসক…)');up.className='change-btn';up.style.cssText='width:100%;margin:0 0 8px;font-size:12px;padding:8px;cursor:pointer';
-      up.onclick=async()=>{up.disabled=true;up.textContent='পাঠানো হচ্ছে…';try{const n=await SH.pushAll();alert('পাঠানো হয়েছে: '+fmt(n)+'টি তথ্য। এখন সব ফোনে দেখা যাবে।')}catch(e){alert('পাঠানো যায়নি: '+((e&&e.message)||e)+'\n\n(shared_items বা schema cache লেখা থাকলে supabase_shared.sql চালানো হয়নি।)')}up.disabled=false;up.textContent='🌐 এই ফোনের সব তথ্য অনলাইনে পাঠান (অ্যাডমিন তথ্য, রক্তদাতা, চিকিৎসক…)';renderSharedPending(box,tok)};
+      const up=mk('button','','🌐 এই ফোনের সব তথ্য অনলাইনে পাঠান (কাস্টমার কেয়ার তথ্য, রক্তদাতা, চিকিৎসক…)');up.className='change-btn';up.style.cssText='width:100%;margin:0 0 8px;font-size:12px;padding:8px;cursor:pointer';
+      up.onclick=async()=>{up.disabled=true;up.textContent='পাঠানো হচ্ছে…';try{const n=await SH.pushAll();alert('পাঠানো হয়েছে: '+fmt(n)+'টি তথ্য। এখন সব ফোনে দেখা যাবে।')}catch(e){alert('পাঠানো যায়নি: '+((e&&e.message)||e)+'\n\n(shared_items বা schema cache লেখা থাকলে supabase_shared.sql চালানো হয়নি।)')}up.disabled=false;up.textContent='🌐 এই ফোনের সব তথ্য অনলাইনে পাঠান (কাস্টমার কেয়ার তথ্য, রক্তদাতা, চিকিৎসক…)';renderSharedPending(box,tok)};
       box.appendChild(up);
       let rows;try{rows=await sbReq('/rest/v1/rpc/admin_shared_pending',{method:'POST',body:{},token:tok})}catch(e){box.appendChild(mk('p','font-size:11.5px;color:#fca5a5;line-height:1.7','অন্যান্য জমা আনা যায়নি ('+((e&&e.message)||e)+'). supabase_shared.sql একবার Run করুন।'));return}
       rows=Array.isArray(rows)?rows:[];
@@ -3979,9 +4119,9 @@
     function adminSbLogin(root){
       const bx=mk('div','background:#0a251c;border:1px solid rgba(250,204,21,.45);border-radius:14px;padding:12px;margin-bottom:10px');
       bx.appendChild(mk('div','font-weight:700;font-size:13px;color:#fcd34d','🌐 অনলাইন নিবন্ধন দেখতে Supabase-এ লগইন'));
-      bx.appendChild(mk('p','font-size:11px;color:#a7f3d0;line-height:1.7;margin:4px 0 6px','সবার ফোন থেকে জমা পড়া নিবন্ধন দেখতে ও অনুমোদন দিতে আপনার অ্যাডমিন ইমেইল-পাসওয়ার্ড দিন (Supabase Authentication-এ বানানো)।'));
+      bx.appendChild(mk('p','font-size:11px;color:#a7f3d0;line-height:1.7;margin:4px 0 6px','সবার ফোন থেকে জমা পড়া নিবন্ধন দেখতে ও অনুমোদন দিতে আপনার কেয়ার ইমেইল-পাসওয়ার্ড দিন (Supabase Authentication-এ বানানো)।'));
       const inS='width:100%;padding:9px;border-radius:10px;background:#061812;border:1px solid #10b981;color:#fff;font-size:13px;margin:4px 0;outline:none;box-sizing:border-box';
-      const em=mk('input',inS);em.type='email';em.placeholder='অ্যাডমিন ইমেইল';em.autocomplete='username';const pw=mk('input',inS);pw.type='password';pw.placeholder='পাসওয়ার্ড';pw.autocomplete='current-password';
+      const em=mk('input',inS);em.type='email';em.placeholder='কেয়ার ইমেইল';em.autocomplete='username';const pw=mk('input',inS);pw.type='password';pw.placeholder='পাসওয়ার্ড';pw.autocomplete='current-password';
       const er=mk('div','font-size:11px;color:#fca5a5;margin-top:4px','');const go=mk('button','','লগইন');go.className='primary-btn';go.style.marginTop='6px';
       go.onclick=async()=>{er.textContent='';try{const j=await sbReq('/auth/v1/token?grant_type=password',{method:'POST',body:{email:em.value.trim(),password:pw.value}});if(!j||!j.access_token)throw new Error('লগইন হয়নি');try{sessionStorage.setItem(SB_TOK,j.access_token)}catch(e){}pw.value='';renderAdminReg()}catch(e){const m=String(e&&e.message||e);let h=m;
         if(/invalid login/i.test(m))h='ইমেইল বা পাসওয়ার্ড মিলছে না। Supabase → Authentication → Users-এ ঠিক এই ইমেইল-পাসওয়ার্ডের ইউজার আছে কিনা এবং ইউজারটি confirmed কিনা দেখুন (না হলে ইউজার মুছে "Auto Confirm User" টিক দিয়ে আবার বানান)।';
@@ -3991,7 +4131,7 @@
         er.textContent='লগইন ব্যর্থ ('+m+'): '+(h===m?'':h)}};
       [em,pw,go,er].forEach(e=>bx.appendChild(e));root.appendChild(bx);
     }
-    // অ্যাডমিন প্যানেল: নিবন্ধন অনুমোদন
+    // কেয়ার প্যানেল: নিবন্ধন অনুমোদন
     function renderAdminReg(){
       const root=$('ad_reg');if(!root)return;root.innerHTML='';
       if(sbTok()){renderAdminRegServer(root);return}
@@ -4019,7 +4159,7 @@
       });
     }
     function updRegTab(){const b=$('tab_reg');if(!b)return;const n=bizPending()+(window.__admPendSrv||0);b.textContent='📝 নিবন্ধন'+(n?' ('+fmt(n)+')':'')}
-    GUIDES.privacy={intro:'🔒 আপনার তথ্য কীভাবে ব্যবহার ও সুরক্ষিত হয় — সংক্ষেপে ও সহজ ভাষায়।',calls:[],links:[],sections:[["১. এই নীতি কীসের জন্য", ["\"আমার বাংলাদেশ\" অ্যাপ বাংলাদেশের নাগরিকদের জন্য সেবা-তথ্য, স্থানীয় তালিকা, নোটিশ, সোশ্যাল ও বার্তার সুবিধা দেয়। এই পাতায় বলা হয়েছে আমরা কোন তথ্য নিই, কেন নিই এবং আপনার কী অধিকার আছে।"]], ["২. কী কী তথ্য নেওয়া হয়", ["আপনি নিজে যা দেন: নাম, মোবাইল নম্বর, জন্ম তারিখ (সোশ্যাল প্রোফাইলে, শুধু বয়স যাচাইয়ের জন্য), এলাকা (বিভাগ/জেলা/উপজেলা/ইউনিয়ন), প্রোফাইল ছবি, পোস্ট, মন্তব্য, বার্তা।", "রক্তদাতা, চিকিৎসক, আইনজীবী, রিসোর্ট বা দোকান-প্রতিষ্ঠান হিসেবে নিবন্ধন করলে: নাম, ফোন নম্বর, রক্তের গ্রুপ, ঠিকানা, ডিগ্রি/লাইসেন্স নম্বর ইত্যাদি আপনার দেওয়া তথ্য।", "ফোনের ভেতরে (শুধু আপনার ডিভাইসে) থাকে: ভ্রমণ পাসপোর্ট, মেডিকেল কার্ড, অ্যালার্ম, নোট, ফন্ট ও পছন্দ — এগুলো সার্ভারে যায় না।", "অবস্থান: শুধু জরুরি পাতায় \"আমার অবস্থানসহ বার্তা পাঠান\" বোতাম চাপলে ডিভাইসের অবস্থান নেওয়া হয় এবং আপনার নিজের SMS-এর লেখায় বসে; সেটি আমাদের সার্ভারে সংরক্ষিত হয় না। কন্ট্যাক্ট লিস্ট, ক্যামেরা বা মাইক্রোফোন অ্যাপ ব্যবহার করে না; শুধু আপনি ছবি বাছাই করলে সেই ছবি নেওয়া হয়।"]], ["৩. কেন ব্যবহার করা হয়", ["অ্যাপের সুবিধা চালানো: যেমন রক্তদাতা বা চিকিৎসকের তালিকা অন্যদের দেখানো, বার্তা পৌঁছে দেওয়া, সোশ্যাল ফিড দেখানো।", "ভুয়া বা ক্ষতিকর তথ্য আটকাতে অ্যাডমিন জমা-দেওয়া তথ্য দেখে অনুমোদন বা বাতিল করেন।", "আমরা আপনার তথ্য বিক্রি করি না এবং বিজ্ঞাপনদাতাকে দিই না।"]], ["৪. কোন তথ্য অন্যরা দেখতে পায়", ["অনুমোদনের পর আপনার নিবন্ধিত তথ্য (যেমন রক্তদাতার নাম, রক্তের গ্রুপ, এলাকা ও ফোন নম্বর; চিকিৎসক/দোকানের ফোন ও ঠিকানা) অ্যাপের সব ব্যবহারকারী দেখতে পাবেন। এজন্য নিবন্ধনের সময় সম্মতির ঘরে টিক দিতে হয়।", "সোশ্যালে আপনার নাম, ছবি, এলাকা, পরিচিতি ও পোস্ট অন্যরা দেখতে পারে। আপনার মোবাইল নম্বর ও জন্ম তারিখ অন্য ব্যবহারকারীদের দেখানো হয় না।", "বার্তা শুধু প্রেরক ও প্রাপক দেখতে পান; অপব্যবহারের অভিযোগ এলে অ্যাডমিন ব্যবস্থা নিতে পারেন।"]], ["৫. তথ্য কোথায় থাকে", ["আপনার ডিভাইসের স্টোরেজে এবং আমাদের অনলাইন ডাটাবেসে (Supabase সেবা)। যোগাযোগ HTTPS-এ এনক্রিপ্টেড। ডাটাবেসে অ্যাক্সেস-নিয়ম (RLS) চালু আছে; পাসওয়ার্ড কখনো সরাসরি রাখা হয় না, শুধু একমুখী হ্যাশ রাখা হয়।", "কোরআন/হাদিস, নামাজের সময় ইত্যাদির জন্য কিছু তথ্য তৃতীয় পক্ষের পাবলিক সেবা (যেমন কোরআন/হাদিসের জন্য api.alquran.cloud ও jsDelivr, মুদ্রা ও স্বর্ণের দামের জন্য open.er-api.com ও api.gold-api.com, এলাকার তালিকার জন্য ডেটা-ফাইল) থেকে আনা হয়; এ জন্য আপনার ব্যক্তিগত তথ্য তাদের দেওয়া হয় না।"]], ["৬. কতদিন রাখা হয়", ["আপনি মুছে না ফেলা পর্যন্ত। দীর্ঘদিন নিষ্ক্রিয় বা আইন-বিরোধী তথ্য অ্যাডমিন সরিয়ে দিতে পারেন।"]], ["৭. আপনার অধিকার ও তথ্য মোছা", ["আপনি নিজের রক্তদাতা/চিকিৎসক/তালিকা/নোটিশ/পোস্ট যেকোনো সময় অ্যাপ থেকে \"মুছুন\" চেপে মুছতে পারেন — অনলাইন থেকেও মুছে যায়।", "সোশ্যাল প্রোফাইল ও সব পোস্ট একসাথে মুছতে: সোশ্যাল → প্রোফাইল → \"আমার প্রোফাইল ও সব পোস্ট মুছুন\"।", "অন্য কোনো তথ্য (যেমন অনুমোদিত নিবন্ধন) মুছতে বা ভুল সংশোধন করতে অ্যাপের \"অ্যাডমিনকে বার্তা\" ব্যবহার করুন; আমরা যুক্তিসংগত সময়ে ব্যবস্থা নেব।"]], ["৮. শিশু ও বয়স", ["সোশ্যাল প্রোফাইল তৈরি করতে কমপক্ষে ১৩ বছর বয়স লাগে। ১৮ বছরের কম বয়সীদের অভিভাবকের অনুমতি ও তত্ত্বাবধানে অ্যাপ ব্যবহার করা উচিত। রক্তদান ও চিকিৎসা-সংক্রান্ত নিবন্ধন শুধু প্রাপ্তবয়স্কদের জন্য।"]], ["৯. সতর্কতা", ["রক্তদাতা, চিকিৎসক, দোকান বা নোটিশের তথ্য ব্যবহারকারীরা নিজে দেন। অ্যাডমিন অনুমোদন দিলেও তথ্যের শতভাগ নির্ভুলতার নিশ্চয়তা নেই; জরুরি ক্ষেত্রে সরকারি জরুরি নম্বর (৯৯৯) ও নিজে যাচাই করে নিন।", "অ্যাপে কোনো জুয়া, বাজি বা অর্থ-লেনদেনের খেলা নেই।"]], ["১০. নীতি বদলালে", ["এই নীতি বদলালে নতুন তারিখসহ এই পাতায় জানানো হবে। শেষ হালনাগাদ: অক্টোবর ২০২৬।"]], ["১১. যোগাযোগ", ["অ্যাডমিন: মোঃ রাজীব আল আদনান। অ্যাপের ভেতরে \"অ্যাডমিনকে বার্তা\" দিয়ে যোগাযোগ করুন।"]]]};
+    GUIDES.privacy={intro:'🔒 আপনার তথ্য কীভাবে ব্যবহার ও সুরক্ষিত হয় — সংক্ষেপে ও সহজ ভাষায়।',calls:[],links:[],sections:[["১. এই নীতি কীসের জন্য", ["\"আমার বাংলাদেশ\" অ্যাপ সেবা-তথ্য, স্থানীয় তালিকা, নোটিশ, সমাজ, কথা ও শপের সুবিধা দেয়। এই পাতায় সহজ ভাষায় লেখা আছে আমরা কোন তথ্য নিই, কেন নিই এবং আপনি কী করতে পারেন।"]], ["২. কী কী তথ্য নেওয়া হয়", ["আপনি নিজে যা দেন: নাম, মোবাইল নম্বর, এলাকা, প্রোফাইল ছবি, পোস্ট, মন্তব্য ও বার্তা। সমাজ প্রোফাইলে জন্ম তারিখ শুধু বয়সের জন্য নেওয়া হয়।", "রক্তদাতা, চিকিৎসক, আইনজীবী, রিসোর্ট বা দোকান হিসেবে নিবন্ধন করলে আপনার দেওয়া নাম, ফোন, ঠিকানা ও পেশাগত তথ্য।", "ভ্রমণ পাসপোর্ট, মেডিকেল কার্ড, অ্যালার্ম, নোট ও পছন্দ শুধু আপনার ফোনেই থাকে।", "অবস্থান: জরুরি পাতায় \"আমার অবস্থানসহ বার্তা পাঠান\" চাপলেই নেওয়া হয় এবং আপনার SMS-এ বসে; আমরা সংরক্ষণ করি না। অ্যাপ কন্ট্যাক্ট লিস্ট, ক্যামেরা বা মাইক্রোফোন ব্যবহার করে না।"]], ["৩. কেন ব্যবহার করা হয়", ["অ্যাপের সুবিধা চালাতে: তালিকা দেখানো, বার্তা পৌঁছানো, ফিড সাজানো, শপের অর্ডার সামলানো।", "তথ্য যাতে নির্ভুল থাকে সেজন্য কাস্টমার কেয়ার জমা-দেওয়া তথ্য দেখে অনুমোদন দেয়।", "আমরা আপনার তথ্য বিক্রি করি না, বিজ্ঞাপনদাতাকেও দিই না।"]], ["৪. কোন তথ্য অন্যরা দেখতে পায়", ["অনুমোদনের পর নিবন্ধিত তথ্য (যেমন রক্তদাতার নাম, গ্রুপ, এলাকা, ফোন) অ্যাপে সবাই দেখতে পায়। নিবন্ধনের সময় সম্মতির ঘরে টিক দিয়ে এটি আপনি ঠিক করেন।", "সমাজে আপনার নাম, ছবি, এলাকা ও পোস্ট অন্যরা দেখে। মোবাইল নম্বর ও জন্ম তারিখ দেখানো হয় না।", "বার্তা শুধু প্রেরক ও প্রাপক (গ্রুপে সদস্যরা) দেখেন।"]], ["৫. তথ্য কোথায় থাকে", ["আপনার ফোনে এবং অনলাইন ডাটাবেসে (Supabase)। যোগাযোগ HTTPS-এ সুরক্ষিত, ডাটাবেসে প্রবেশের কড়া নিয়ম চালু আছে, আর পাসওয়ার্ড সরাসরি রাখা হয় না — শুধু একমুখী হ্যাশ থাকে।", "কোরআন, নামাজের সময়, মুদ্রা ও স্বর্ণের দামের মতো তথ্য পাবলিক সেবা থেকে আনা হয়; এতে আপনার ব্যক্তিগত তথ্য যায় না।"]], ["৬. কতদিন থাকে", ["আপনি মুছে না ফেলা পর্যন্ত। দীর্ঘদিন ব্যবহার না হলে বা নিয়মের বাইরের তথ্য কাস্টমার কেয়ার সরিয়ে দিতে পারে।"]], ["৭. আপনার অধিকার", ["নিজের নিবন্ধন, নোটিশ ও পোস্ট যেকোনো সময় \"মুছুন\" চেপে মুছতে পারেন — অনলাইন থেকেও মুছে যায়।", "সমাজ প্রোফাইল ও সব পোস্ট একসাথে মুছতে: সমাজ → প্রোফাইল → \"আমার প্রোফাইল ও সব পোস্ট মুছুন\"।", "ভুল সংশোধন বা অন্য কিছু মোছাতে অ্যাপের \"কাস্টমার কেয়ারকে বার্তা\" ব্যবহার করুন; আমরা দ্রুত সাহায্য করব।"]], ["৮. বয়স", ["সমাজ প্রোফাইলের জন্য কমপক্ষে ১৩ বছর লাগে। অল্প বয়সীরা অভিভাবকের সাথে ব্যবহার করলে ভালো। রক্তদান ও চিকিৎসা নিবন্ধন প্রাপ্তবয়স্কদের জন্য।"]], ["৯. জেনে রাখুন", ["নিবন্ধিত তথ্য ব্যবহারকারীরা নিজে দেন; জরুরি প্রয়োজনে নিজে একবার যাচাই করে নিন এবং দরকারে ৯৯৯ নম্বরে ফোন করুন।", "অ্যাপে জুয়া বা বাজির কোনো খেলা নেই।"]], ["১০. নীতি হালনাগাদ", ["নীতি বদলালে এই পাতায় নতুন তারিখসহ জানানো হবে। শেষ হালনাগাদ: অক্টোবর ২০২৬।"]], ["১১. যোগাযোগ", ["অ্যাপের ভেতরে \"কাস্টমার কেয়ারকে বার্তা\" দিন — আমরা পাশে আছি।"]]]};
     GUIDES.mall={intro:'🏬 শপিং মল, বিপণিবিতান ও সুপারশপ খুঁজুন এবং আপনার নিজের মল/দোকান নিবন্ধন করুন।',calls:[],links:[['কাছাকাছি শপিং মল (গুগল ম্যাপ)','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('shopping mall near me')],['সুপারশপ (গুগল ম্যাপ)','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('super shop near me')],['ফুড কোর্ট ও রেস্টুরেন্ট (গুগল ম্যাপ)','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('food court near me')]]};
     function renderGuide(list,id){
       const G=GUIDES[id];if(!G)return;
@@ -4092,7 +4232,7 @@
       items.forEach(x=>{
         const card=mk('div',`background:#0b2b20;border:1px solid ${C.bd};border-radius:14px;padding:12px;margin-bottom:10px`);
         card.appendChild(mk('b','font-size:15px;display:block',x.name+(x.verified?' ✅':'')));
-        if(x.verified)card.appendChild(mk('div','font-size:10.5px;color:#6ee7b7;margin:2px 0','✅ অ্যাডমিন যাচাইকৃত'));else card.appendChild(mk('div','font-size:10.5px;color:#fde68a;margin:2px 0','⏳ পেন্ডিং — অ্যাডমিন অনুমোদনের অপেক্ষায়'));
+        if(x.verified)card.appendChild(mk('div','font-size:10.5px;color:#6ee7b7;margin:2px 0','✅ কাস্টমার কেয়ার যাচাইকৃত'));else card.appendChild(mk('div','font-size:10.5px;color:#fde68a;margin:2px 0','⏳ পেন্ডিং — কাস্টমার কেয়ার অনুমোদনের অপেক্ষায়'));
         const chip=mk('span','',x.type||'');chip.className='chip';chip.style.marginLeft='0';card.appendChild(chip);
         const loc=x.location||{};
         const meta=[...C.extra.map(([k])=>x[k]).filter(v=>v&&!/^https?:/i.test(v)),[loc.union,loc.upazila,loc.district].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
@@ -4360,7 +4500,7 @@
         });
         list.appendChild(det);groups.push(g);
       });
-      if(!groups.length)list.appendChild(mk('p','font-size:12px;color:#a7f3d0;line-height:1.7','এই এলাকার তালিকা এখনো যুক্ত হয়নি। অ্যাডমিন প্যানেল থেকে যোগ করা যাবে।'));
+      if(!groups.length)list.appendChild(mk('p','font-size:12px;color:#a7f3d0;line-height:1.7','এই এলাকার তালিকা এখনো যুক্ত হয়নি। কেয়ার প্যানেল থেকে যোগ করা যাবে।'));
       input.addEventListener('input',()=>{
         const q=input.value.trim().toLowerCase();
         groups.forEach(g=>{let any=false;const vl=new Set();g.items.forEach(i=>{const show=!q||i.text.includes(q);i.el.style.display=show?'flex':'none';if(show){any=true;if(i.lab)vl.add(i.lab)}});g.items.forEach(i=>{if(i.lab)i.lab.style.display=(!q||vl.has(i.lab))?'block':'none'});g.det.style.display=any?'block':'none';if(q&&any)g.det.open=true});
@@ -4973,7 +5113,7 @@
     function renderNotices(list,opt){
       opt=opt||{};const TYPES=opt.types||NOTICE_TYPES;
       const area=[state.union,state.upazila,state.district,state.division].filter(Boolean)[0]||'বাংলাদেশ';
-      list.appendChild(mk('p','font-size:11.5px;color:#fcd34d;line-height:1.7;margin:0 0 10px',opt.intro||'📌 এলাকার সবার জন্য ঘোষণা ও খবর। জমা দেওয়া নোটিশ অ্যাডমিনের অনুমোদনের পর অনলাইনে সব ফোনে দেখা যায়; ভুয়া বা ক্ষতিকর মনে হলে 🚩 রিপোর্ট করুন।'));
+      list.appendChild(mk('p','font-size:11.5px;color:#fcd34d;line-height:1.7;margin:0 0 10px',opt.intro||'📌 এলাকার সবার জন্য ঘোষণা ও খবর। জমা দেওয়া নোটিশ কাস্টমার কেয়ারের অনুমোদনের পর অনলাইনে সব ফোনে দেখা যায়; ভুয়া বা ক্ষতিকর মনে হলে 🚩 রিপোর্ট করুন।'));
       const formBox=mk('div','');const feed=mk('div','');
       const addBtn=mk('button','',opt.addLabel||('➕ '+area+' এলাকায় নোটিশ দিন'));addBtn.className='primary-btn';addBtn.style.marginTop='0';list.appendChild(addBtn);list.appendChild(formBox);
       const chipRow=mk('div','display:flex;gap:6px;flex-wrap:wrap;margin:10px 0');let filt='';
@@ -5076,8 +5216,8 @@
         unionRows:(un,up)=>[un+' ইউনিয়ন পরিষদ কার্যালয়',un+' ইউনিয়ন ডিজিটাল সেন্টার (ইউডিসি)',un+' ইউনিয়ন ভূমি অফিস (তহসিল)',up+' উপজেলা নির্বাহী অফিসারের কার্যালয়']},
       education:{icon:'🎓',search:'বিশ্ববিদ্যালয়/কলেজ খুঁজুন…',intro:'জেলার পরিচিত বিশ্ববিদ্যালয় ও কলেজের নির্বাচিত তালিকা; সব স্কুল/কলেজ/মাদ্রাসা/বিশ্ববিদ্যালয়ের সম্পূর্ণ তালিকা নয়। BANBEIS ও UGC-তে প্রতিষ্ঠান/অনুমোদন যাচাই করুন; ম্যাপের ফলাফলও নিজে নিশ্চিত করুন',rows:(d)=>{const dn=bn(d);const out=namedRows(UNIVS,'🎓 বিশ্ববিদ্যালয়')(d).concat(namedRows(COLLEGES,'🏫 পরিচিত কলেজ')(d));(d.upazilas||[]).forEach(u=>{const un=bn(u);[['সরকারি প্রাথমিক বিদ্যালয়','primary school'],['মাধ্যমিক/উচ্চ বিদ্যালয়','high school'],['কলেজ','college'],['মাদ্রাসা','madrasa']].forEach(([n,e])=>out.push({grp:'🏫 '+un+' উপজেলা — ম্যাপে খুঁজুন (📍 চাপুন)',name:un+' — '+n,q:n+' '+un+', '+dn+', Bangladesh',key:un}))});return out}},
       parks:{icon:'🌳',search:'পার্ক/উদ্যান খুঁজুন…',intro:'জাতীয় উদ্যান, অভয়ারণ্য, পার্ক ও উদ্যান',rows:namedRows(PARKS,'পার্ক ও উদ্যান')},
-      market:{icon:'🛒',search:'বাজার/মার্কেট খুঁজুন…',intro:'জেলার পরিচিত বড় বাজার ও মার্কেটের নির্বাচিত তালিকা—এটি পূর্ণ তালিকা নয়। হাট-বাজারের অবস্থান ম্যাপে দেখুন এবং কৃষিপণ্যের বর্তমান দর সরকারি DAM পোর্টালে যাচাই করুন',rows:namedRows(MARKETS,'প্রধান বাজার/মার্কেট'),unionRows:(un,up)=>[un+' ইউনিয়নের হাট-বাজার ম্যাপে খুঁজুন বা অ্যাডমিন যোগ করবেন',up+' উপজেলা সদরের প্রধান বাজার']},
-      religious:{icon:'🕌',search:'মসজিদ/মন্দির/বিহার/গির্জা খুঁজুন…',intro:'ইসলাম, হিন্দু, বৌদ্ধ ও খ্রিস্টান — চার ধর্মের পরিচিত ও ঐতিহাসিক উপাসনালয় (সব এলাকার তালিকা এখনো সম্পূর্ণ নয়; আপনার এলাকার উপাসনালয় অ্যাডমিন যোগ করতে পারবেন)',rows:(d)=>{const k=bn(d);const out=(MOSQUES[k]||[]).map(n=>({grp:'🕌 মসজিদ ও মাজার',name:n}));(RELIG_OTHER[k]||[]).forEach(([g,n])=>out.push({grp:g,name:n}));return out},unionRows:(un,up)=>[un+' ইউনিয়নের মসজিদ, মন্দির, বিহার ও গির্জার তালিকা স্থানীয় অ্যাডমিন যোগ করবেন',up+' উপজেলার ধর্মীয় প্রতিষ্ঠান স্থানীয় ধর্মীয় নেতা/ইউনিয়ন পরিষদে খোঁজ নিন']}
+      market:{icon:'🛒',search:'বাজার/মার্কেট খুঁজুন…',intro:'জেলার পরিচিত বড় বাজার ও মার্কেটের নির্বাচিত তালিকা—এটি পূর্ণ তালিকা নয়। হাট-বাজারের অবস্থান ম্যাপে দেখুন এবং কৃষিপণ্যের বর্তমান দর সরকারি DAM পোর্টালে যাচাই করুন',rows:namedRows(MARKETS,'প্রধান বাজার/মার্কেট'),unionRows:(un,up)=>[un+' ইউনিয়নের হাট-বাজার ম্যাপে খুঁজুন বা কাস্টমার কেয়ার যোগ করবেন',up+' উপজেলা সদরের প্রধান বাজার']},
+      religious:{icon:'🕌',search:'মসজিদ/মন্দির/বিহার/গির্জা খুঁজুন…',intro:'ইসলাম, হিন্দু, বৌদ্ধ ও খ্রিস্টান — চার ধর্মের পরিচিত ও ঐতিহাসিক উপাসনালয় (সব এলাকার তালিকা এখনো সম্পূর্ণ নয়; আপনার এলাকার উপাসনালয় কাস্টমার কেয়ার যোগ করতে পারবেন)',rows:(d)=>{const k=bn(d);const out=(MOSQUES[k]||[]).map(n=>({grp:'🕌 মসজিদ ও মাজার',name:n}));(RELIG_OTHER[k]||[]).forEach(([g,n])=>out.push({grp:g,name:n}));return out},unionRows:(un,up)=>[un+' ইউনিয়নের মসজিদ, মন্দির, বিহার ও গির্জার তালিকা স্থানীয় কাস্টমার কেয়ার যোগ করবেন',up+' উপজেলার ধর্মীয় প্রতিষ্ঠান স্থানীয় ধর্মীয় নেতা/ইউনিয়ন পরিষদে খোঁজ নিন']}
     };
     function renderBanks(list){
       list.appendChild(mk('p','font-size:11px;color:#6ee7b7;line-height:1.6;margin:0 0 10px','সরকারি ব্যাংকের শাখা প্রায় প্রতিটি উপজেলাতেই আছে। শাখার ঠিকানা ও সময় সংশ্লিষ্ট ব্যাংকের সাইটে বা স্থানীয়ভাবে যাচাই করুন।'));
@@ -5085,7 +5225,7 @@
       list.appendChild(infoCard('বাংলাদেশ ব্যাংকের কার্যালয় (বিভাগীয় শহরে)',BB_OFFICES.map((x,i)=>['•',x])));
     }
     function renderHotlines(list){
-      list.appendChild(mk('p','font-size:11px;color:#6ee7b7;line-height:1.6;margin:0 0 10px','জাতীয় জরুরি ও সহায়তা নম্বর (সারা বাংলাদেশ)। স্থানীয় নম্বর অ্যাডমিন প্যানেল থেকে যোগ করা যাবে।'));
+      list.appendChild(mk('p','font-size:11px;color:#6ee7b7;line-height:1.6;margin:0 0 10px','জাতীয় জরুরি ও সহায়তা নম্বর (সারা বাংলাদেশ)। স্থানীয় নম্বর কেয়ার প্যানেল থেকে যোগ করা যাবে।'));
       HOTLINES.forEach(([n,d,t])=>{
         const card=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px');
         const b=mk('div','flex:1');b.appendChild(mk('b','font-size:15px',n));b.appendChild(mk('p','font-size:11px;color:#a7f3d0;margin-top:2px',d));card.appendChild(b);
@@ -5503,7 +5643,7 @@
       business:{intro:'ব্যবসা শুরুর আগে ট্রেড লাইসেন্স, কর নিবন্ধন, প্রযোজ্য অনুমোদন ও খাতভিত্তিক লাইসেন্স যাচাই করুন। প্রয়োজনীয়তা ব্যবসার ধরন ও স্থানীয় কর্তৃপক্ষভেদে আলাদা।',links:[['বাংলাদেশ বিনিয়োগ উন্নয়ন কর্তৃপক্ষ (BIDA)','বিনিয়োগ ও ব্যবসা-সংক্রান্ত তথ্য','https://bida.gov.bd'],['জাতীয় রাজস্ব বোর্ড','কর/ভ্যাট নিবন্ধন ও নির্দেশনা','https://nbr.gov.bd'],['মাইগভ','অনলাইন সরকারি সেবা খুঁজুন','https://www.mygov.bd'],['জাতীয় তথ্য বাতায়ন','স্থানীয় সিটি করপোরেশন/পৌরসভা/ইউপি খুঁজুন','https://bangladesh.gov.bd']],steps:['ট্রেড লাইসেন্সের জন্য সংশ্লিষ্ট সিটি করপোরেশন, পৌরসভা বা ইউনিয়ন পরিষদের নিয়ম যাচাই করুন।','খাদ্য, স্বাস্থ্য, পরিবেশ বা আমদানি-রপ্তানির মতো নিয়ন্ত্রিত খাতে অতিরিক্ত অনুমতি লাগতে পারে।','সরকারি ফি ও রসিদ ছাড়া অর্থ প্রদান করবেন না।']},
       remittance:{intro:'প্রবাসী কর্মী ও পরিবারের জন্য দূতাবাস, শ্রম কল্যাণ, বৈধ রেমিট্যান্স ও বিদেশে কর্মসংস্থানের তথ্য যাচাই করে ব্যবহার করুন। ভিসা/চাকরির প্রতিশ্রুতিতে টাকা দেওয়ার আগে এজেন্সির বৈধতা পরীক্ষা জরুরি।',links:[['প্রবাসী কল্যাণ ও বৈদেশিক কর্মসংস্থান মন্ত্রণালয়','প্রবাসী কর্মী ও কল্যাণের তথ্য','https://probashi.gov.bd'],['জনশক্তি কর্মসংস্থান ও প্রশিক্ষণ ব্যুরো (BMET)','বিদেশগমন ও জনশক্তি-সংক্রান্ত তথ্য','https://bmet.gov.bd'],['পররাষ্ট্র মন্ত্রণালয়','বাংলাদেশের বিদেশি মিশন খুঁজুন','https://mofa.gov.bd'],['বাংলাদেশ ব্যাংক','রেমিট্যান্স ও ব্যাংকিং-সংক্রান্ত তথ্য','https://www.bb.org.bd']],steps:['চাকরির চুক্তিতে বেতন, কাজ, থাকা-খাওয়া, ছুটি ও খরচ লিখিতভাবে পড়ুন।','পাসপোর্ট বা মূল কাগজপত্র অপরিচিত ব্যক্তির কাছে রেখে দেবেন না।','শুধু অনুমোদিত ব্যাংক/এক্সচেঞ্জ চ্যানেলে রেমিট্যান্স পাঠান।']},
       publicservices:{intro:'সরকারি আবেদন, ফরম, অভিযোগ ও অফিস খুঁজতে কেন্দ্রীয় সরকারি পোর্টাল ব্যবহার করুন। কোনো লিংক বদলে গেলে জাতীয় তথ্য বাতায়ন থেকে সংশ্লিষ্ট দপ্তরের বর্তমান ওয়েবসাইট খুঁজুন।',links:[['জাতীয় তথ্য বাতায়ন','সরকারি অফিস ও ই-সেবার ডিরেক্টরি','https://bangladesh.gov.bd'],['মাইগভ','বিভিন্ন সরকারি সেবার অনলাইন আবেদন','https://www.mygov.bd'],['অভিযোগ প্রতিকার ব্যবস্থা (GRS)','সরকারি দপ্তরের অভিযোগ ব্যবস্থাপনা','https://www.grs.gov.bd'],['তথ্য অধিকার কমিশন','তথ্য অধিকার আইন ও আবেদন-সংক্রান্ত তথ্য','https://infocom.gov.bd']],steps:['সঠিক দপ্তর, আবেদন নম্বর, তারিখ ও সংযুক্ত কাগজের কপি রাখুন।','অভিযোগের ধরন অনুযায়ী GRS বা সংশ্লিষ্ট দপ্তরের অফিসিয়াল পদ্ধতি ব্যবহার করুন।','কোনো সরকারি সেবা পেতে দালালের ব্যক্তিগত নম্বরে টাকা পাঠাবেন না।']},
-      shelter:{intro:'ঘূর্ণিঝড়, বন্যা, বজ্রপাত, ভূমিধস বা অন্য দুর্যোগে স্থানীয় প্রশাসন ও সরকারি সতর্কতা অনুসরণ করুন। আশ্রয়কেন্দ্রের অবস্থান ও খোলা থাকার অবস্থা স্থানীয়ভাবে নিশ্চিত করুন।',links:[['দুর্যোগ ব্যবস্থাপনা অধিদপ্তর — AWARE','বহু-ঝুঁকির সতর্কতা ও দুর্যোগ তথ্য','https://rapid.ddm.gov.bd/home/weather/'],['বাংলাদেশ আবহাওয়া অধিদপ্তর','আবহাওয়া সতর্কতা','https://www.bmd.gov.bd'],['জাতীয় দুর্যোগ ব্যবস্থাপনা তথ্য বাতায়ন','দুর্যোগ নির্দেশনা ও বুলেটিন','https://ndmis.gov.bd'],['দুর্যোগ হেল্পলাইন ১০৯০','দুর্যোগের আগাম বার্তা/সহায়তা','https://ddm.gov.bd']],steps:['জরুরি ব্যাগে পানি, শুকনো খাবার, ওষুধ, টর্চ, চার্জার, পরিচয়পত্রের কপি ও শিশুর প্রয়োজনীয় জিনিস রাখুন।','সরকারি নির্দেশনা এলে দ্রুত নিরাপদ আশ্রয়ে যান; প্লাবিত রাস্তা বা স্রোত পার হবেন না।','নির্দিষ্ট আশ্রয়কেন্দ্রের ঠিকানা অ্যাডমিনকে স্থানীয় সরকারি সূত্রসহ যাচাই করে যোগ করতে হবে।']},
+      shelter:{intro:'ঘূর্ণিঝড়, বন্যা, বজ্রপাত, ভূমিধস বা অন্য দুর্যোগে স্থানীয় প্রশাসন ও সরকারি সতর্কতা অনুসরণ করুন। আশ্রয়কেন্দ্রের অবস্থান ও খোলা থাকার অবস্থা স্থানীয়ভাবে নিশ্চিত করুন।',links:[['দুর্যোগ ব্যবস্থাপনা অধিদপ্তর — AWARE','বহু-ঝুঁকির সতর্কতা ও দুর্যোগ তথ্য','https://rapid.ddm.gov.bd/home/weather/'],['বাংলাদেশ আবহাওয়া অধিদপ্তর','আবহাওয়া সতর্কতা','https://www.bmd.gov.bd'],['জাতীয় দুর্যোগ ব্যবস্থাপনা তথ্য বাতায়ন','দুর্যোগ নির্দেশনা ও বুলেটিন','https://ndmis.gov.bd'],['দুর্যোগ হেল্পলাইন ১০৯০','দুর্যোগের আগাম বার্তা/সহায়তা','https://ddm.gov.bd']],steps:['জরুরি ব্যাগে পানি, শুকনো খাবার, ওষুধ, টর্চ, চার্জার, পরিচয়পত্রের কপি ও শিশুর প্রয়োজনীয় জিনিস রাখুন।','সরকারি নির্দেশনা এলে দ্রুত নিরাপদ আশ্রয়ে যান; প্লাবিত রাস্তা বা স্রোত পার হবেন না।','নির্দিষ্ট আশ্রয়কেন্দ্রের ঠিকানা কাস্টমার কেয়ারকে স্থানীয় সরকারি সূত্রসহ যাচাই করে যোগ করতে হবে।']},
       water:{intro:'পানীয় জল, স্যানিটেশন, ড্রেনেজ ও জনস্বাস্থ্য সমস্যায় স্থানীয় ওয়াসা/জনস্বাস্থ্য প্রকৌশল অধিদপ্তর/ইউনিয়ন পরিষদের সঙ্গে যোগাযোগ করুন। সব এলাকায় একই সংস্থা দায়িত্বে নাও থাকতে পারে।',links:[['জনস্বাস্থ্য প্রকৌশল অধিদপ্তর','নিরাপদ পানি ও স্যানিটেশন','https://dphe.gov.bd'],['স্থানীয় সরকার বিভাগ','স্থানীয় সরকার ও পরিষেবা','https://lgd.gov.bd'],['জাতীয় তথ্য বাতায়ন','এলাকাভিত্তিক অফিস খুঁজুন','https://bangladesh.gov.bd']],steps:['পানির রং/গন্ধ বদলালে পান করা বন্ধ করে নিরাপদ বিকল্প ব্যবহার করুন এবং স্থানীয় কর্তৃপক্ষকে জানান।','টিউবওয়েল/পানির উৎসের অবস্থান, সমস্যা শুরুর তারিখ ও ছবি সংরক্ষণ করুন।']},
       fisheries:{intro:'মাছ চাষ, পোনা, রোগ, জলাশয় ব্যবস্থাপনা ও মৎস্য-সংক্রান্ত সরকারি নির্দেশনার জন্য মৎস্য অধিদপ্তরের তথ্য ব্যবহার করুন। ওষুধ/রাসায়নিক ব্যবহারের আগে বিশেষজ্ঞ পরামর্শ নিন।',links:[['মৎস্য অধিদপ্তর','মৎস্য চাষ ও সরকারি নির্দেশনা','https://fisheries.gov.bd'],['কৃষি তথ্য সার্ভিস','কৃষি ও সংশ্লিষ্ট উৎপাদন তথ্য','https://ais.gov.bd'],['জাতীয় তথ্য বাতায়ন','জেলা মৎস্য অফিস খুঁজুন','https://bangladesh.gov.bd']],steps:['রোগ দেখা দিলে পুকুরের পানি, খাবার, মৃত্যুর হার ও ব্যবহৃত উপকরণের তথ্য লিখে রাখুন।','নিষিদ্ধ বা অজানা রাসায়নিক ব্যবহার করবেন না; উপজেলা মৎস্য অফিসের পরামর্শ নিন।']},
       livestock:{intro:'গবাদিপশু, হাঁস-মুরগি, টিকা, রোগ ও খামার ব্যবস্থাপনার জন্য প্রাণিসম্পদ অধিদপ্তর বা উপজেলা প্রাণিসম্পদ কর্মকর্তার নির্দেশনা নিন।',links:[['প্রাণিসম্পদ অধিদপ্তর','পশু-পাখির স্বাস্থ্য ও খামার তথ্য','https://dls.gov.bd'],['জাতীয় তথ্য বাতায়ন','উপজেলা প্রাণিসম্পদ অফিস খুঁজুন','https://bangladesh.gov.bd']],steps:['রোগের লক্ষণ, শুরু হওয়ার তারিখ, আক্রান্ত প্রাণীর সংখ্যা ও টিকার ইতিহাস লিখুন।','গুরুতর/সংক্রামক রোগ সন্দেহে প্রাণী আলাদা রাখুন এবং সরকারি ভেটেরিনারি সহায়তা নিন।']},
@@ -5517,7 +5657,7 @@
       list.appendChild(mk('p','font-size:10px;color:#6ee7b7;line-height:1.6;margin:0 0 10px','তথ্যসূত্র পর্যালোচনা: ১২ অক্টোবর ২০২৬। অনলাইন লিংক, যোগ্যতা, ফি, সময়সীমা ও কাগজপত্র পরিবর্তিত হতে পারে—আবেদনের আগে মূল সরকারি সাইটে যাচাই করুন।'));
       (g.links||[]).forEach(([title,desc,url])=>list.appendChild(linkCard(title,desc,url,'সরকারি সাইট খুলুন')));
       if(g.steps&&g.steps.length){const det=mk('details','background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:11px 13px;margin:10px 0');det.open=true;det.appendChild(mk('summary','cursor:pointer;font-weight:700;font-size:13px','করণীয় ও নিরাপত্তা-পরামর্শ'));g.steps.forEach((t,i)=>det.appendChild(mk('p','font-size:11.5px;color:#d1fae5;line-height:1.75;margin:7px 0','• '+t)));list.appendChild(det)}
-      list.appendChild(mk('p','font-size:10px;color:#a7f3d0;line-height:1.65;margin-top:8px','এই অ্যাপটি তথ্য খুঁজে পেতে সাহায্য করে; এটি কোনো সরকারি দপ্তর নয়। নির্দিষ্ট এলাকার অফিস, ফোন নম্বর ও আশ্রয়কেন্দ্র অ্যাডমিনের মাধ্যমে সরকারি সূত্র যাচাই করে যোগ করতে হবে।'));
+      list.appendChild(mk('p','font-size:10px;color:#a7f3d0;line-height:1.65;margin-top:8px','এই অ্যাপটি তথ্য খুঁজে পেতে সাহায্য করে; এটি কোনো সরকারি দপ্তর নয়। নির্দিষ্ট এলাকার অফিস, ফোন নম্বর ও আশ্রয়কেন্দ্র কাস্টমার কেয়ারের মাধ্যমে সরকারি সূত্র যাচাই করে যোগ করতে হবে।'));
     }
 
     // একই রকম ক্যাটাগরি একত্র করা: পুরোনো আইডি এখনও কাজ করে (পিন/রেকর্ড/ডাকা)
@@ -6280,7 +6420,7 @@
       ]);
     })();
     // ===== 🛍️ অনলাইন শপ: পণ্য → কার্ট → বিকাশ/নগদ/রকেটে টাকা পাঠিয়ে ট্রানজেকশন আইডি দিয়ে অর্ডার =====
-    // দাম ও মোট টাকা সবসময় সার্ভার গণনা করে; ট্রানজেকশন আইডি অ্যাডমিন নিজের বিকাশ/নগদ অ্যাপে মিলিয়ে "নিশ্চিত" করেন।
+    // দাম ও মোট টাকা সবসময় সার্ভার গণনা করে; ট্রানজেকশন আইডি কাস্টমার কেয়ার নিজের বিকাশ/নগদ অ্যাপে মিলিয়ে "নিশ্চিত" করেন।
     const SHP={tab:'shop',q:'',cat:'',zone:'out',products:null,cfg:null,list:null,body:null,loading:false,err:'',offline:false,adm:'orders',admF:'',form:{}};
     const SHP_CART='amarShopCart_v1',SHP_CACHE='amarShopCache_v1';
     const SHP_CARD='background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:12px;margin-bottom:10px';
@@ -6307,11 +6447,11 @@
       if(/bad method/.test(t))return'এই পেমেন্ট মাধ্যম এখন চালু নেই।';
       if(/too many pending/.test(t))return'আগের কয়েকটি অর্ডার এখনো যাচাই বাকি — যাচাই হলে নতুন অর্ডার দিন।';
       if(/cannot cancel/.test(t))return'এই অর্ডার আর বাতিল করা যায় না।';
-      if(/not allowed|JWT|permission denied/i.test(t))return'অ্যাডমিন লগইন লাগবে (অ্যাডমিন লগইন করে আবার চেষ্টা করুন)।';
+      if(/not allowed|JWT|permission denied/i.test(t))return'কেয়ার লগইন লাগবে (কেয়ার লগইন করে আবার চেষ্টা করুন)।';
       if(/final/.test(t))return'বাতিল/মেলেনি হয়ে যাওয়া অর্ডারের অবস্থা আর বদলানো যায় না।';
       if(/bad image/.test(t))return'ছবিটি বেশি বড় বা ভুল ধরনের। ছোট ছবি দিন।';
       if(/bad price|bad stock|bad name/.test(t))return'নাম, দাম বা স্টক ঠিক করে আবার চেষ্টা করুন।';
-      if(/could not find the function|PGRST202|404/i.test(t))return'সার্ভারের সেটআপ বাকি (অ্যাডমিন: Supabase-এ 9_shop.sql চালান)।';
+      if(/could not find the function|PGRST202|404/i.test(t))return'সার্ভারের সেটআপ বাকি (কাস্টমার কেয়ার: Supabase-এ 9_shop.sql চালান)।';
       return msgErrText2(e)}
     async function shpLoad(){
       let c=null;try{c=JSON.parse(localStorage.getItem(SHP_CACHE)||'null')}catch(e){}
@@ -6351,7 +6491,7 @@
       if(shpNeedData(body))return;
       const cfg=SHP.cfg||{},ps=SHP.products||[],adm=!!sbTok();
       if(cfg.open!==true&&!adm){const c=mk('div',SHP_CARD+';text-align:center');c.appendChild(mk('div','font-size:40px','🔒'));c.appendChild(mk('h3','margin:6px 0','শপ এখন বন্ধ আছে'));c.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.7',cfg.note||'শীঘ্রই চালু হবে — একটু পরে আবার দেখুন।'));body.appendChild(c);return}
-      if(cfg.open!==true)body.appendChild(shpNote('⚠️ শপ এখন "বন্ধ" — শুধু আপনি (অ্যাডমিন) দেখছেন। ম্যানেজার → সেটিংসে গিয়ে চালু করুন।'));
+      if(cfg.open!==true)body.appendChild(shpNote('⚠️ শপ এখন "বন্ধ" — শুধু আপনি (কাস্টমার কেয়ার) দেখছেন। ম্যানেজার → সেটিংসে গিয়ে চালু করুন।'));
       if(SHP.offline)body.appendChild(shpNote('📡 ইন্টারনেট নেই — আগে দেখা তালিকা দেখাচ্ছি।','#a7f3d0'));
       if(cfg.note)body.appendChild(shpNote('📢 '+cfg.note,'#a7f3d0'));
       if(!ps.length){body.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.8;padding:12px 2px',adm?'এখনো কোনো পণ্য নেই। "⚙️ ম্যানেজার → পণ্য" থেকে প্রথম পণ্য যোগ করুন।':'এখনো কোনো পণ্য যোগ হয়নি। শীঘ্রই আসছে!'));return}
@@ -6474,9 +6614,9 @@
           box.appendChild(c)})
       }catch(e){box.innerHTML='';box.appendChild(mk('p','color:#fecaca;font-size:13px;line-height:1.7',shpErr(e)))}}
 
-    // ---------- ম্যানেজার (শুধু অ্যাডমিন) ----------
+    // ---------- ম্যানেজার (শুধু কাস্টমার কেয়ার) ----------
     function shpAdmin(body){
-      if(!sbTok()){body.appendChild(shpNote('ম্যানেজার ব্যবহার করতে অ্যাডমিন হিসেবে লগইন করুন।'));return}
+      if(!sbTok()){body.appendChild(shpNote('ম্যানেজার ব্যবহার করতে কাস্টমার কেয়ার হিসেবে লগইন করুন।'));return}
       const sub=mk('div','display:flex;gap:6px;margin-bottom:10px');[['orders','📋 অর্ডার'],['products','🏷️ পণ্য'],['cfg','⚙️ সেটিংস']].forEach(([k,l])=>{const b=mk('button','',l);b.style.cssText='flex:1;padding:9px 6px;border-radius:10px;border:1px solid rgba(252,211,77,.5);color:#fff;font-size:13px;cursor:pointer;background:'+(SHP.adm===k?'#b45309':'#061812');b.onclick=()=>{SHP.adm=k;shpRender()};sub.appendChild(b)});body.appendChild(sub);
       const area=mk('div','');body.appendChild(area);({orders:shpAdmOrders,products:shpAdmProducts,cfg:shpAdmCfg})[SHP.adm](area)}
     async function shpAdmSet(id,status,note){try{await socRpc('admin_shop_set_status',{p_id:id,p_status:status,p_note:note==null?null:note},sbTok());SHP.products=null;shpRender()}catch(e){alert(shpErr(e))}}
@@ -6774,13 +6914,13 @@
         const first = list.firstChild;
         if (first && first.dataset && first.dataset.recbox) list.insertBefore(mb, first.nextSibling); else list.insertBefore(mb, list.firstChild);
         if (!special && !matchingRecords.length) {
-          list.appendChild(mk('p','font-size:12px;color:#a7f3d0;line-height:1.7;margin-top:6px','এই এলাকার নাম-ঠিকানার তালিকা এখনো যুক্ত হয়নি। ওপরের ম্যাপ বোতামে খুঁজুন; অ্যাডমিন চাইলে প্যানেল থেকে তথ্য যোগ করতে পারবেন।'));
+          list.appendChild(mk('p','font-size:12px;color:#a7f3d0;line-height:1.7;margin-top:6px','এই এলাকার নাম-ঠিকানার তালিকা এখনো যুক্ত হয়নি। ওপরের ম্যাপ বোতামে খুঁজুন; কাস্টমার কেয়ার চাইলে প্যানেল থেকে তথ্য যোগ করতে পারবেন।'));
         }
       }
       modal.classList.add('active');
     }
 
-    // ===== হোমের গ্লোবাল সার্চ: ক্যাটাগরি + রক্তদাতা + চিকিৎসক + তালিকা + নোটিশ/হারানো-প্রাপ্তি + অ্যাডমিন তথ্য =====
+    // ===== হোমের গ্লোবাল সার্চ: ক্যাটাগরি + রক্তদাতা + চিকিৎসক + তালিকা + নোটিশ/হারানো-প্রাপ্তি + কাস্টমার কেয়ার তথ্য =====
     const GS_SYN={lost:'হারানো পাওয়া গেছে প্রাপ্তি হারিয়ে',jobs:'চাকরি কাজ নিয়োগ জব',events:'ইভেন্ট অনুষ্ঠান মেলা সভা',community:'কমিউনিটি ঘোষণা ভাড়া বিক্রয়',blood:'রক্ত রক্তদাতা ব্লাড',doctor:'ডাক্তার চিকিৎসক ডাঃ',islamic:'কুরআন কোরআন কোরান নামাজ দোয়া হাদিস',school:'প্রশ্ন প্রশ্নপত্র রেজাল্ট রুটিন সিলেবাস শিক্ষক স্কুল কলেজ বিশ্ববিদ্যালয় পিডিএফ',police:'থানা পুলিশ',fire:'ফায়ার দমকল',emergency:'জরুরি ৯৯৯ হটলাইন',mymoney:'আমার টাকা আয় ব্যয় খরচ বাজেট ধার দেনা সঞ্চয় লক্ষ্য হিসাব',maternal:'গর্ভাবস্থা প্রেগন্যান্সি মা শিশু গর্ভবতী প্রসব ডেলিভারি নবজাতক বাচ্চা বুকের দুধ টিকা কিক',healthlog:'স্বাস্থ্য ডায়েরি রক্তচাপ প্রেসার সুগার ডায়াবেটিস ওজন ওষুধ টিকা বিএমআই',rent:'বাসা ভাড়া ভাড়াটিয়া বাড়িওয়ালা রসিদ বকেয়া',bizacc:'ব্যবসা হিসাব বাকি খাতা ক্যাশবুক স্টক দোকান মেমো ইনভয়েস লাভ ক্ষতি কর্মচারী বেতন'};
     function openGlobalSearch(q){
       q=String(q||'').trim();const t=q.toLowerCase();if(t.length<2){alert('কমপক্ষে ২টি অক্ষর লিখুন।');return}
@@ -6797,7 +6937,7 @@
       try{sec('👨‍⚕️ চিকিৎসক',getDoctors().filter(d=>has(d.name,d.specialty,d.degrees,loc(d.location),d.phone)).map(d=>card(d.name+' · '+(d.specialty||''),[d.degrees,loc(d.location)].filter(Boolean).join(' · '),()=>openCategoryModal('doctor'),d.phone)))}catch(e){}
       try{sec('🏷️ আইনজীবী / রিসোর্ট / তালিকা',getListings().filter(x=>has(x.name,x.type,x.address,x.note,loc(x.location),x.phone)).map(x=>card(x.name+' · '+(x.type||''),[x.address,loc(x.location)].filter(Boolean).join(' · '),()=>openCategoryModal(x.kind||'lawyer'),x.phone)))}catch(e){}
       try{const now=Date.now();sec('📢 নোটিশ, হারানো-প্রাপ্তি, ইভেন্ট, চাকরি',getNotices().filter(n=>n.expires>now&&n.reports<3&&has(n.title,n.body,n.type,n.author,loc(n.location),n.phone)).map(n=>card('['+n.type+'] '+n.title,[n.body,loc(n.location)].filter(Boolean).join(' · ').slice(0,160),()=>openCategoryModal(n.type==='হারানো গেছে'||n.type==='পাওয়া গেছে'||n.type==='হারানো/পাওয়া গেছে'?'lost':n.type==='সভা/অনুষ্ঠান'?'events':n.type==='চাকরি/কাজের খবর'?'jobs':'notice'),n.phone)))}catch(e){}
-      try{sec('📝 অ্যাডমিনের যোগ করা তথ্য',getRecords().filter(r=>has(r.title,r.details,r.address,r.phone,loc(r.location))).map(r=>card(r.title,[r.address,r.details].filter(Boolean).join(' · ').slice(0,160),()=>openCategoryModal(r.category),r.phone)))}catch(e){}
+      try{sec('📝 কাস্টমার কেয়ারের যোগ করা তথ্য',getRecords().filter(r=>has(r.title,r.details,r.address,r.phone,loc(r.location))).map(r=>card(r.title,[r.address,r.details].filter(Boolean).join(' · ').slice(0,160),()=>openCategoryModal(r.category),r.phone)))}catch(e){}
       try{const biz=bizAll(),pub=readJSON(PUB_KEY,{});const rows=[];Object.keys(biz).forEach(c=>(biz[c]||[]).forEach(x=>{if(x&&x.status==='approved')rows.push(Object.assign({cat:c},x))}));Object.keys(pub).forEach(c=>(pub[c]||[]).forEach(x=>rows.push(Object.assign({cat:c},x))));
         const seen=new Set();sec('🏪 নিবন্ধিত দোকান/প্রতিষ্ঠান',rows.filter(x=>{if(seen.has(x.id))return false;seen.add(x.id);return has(x.name,x.addr,x.extra,x.loc,x.phone)}).map(x=>card(x.name,[x.addr,x.loc].filter(Boolean).join(' · '),()=>openCategoryModal(x.cat),x.phone)))}catch(e){}
       if(!total){list.appendChild(mk('p','font-size:13px;color:#a7f3d0;line-height:1.8;padding:10px 2px','"'+q+'" নিয়ে কিছু পাওয়া যায়নি। অন্য শব্দে চেষ্টা করুন, অথবা ক্যাটাগরির ভেতরে গিয়ে খুঁজুন।'));
@@ -7212,12 +7352,12 @@
     // Local profile and admin records. This is a device-only prototype, not secure server authentication.
     const PROFILE_KEY='amarBangladeshOwnerProfile_v1';
     const RECORDS_KEY='amarBangladeshAdminRecords_v1';
-    // অ্যাডমিনের তালিকা = অ্যাপের হোমের সব ক্যাটাগরি (একই উৎস থেকে) + দ্রুত মেনুর বিষয়
+    // কাস্টমার কেয়ারের তালিকা = অ্যাপের হোমের সব ক্যাটাগরি (একই উৎস থেকে) + দ্রুত মেনুর বিষয়
     const QUICK_CATEGORIES=[['jobs','চাকরি'],['lost','হারানো-প্রাপ্তি'],['events','ইভেন্ট'],['eservices','ই-সেবা'],['community','কমিউনিটি']];
     const ADMIN_CATEGORIES=CATEGORIES.map(c=>[c.id,c.name]).concat(QUICK_CATEGORIES);
     let currentProfile=null;
     function getRecords(){const a=readJSON(RECORDS_KEY,[]);return Array.isArray(a)?a:[]}
-    // নির্ধারিত অ্যাডমিনের লক (জিমেইল+পাসওয়ার্ড থেকে তৈরি; আসল পাসওয়ার্ড ফাইলে নেই)
+    // নির্ধারিত কাস্টমার কেয়ারের লক (জিমেইল+পাসওয়ার্ড থেকে তৈরি; আসল পাসওয়ার্ড ফাইলে নেই)
     const ADMIN_CRED={"s":"167c9c1d247587dc1bca6c17389a8f23","h":"ec06717fbd3c6c55ace54b110511db2f36eaf1e55db8ff5d8d30b3bfb9d2b117","i":200000};
     const ADMIN_FLAG='amarBangladeshAdminIn_v1';
     function handleLogin(){
@@ -7246,11 +7386,11 @@
     }
     function openAdminPanel(){
       closeModal('adminLoginModal');
-      document.getElementById('adminUserLabel').textContent='শুধু নির্ধারিত অ্যাডমিন';
+      document.getElementById('adminUserLabel').textContent='শুধু নির্ধারিত কাস্টমার কেয়ার';
       document.getElementById('adminModal').classList.add('active');adSetLoc({...state});showAdminTab('add');try{admBadge()}catch(e){}try{updRegTab()}catch(e){}try{admPollStart()}catch(e){}
     }
     async function adminLogin(){
-      // একটাই লগইন: Supabase জিমেইল-পাসওয়ার্ড (সার্ভার নিজে অ্যাডমিন যাচাই করে)
+      // একটাই লগইন: Supabase জিমেইল-পাসওয়ার্ড (সার্ভার নিজে কাস্টমার কেয়ার যাচাই করে)
       let lock=0;try{lock=parseInt(localStorage.getItem('amarAdminLock_v1')||'0',10)}catch(e){}
       if(Date.now()<lock){showAdminErr('অনেকবার ভুল হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।');return;}
       const email=document.getElementById('adEmail').value.trim();
@@ -7264,15 +7404,15 @@
         try{let n=parseInt(localStorage.getItem('amarAdminFail_v1')||'0',10)+1;localStorage.setItem('amarAdminFail_v1',String(n));if(n>=5){localStorage.setItem('amarAdminLock_v1',String(Date.now()+300000));localStorage.setItem('amarAdminFail_v1','0')}}catch(_){}
         showAdminErr(/not confirmed/i.test(m)?'এই ইউজারের ইমেইল Supabase-এ confirmed নয়।':'জিমেইল বা পাসওয়ার্ড ভুল। (Supabase-এ দেওয়া জিমেইল-পাসওয়ার্ডই লাগবে।)');return}
       if(!tok){showAdminErr('লগইন হয়নি।');return}
-      // সার্ভারে অ্যাডমিন কিনা যাচাই (কিছু পরিবর্তন করে না)
+      // সার্ভারে কাস্টমার কেয়ার কিনা যাচাই (কিছু পরিবর্তন করে না)
       try{await sbReq('/rest/v1/rpc/admin_soc_setpw',{method:'POST',body:{p_phone:'0',p_salt:'',p_iter:0,p_hash:''},token:tok})}
-      catch(e){if(/not allowed/i.test(String((e&&e.message)||e))){showAdminErr('এই ইউজার অ্যাডমিন নয়।');return}}
+      catch(e){if(/not allowed/i.test(String((e&&e.message)||e))){showAdminErr('এই ইউজার কাস্টমার কেয়ার নয়।');return}}
       try{localStorage.setItem('amarAdminFail_v1','0');sessionStorage.setItem(ADMIN_FLAG,'1');sessionStorage.setItem(SB_TOK,tok)}catch(e){}try{setTimeout(()=>pushSync(true),800)}catch(e){}
       document.getElementById('adPw').value='';
       openAdminPanel();
     }
 
-    // ===== অ্যাডমিন: যেকোনো এলাকা ও বিষয়ে লেখা =====
+    // ===== কাস্টমার কেয়ার: যেকোনো এলাকা ও বিষয়ে লেখা =====
     const ABOUT_KEY='amarBangladeshAbout_v1', CATS_KEY='amarBangladeshCustomCats_v1';
     // ===== ফোন নম্বর OTP যাচাই (Supabase Auth — SMS প্রোভাইডার চালু থাকতে হবে) =====
     // সুইচ: Supabase-এ Authentication → Providers → Phone চালু ও SMS প্রোভাইডার (Twilio ইত্যাদি) বসিয়ে, SQL-এ require_otp='on' করে, তারপর নিচের OTP_ON=true করুন।
@@ -7308,7 +7448,7 @@
         go.disabled=false};
       document.body.appendChild(ov)})}
     async function otpEnsure(defPhone){if(!OTP_ON)return null;const t=await otpToken();if(t)return t;return otpPrompt(defPhone)}
-    // ===== অনলাইন শেয়ার্ড তালিকা (Supabase): রক্তদাতা, চিকিৎসক, তালিকা, নোটিশ, অ্যাডমিনের তথ্য =====
+    // ===== অনলাইন শেয়ার্ড তালিকা (Supabase): রক্তদাতা, চিকিৎসক, তালিকা, নোটিশ, কাস্টমার কেয়ারের তথ্য =====
     // readJSON/writeJSON-এর ভেতরেই কাজ করে: পড়ার সময় সবার অনুমোদিত তথ্য মিশিয়ে দেয়, লেখার সময় পরিবর্তন অনলাইনে পাঠায়।
     var SH=(function(){
       const M={};M[DONORS_KEY]={kind:'donor',t:'a'};M[DOCTORS_KEY]={kind:'doctor',t:'a'};M[LIST_KEY]={kind:'listing',t:'a'};M[NOTICE_KEY]={kind:'notice',t:'a'};
@@ -7386,7 +7526,7 @@
           Object.keys(M).forEach(k=>{const m=M[k];if(m.adm)return;const arr=rawGet(k);if(!Array.isArray(arr))return;
             arr.forEach(x=>{if(!x||typeof x.id!=='string')return;const key=m.kind+'|'+x.id;if(seen[key])return;if(!(x.own||m.kind==='notice'))return;q.p[key]={kind:m.kind,id:x.id,data:clean(x)};delete q.d[key];seen[key]=1;n++})});
           if(n){rawSet(QK,q);rawSet(MK,seen);schedule(800)}}catch(e){}}
-      // অ্যাডমিন: এই ফোনের সব তথ্য অনলাইনে পাঠানো
+      // কাস্টমার কেয়ার: এই ফোনের সব তথ্য অনলাইনে পাঠানো
       async function pushAll(){
         const items=[];Object.keys(M).forEach(k=>{const m=M[k];const v=rawGet(k);toMap(m,v).forEach((d,id)=>items.push({kind:m.kind,id,data:clean(d)}))});
         let sent=0;for(let i=0;i<items.length;i+=40){const part=items.slice(i,i+40);await call('/rest/v1/rpc/submit_items',{p_key:ownerKey(),p_items:part});sent+=part.length}
@@ -7458,12 +7598,12 @@
       group('আপনার নিজের ক্যাটাগরি',getCustomCats().map(c=>[c.id,c.name,c.icon]));
       if(cur)sel.value=cur;
     }
-    // ওয়েবসাইট/অ্যাপ ভিজিটর পরিসংখ্যান (শুধু অ্যাডমিন; 5_analytics.sql লাগে)
+    // ওয়েবসাইট/অ্যাপ ভিজিটর পরিসংখ্যান (শুধু কাস্টমার কেয়ার; 5_analytics.sql লাগে)
     var adStatP='d7';
     async function renderAdminStats(){
       const box=$('adStatsBox');box.textContent='';box.appendChild(mk('p','font-size:12px;color:#a7f3d0','লোড হচ্ছে…'));
       let d;
-      try{const t=sbTok();if(!t)throw new Error('অ্যাডমিন অনলাইন লগইন নেই — অ্যাডমিন লগআউট করে আবার লগইন করুন।');d=await sbReq('/rest/v1/rpc/stats_summary',{method:'POST',body:{},token:t})}
+      try{const t=sbTok();if(!t)throw new Error('কাস্টমার কেয়ার অনলাইন লগইন নেই — কাস্টমার কেয়ার লগআউট করে আবার লগইন করুন।');d=await sbReq('/rest/v1/rpc/stats_summary',{method:'POST',body:{},token:t})}
       catch(e){const m=String((e&&e.message)||e);box.textContent='';box.appendChild(mk('p','font-size:12.5px;color:#fecaca;line-height:1.7',/could not find the function|PGRST202|404/i.test(m)?'সেটআপ বাকি — Supabase SQL Editor-এ 5_analytics.sql চালান।':m));return}
       d=d||{};const T=d.totals||{},U=d.uniq||{},P=adStatP;const g=(ev)=>(T[ev]&&T[ev][P])||0;
       box.textContent='';
@@ -7614,7 +7754,7 @@
         const go=mk('button','','রিসেট করুন');go.className='primary-btn';go.onclick=async()=>{const k=phoneKey(ph.value),p=tp.value;if(!/^[0-9]{7,15}$/.test(k)){alert('সঠিক নম্বর দিন।');return}if(p.length<4){alert('সাময়িক পাসওয়ার্ড কমপক্ষে ৪ অক্ষর।');return}const t=sbTok();if(!t){alert('আগে "📝 নিবন্ধন" ট্যাবে Supabase জিমেইল-পাসওয়ার্ডে লগইন করুন।');return}
           if(!confirm(k+' নম্বরের পাসওয়ার্ড রিসেট করবেন? সে সব ডিভাইস থেকে লগআউট হবে।'))return;
           try{const salt=randHex(16),iter=100000,hash=await deriveHash(k,p,salt,iter);const r=await sbReq('/rest/v1/rpc/admin_soc_setpw',{method:'POST',token:t,body:{p_phone:k,p_salt:salt,p_iter:iter,p_hash:hash}});if(r&&r.error==='no user')alert('এই নম্বরে কোনো অ্যাকাউন্ট নেই।');else{alert('রিসেট হয়েছে ('+(r&&r.name||'')+')। সাময়িক পাসওয়ার্ড: '+p+'\nএটি ইউজারকে জানান।');ph.value='';tp.value=''}}
-          catch(e){alert('হয়নি: '+(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি — 6_accounts.sql চালান।':/not allowed/i.test(String(e&&e.message))?'এই লগইন অ্যাডমিন নয়।':String(e&&e.message||e).slice(0,120)))}};
+          catch(e){alert('হয়নি: '+(/could not find the function|PGRST202|404/i.test(String(e&&e.message))?'সার্ভারের সেটআপ বাকি — 6_accounts.sql চালান।':/not allowed/i.test(String(e&&e.message))?'এই লগইন কাস্টমার কেয়ার নয়।':String(e&&e.message||e).slice(0,120)))}};
         rb.appendChild(go);root.appendChild(rb)}
       root.appendChild(mk('div','ad-sec','এলাকা সম্পর্কে লেখা ('+fmt(aboutKeys.length)+')'));
       if(!aboutKeys.length)root.appendChild(mk('p','font-size:12px;color:#a7f3d0;margin-bottom:8px','এখনো কিছু লেখা হয়নি।'));
@@ -7628,11 +7768,11 @@
       });
       const donors=getDonors();
       root.appendChild(mk('div','ad-sec','নিবন্ধিত রক্তদাতা ('+fmt(donors.length)+')'));
-      {const ab=mk('button','','＋ 🩸 অন্য ব্যক্তির রক্তদাতা নিবন্ধন করুন (অ্যাডমিন)');ab.className='primary-btn';ab.style.cssText='margin:0 0 10px;width:100%';ab.onclick=()=>openDonorForm(true);root.appendChild(ab)}
+      {const ab=mk('button','','＋ 🩸 অন্য ব্যক্তির রক্তদাতা নিবন্ধন করুন (কাস্টমার কেয়ার)');ab.className='primary-btn';ab.style.cssText='margin:0 0 10px;width:100%';ab.onclick=()=>openDonorForm(true);root.appendChild(ab)}
       if(!donors.length)root.appendChild(mk('p','font-size:12px;color:#a7f3d0;margin-bottom:8px','এখনো কেউ নিবন্ধন করেনি।'));
       donors.forEach(d=>{
         const card=mk('div','background:#0b2b20;border:1px solid rgba(244,63,94,.35);border-radius:14px;padding:12px;margin-bottom:10px;display:flex;gap:8px;align-items:flex-start');
-        const body=mk('div','flex:1;min-width:0');body.appendChild(mk('div','font-size:14px;font-weight:700',d.group+' · '+d.name+(d.byAdmin?' (অ্যাডমিন-যোগ)':'')));
+        const body=mk('div','flex:1;min-width:0');body.appendChild(mk('div','font-size:14px;font-weight:700',d.group+' · '+d.name+(d.byAdmin?' (কাস্টমার কেয়ার-যোগ)':'')));
         body.appendChild(mk('p','font-size:11px;color:#a7f3d0;line-height:1.6;margin-top:3px',[d.phone,adLocText(d.location||{}),d.address].filter(Boolean).join(' · ')));
         const del=mk('button','','মুছুন');del.className='danger-btn';del.onclick=()=>{if(!confirm('এই রক্তদাতা মুছে ফেলবেন?'))return;writeJSON(DONORS_KEY,getDonors().filter(x=>x.id!==d.id));renderAdminRecords()};
         card.appendChild(body);card.appendChild(del);root.appendChild(card);
@@ -7677,7 +7817,7 @@
 
     // ব্যাকআপ
     function exportData(){$('backupText').value=JSON.stringify({v:1,notices:getNotices(),records:getRecords(),about:getAbout(),cats:getCustomCats(),donors:getDonors(),doctors:getDoctors(),listings:getListings()});$('backupText').select&&$('backupText').select()}
-    // ফাইলের ভেতরে বসানো ডেটা: অ্যাডমিন ব্যাকআপ থেকে নেওয়া JSON এখানে বসালে ফাইলটি যার কাছেই যাক, সবাই এই তথ্য দেখবে।
+    // ফাইলের ভেতরে বসানো ডেটা: কাস্টমার কেয়ার ব্যাকআপ থেকে নেওয়া JSON এখানে বসালে ফাইলটি যার কাছেই যাক, সবাই এই তথ্য দেখবে।
     // BAKED_VERSION বদলালে নতুন ডেটা আবার একবার যুক্ত হয়।
     const BAKED_VERSION='0';
     const BAKED_DATA=null;
@@ -7754,5 +7894,127 @@
     startAlarmClock();
     setInterval(frWatch,3000);
   </script>
+
+<script>
+/* ===== মেনু ও ড্যাশবোর্ড (v27) ===== */
+(function(){
+  var UK='amarUse_v1';
+  function day(o){var d=new Date();d.setDate(d.getDate()-(o||0));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+  function useGet(){try{var o=JSON.parse(localStorage.getItem(UK)||'{}');return o&&typeof o==='object'?o:{}}catch(e){return {}}}
+  function useHit(id){try{var o=useGet(),k=day(0);o[k]=o[k]||{};o[k][id]=(o[k][id]||0)+1;var ks=Object.keys(o).sort();while(ks.length>40)delete o[ks.shift()];localStorage.setItem(UK,JSON.stringify(o))}catch(e){}}
+  var _oc=window.openCategoryModal;
+  if(typeof _oc==='function'){window.openCategoryModal=function(id){try{if(id)useHit(String(id))}catch(e){}return _oc.apply(this,arguments)}}
+  var CSS='.mn-wrap{padding-bottom:30px}.mn-prof{display:flex;align-items:center;gap:12px;background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:14px;margin-bottom:12px}.mn-av{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#10b981,#0ea5e9);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex:none}.mn-prof b{display:block;font-size:16px}.mn-prof small{color:#a7f3d0;font-size:12px}.mn-sw{margin-left:auto;border:0;background:rgba(16,185,129,.18);color:#fff;border-radius:50%;width:40px;height:40px;font-size:17px;cursor:pointer}.mn-dark{display:flex;align-items:center;gap:12px;background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:14px;margin-bottom:14px}.mn-dark span{flex:1;font-weight:700}.mn-tg{width:50px;height:28px;border-radius:99px;border:0;background:#334155;position:relative;cursor:pointer;transition:.2s}.mn-tg i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}.mn-tg.on{background:#10b981}.mn-tg.on i{left:25px}.mn-h{font-size:17px;font-weight:800;margin:6px 2px 10px}.mn-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mn-card{position:relative;text-align:left;background:#0b2b20;border:1px solid rgba(16,185,129,.28);border-radius:20px;padding:14px;color:#fff;cursor:pointer;min-height:112px;display:flex;flex-direction:column;gap:4px}.mn-card:active{transform:scale(.97)}.mn-ic{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:6px}.mn-card b{font-size:14.5px}.mn-card small{font-size:11.5px;color:#a7f3d0;line-height:1.4}.mn-bd{position:absolute;top:12px;right:12px;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:99px;background:rgba(245,158,11,.2);color:#fcd34d}.mn-box{background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:14px;margin-bottom:12px}.mn-tw{display:flex;gap:6px;margin-bottom:12px}.mn-tw button{flex:1;padding:8px;border-radius:12px;border:0;cursor:pointer;font-weight:700;font-size:12.5px;color:#fff;background:#061812}.mn-tw button.on{background:#059669}.mn-st{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.mn-st div{background:#0a251c;border-radius:14px;padding:10px}.mn-st b{display:block;font-size:20px}.mn-st small{color:#a7f3d0;font-size:11.5px}.mn-rw{margin:10px 0}.mn-rt{display:flex;align-items:center;gap:8px;font-size:13px}.mn-dot{width:10px;height:10px;border-radius:50%;flex:none}.mn-rt span{flex:1}.mn-chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(16,185,129,.18)}.mn-bar{height:6px;border-radius:99px;background:#061812;margin-top:5px;overflow:hidden}.mn-bar i{display:block;height:100%;border-radius:99px}';
+  var COL=['#10b981','#38bdf8','#f59e0b','#c084fc','#f43f5e','#94a3b8'];
+  function catName(id){try{var c=CATEGORIES.find(function(x){return x.id===id});if(c)return{n:c.name.replace(/\s*\(.*$/,''),i:c.icon}}catch(e){}try{var q=QUICK_CATEGORIES.find(function(x){return x[0]===id});if(q)return{n:q[1],i:'⭐'}}catch(e){}return{n:id,i:'📂'}}
+  function el(t,css,txt){var e=document.createElement(t);if(css)e.style.cssText=css;if(txt!=null)e.textContent=txt;return e}
+  function ensure(id){var m=document.getElementById(id);if(!m){m=document.createElement('div');m.className='modal-overlay';m.id=id;m.innerHTML='<div class="modal-content"><div class="mn-wrap"></div></div>';m.addEventListener('click',function(e){if(e.target===m)closeModal(id)});document.body.appendChild(m);if(!document.getElementById('mnCss')){var s=document.createElement('style');s.id='mnCss';s.textContent=CSS;document.head.appendChild(s)}}return m}
+  function head(w,t,id){var h=el('div');h.className='modal-header';h.appendChild(el('h3','font-size:18px',t));var x=el('button','','✕');x.className='close-btn';x.onclick=function(){closeModal(id)};h.appendChild(x);w.appendChild(h)}
+  function go(id,fn){closeModal(id);setTimeout(fn,30)}
+  window.openMenu=function(){var m=ensure('menuModal');draw();m.classList.add('active');
+    function draw(){var w=m.querySelector('.mn-wrap');w.textContent='';head(w,'☰ মেনু','menuModal');
+      var u=null;try{u=socMe()}catch(e){}var p=prefs();
+      var pr=el('div');pr.className='mn-prof';var av=el('div','',u&&u.name?String(u.name).trim().charAt(0):'👤');av.className='mn-av';pr.appendChild(av);
+      var tx=el('div');tx.appendChild(el('b','',u?u.name:'অতিথি'));tx.appendChild(el('small','',u?'আপনার প্রোফাইল দেখুন':'লগইন করে সব সুবিধা নিন'));pr.appendChild(tx);pr.style.cursor='pointer';
+      pr.onclick=function(){go('menuModal',function(){openCategoryModal('social')})};
+      var sw=el('button','','🔁');sw.className='mn-sw';sw.title=u?'অ্যাকাউন্ট':'লগইন';sw.onclick=function(e){e.stopPropagation();go('menuModal',openSettings)};pr.appendChild(sw);w.appendChild(pr);
+      var dk=el('div');dk.className='mn-dark';dk.appendChild(el('span','','🌙 ডার্ক মোড'));var tg=el('button');tg.className='mn-tg'+(p.theme!=='light'?' on':'');tg.setAttribute('aria-label','ডার্ক মোড');tg.appendChild(el('i'));tg.onclick=function(){prefSet('theme',p.theme==='light'?'dark':'light');draw()};dk.appendChild(tg);w.appendChild(dk);
+      w.appendChild(el('div','','')).className='mn-h';w.lastChild.textContent='শর্টকাট';
+      var sv=0;try{sv=u?socSaved(u).length:0}catch(e){}
+      var items=[['🛍️','#f59e0b','শপ','কেনাকাটা ও অর্ডার',function(){openCategoryModal('shop')}],
+        ['💬','#10b981','কথা','মেসেজ ও গ্রুপ',function(){openInbox()}],
+        ['📱','#38bdf8','সমাজ','ফিড, বন্ধু, পোস্ট',function(){openCategoryModal('social')}],
+        ['🔖','#c084fc','সংরক্ষিত','পরে পড়ার পোস্ট',function(){try{soc.tab='settings';soc.view=null}catch(e){}openCategoryModal('social')},sv?fmt(sv):''],
+        ['🩸','#f43f5e','রক্তদান','দাতা খুঁজুন',function(){openCategoryModal('blood')}],
+        ['💼','#fbbf24','চাকরি','নতুন বিজ্ঞপ্তি',function(){openCategoryModal('jobs')}],
+        ['📊','#34d399','আমার ব্যবহার','কোন সেবা বেশি খুলেছেন',function(){openUsage()}],
+        ['🎧','#0ea5e9','কাস্টমার কেয়ার','সমস্যা বা পরামর্শ জানান',function(){openAdminChat()}],
+        ['🔒','#94a3b8','গোপনীয়তা','নীতি ও অধিকার',function(){openCategoryModal('privacy')}],
+        ['⚙️','#64748b','সেটিংস','রঙ, লেখা, শব্দ, ভাষা',function(){openSettings()}]];
+      var g=el('div');g.className='mn-grid';items.forEach(function(it){var c=el('button');c.className='mn-card';var ic=el('div','background:'+it[1]+'33',it[0]);ic.className='mn-ic';c.appendChild(ic);c.appendChild(el('b','',it[2]));c.appendChild(el('small','',it[3]));if(it[5]){var b=el('span','',it[5]);b.className='mn-bd';c.appendChild(b)}c.onclick=function(){go('menuModal',it[4])};g.appendChild(c)});w.appendChild(g)}
+  };
+  var UP=7;
+  window.openUsage=function(){var m=ensure('usageModal');draw();m.classList.add('active');
+    function draw(){var w=m.querySelector('.mn-wrap');w.textContent='';head(w,'📊 আমার ব্যবহার','usageModal');
+      var o=useGet(),tot={},days=0,all=0;for(var i=0;i<UP;i++){var d=o[day(i)];if(d){days++;for(var k in d){tot[k]=(tot[k]||0)+d[k];all+=d[k]}}}
+      var tw=el('div');tw.className='mn-tw';[[7,'৭ দিন'],[14,'১৪ দিন']].forEach(function(a){var b=el('button','',a[1]);if(UP===a[0])b.className='on';b.onclick=function(){UP=a[0];draw()};tw.appendChild(b)});w.appendChild(tw);
+      var rows=Object.keys(tot).map(function(k){return[k,tot[k]]}).sort(function(a,b){return b[1]-a[1]});
+      var top=rows.slice(0,5),rest=rows.slice(5).reduce(function(s,r){return s+r[1]},0);if(rest)top.push(['_',rest]);
+      var st=el('div');st.className='mn-st';[['মোট খোলা',fmt(all)],['সক্রিয় দিন',fmt(days)],['সেবার ধরন',fmt(rows.length)],['দিনে গড়',fmt(Math.round(all/UP*10)/10)]].forEach(function(a){var d=el('div');d.appendChild(el('b','',a[1]));d.appendChild(el('small','',a[0]));st.appendChild(d)});w.appendChild(st);
+      var bx=el('div');bx.className='mn-box';bx.appendChild(el('div','font-weight:800;margin-bottom:10px','সবচেয়ে বেশি ব্যবহৃত সেবা'));
+      if(!all){bx.appendChild(el('p','font-size:13px;color:#a7f3d0;line-height:1.7','এখনও কোনো তথ্য নেই। অ্যাপের সেবাগুলো খুললেই এখানে হিসাব জমতে থাকবে। এটি শুধু আপনার ফোনে থাকে।'));w.appendChild(bx);return}
+      var R=54,C=2*Math.PI*R,off=0,NS='http://www.w3.org/2000/svg';var svg=document.createElementNS(NS,'svg');svg.setAttribute('viewBox','0 0 140 140');svg.setAttribute('width','150');svg.setAttribute('height','150');svg.style.cssText='display:block;margin:0 auto 8px';
+      var bg=document.createElementNS(NS,'circle');bg.setAttribute('cx',70);bg.setAttribute('cy',70);bg.setAttribute('r',R);bg.setAttribute('fill','none');bg.setAttribute('stroke','#061812');bg.setAttribute('stroke-width',18);svg.appendChild(bg);
+      top.forEach(function(r,i){var L=r[1]/all*C,c=document.createElementNS(NS,'circle');c.setAttribute('cx',70);c.setAttribute('cy',70);c.setAttribute('r',R);c.setAttribute('fill','none');c.setAttribute('stroke',COL[i%COL.length]);c.setAttribute('stroke-width',18);c.setAttribute('stroke-dasharray',Math.max(L-2,.5)+' '+C);c.setAttribute('stroke-dashoffset',-off);c.setAttribute('transform','rotate(-90 70 70)');svg.appendChild(c);off+=L});
+      var t1=document.createElementNS(NS,'text');t1.setAttribute('x',70);t1.setAttribute('y',74);t1.setAttribute('text-anchor','middle');t1.setAttribute('fill','#fff');t1.setAttribute('font-size','22');t1.setAttribute('font-weight','800');t1.textContent=fmt(all);svg.appendChild(t1);bx.appendChild(svg);
+      top.forEach(function(r,i){var nm=r[0]==='_'?{n:'অন্যান্য',i:'•'}:catName(r[0]),pc=Math.round(r[1]/all*100);var rw=el('div');rw.className='mn-rw';var rt=el('div');rt.className='mn-rt';var dt=el('i','background:'+COL[i%COL.length]);dt.className='mn-dot';rt.appendChild(dt);rt.appendChild(el('span','',nm.i+' '+nm.n));rt.appendChild(el('small','color:#a7f3d0',fmt(r[1])+' বার'));var ch=el('b','',fmt(pc)+'%');ch.className='mn-chip';rt.appendChild(ch);rw.appendChild(rt);var br=el('div');br.className='mn-bar';br.appendChild(el('i','width:'+pc+'%;background:'+COL[i%COL.length]));rw.appendChild(br);bx.appendChild(rw)});
+      w.appendChild(bx)}
+  };
+})();
+</script>
+
+<script>
+/* ===== অ্যাপ-শেল (v25): স্মার্ট পিছনে, ফোনের ব্যাক-বাটন, এজ-সোয়াইপ, জুমেও ঠিক থাকা ===== */
+(function(){
+  const SEL='.modal-overlay.active,.modal.active';
+  const z=el=>{let v=parseInt(getComputedStyle(el).zIndex,10);return isNaN(v)?0:v};
+  const actives=()=>[...document.querySelectorAll(SEL)].sort((a,b)=>z(a)-z(b)||(a.compareDocumentPosition(b)&2?1:-1));
+  const top=()=>{const a=actives();return a.length?a[a.length-1]:null};
+  function headOf(m){return m.querySelector('.modal-header')}
+  function innerBack(m){const h=headOf(m);if(!h)return null;return [...h.querySelectorAll('button')].find(b=>!b.classList.contains('amar-back')&&b.textContent.trim()==='←')||null}
+  function closer(m){const h=headOf(m)||m;return [...h.querySelectorAll('button')].find(b=>b.textContent.trim()==='✕')||m.querySelector('.close-btn')||null}
+  function smartBack(){
+    const m=top();if(!m)return false;
+    const ib=innerBack(m);if(ib){ib.click();return true}
+    const c=closer(m);if(c){c.click();return true}
+    if(m.id&&typeof closeModal==='function'){try{closeModal(m.id);return true}catch(e){}}
+    return false}
+  window.amarBack=smartBack;
+  function inject(m){
+    const h=headOf(m);if(!h)return;
+    if(h.querySelector('.amar-back')||innerBack(m))return;
+    const b=document.createElement('button');b.type='button';b.className='amar-back';b.setAttribute('aria-label','পিছনে');b.innerHTML='<span style="font-size:18px;line-height:1">←</span><span>পিছনে</span>';
+    b.onclick=e=>{e.stopPropagation();const c=closer(m);if(c)c.click();else if(m.id)closeModal(m.id)};
+    h.insertBefore(b,h.firstChild)}
+  function fit(m){const c=m.querySelector('.modal-content');if(!c)return;let zm=parseFloat(getComputedStyle(document.body).zoom);if(!zm||isNaN(zm))zm=1;c.style.maxHeight=Math.floor(window.innerHeight*(m.classList.contains('overlay-center')?0.9:0.92)/zm)+'px'}
+  let depth=0,expectPop=0,raf=0;
+  function sync(){
+    raf=0;const a=actives();a.forEach(m=>{inject(m);fit(m)});
+    while(depth<a.length){try{history.pushState({amarModal:depth+1},'')}catch(e){}depth++}
+    if(depth>a.length){const d=depth-a.length;depth=a.length;expectPop+=1;try{history.go(-d)}catch(e){expectPop=0}}
+  }
+  const sched=()=>{if(!raf)raf=requestAnimationFrame(sync)};
+  new MutationObserver(sched).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+  window.addEventListener('resize',sched);
+  window.addEventListener('popstate',()=>{
+    if(expectPop>0){expectPop--;return}
+    if(depth>0)depth--;
+    const ok=smartBack();
+    sched();
+  });
+  // বাম কিনারা থেকে ডানে টানলে পিছনে
+  let sx=0,sy=0,tr=false;
+  document.addEventListener('touchstart',e=>{const t=e.touches[0];tr=t.clientX<=24&&!!top();sx=t.clientX;sy=t.clientY},{passive:true});
+  document.addEventListener('touchmove',e=>{if(!tr)return;const t=e.touches[0];if(t.clientX-sx>80&&Math.abs(t.clientY-sy)<45){tr=false;smartBack()}},{passive:true});
+  // হালকা কম্পন (সেটিংসে কম্পন চালু থাকলে)
+  let lastV=0;document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('button,.nav-item,.quick-item,.card-banner');if(!b)return;try{if(typeof prefs==='function'&&!prefs().vib)return}catch(_){}const n=Date.now();if(n-lastV<120)return;lastV=n;try{navigator.vibrate&&navigator.vibrate(6)}catch(_){}},true);
+  // পাসওয়ার্ড ঘরে গুগলের অটোফিল/সেভ-পাসওয়ার্ড পপআপ বন্ধ: ঘরটি সাধারণ লেখার ঘর, কিন্তু ফোঁটা (••••) দেখায়
+  function noFill(i){
+    if(i.__nf)return;i.__nf=1;
+    const isPw=i.getAttribute('type')==='password';
+    if(isPw){
+      i.setAttribute('type','text');i.style.webkitTextSecurity='disc';i.dataset.pw='1';
+      try{Object.defineProperty(i,'type',{configurable:true,get(){return i.dataset.shown==='1'?'text':'password'},set(v){i.dataset.shown=(v==='text')?'1':'0';i.style.webkitTextSecurity=(v==='text')?'none':'disc'}})}catch(e){}
+    }
+    i.setAttribute('autocomplete','off');i.setAttribute('autocapitalize','none');i.setAttribute('autocorrect','off');i.setAttribute('spellcheck','false');
+    i.setAttribute('data-lpignore','true');i.setAttribute('data-1p-ignore','true');i.setAttribute('data-form-type','other');
+    if(isPw)i.setAttribute('name','f'+Math.random().toString(36).slice(2,9));
+  }
+  function scanFill(){document.querySelectorAll('input[type=password],input[autocomplete=username],input[autocomplete=current-password],input[autocomplete=new-password]').forEach(noFill)}
+  new MutationObserver(scanFill).observe(document.documentElement,{subtree:true,childList:true});
+  scanFill();
+  sched();
+})();
+</script>
 </body>
 </html>
