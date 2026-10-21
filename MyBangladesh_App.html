@@ -3482,7 +3482,7 @@
       row('📤 বন্ধুকে অ্যাপ শেয়ার করুন',()=>{const u='https://adnan1497.github.io/My-bangladesh-app/MyBangladesh_App.html';const t='আমার বাংলাদেশ — জরুরি সেবা, হাসপাতাল, রক্ত, ব্যবসা হিসাব, সরকারি সেবা সব এক অ্যাপে।';if(navigator.share)navigator.share({title:'আমার বাংলাদেশ',text:t,url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(t+' '+u);alert('লিংক কপি হয়েছে')}catch(e){prompt('কপি করুন:',t+' '+u)}}try{amTrack('share')}catch(e){}});
       row('📝 কাস্টমার কেয়ারকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ২৯'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৩১'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -4159,7 +4159,7 @@
       });
     }
     function updRegTab(){const b=$('tab_reg');if(!b)return;const n=bizPending()+(window.__admPendSrv||0);b.textContent='📝 নিবন্ধন'+(n?' ('+fmt(n)+')':'')}
-    GUIDES.privacy={intro:'🔒 আপনার তথ্য কীভাবে ব্যবহার ও সুরক্ষিত হয় — সংক্ষেপে ও সহজ ভাষায়।',calls:[],links:[],sections:[["১. এই নীতি কীসের জন্য", ["\"আমার বাংলাদেশ\" অ্যাপ সেবা-তথ্য, স্থানীয় তালিকা, নোটিশ, সমাজ, কথা ও শপের সুবিধা দেয়। এই পাতায় সহজ ভাষায় লেখা আছে আমরা কোন তথ্য নিই, কেন নিই এবং আপনি কী করতে পারেন।"]], ["২. কী কী তথ্য নেওয়া হয়", ["আপনি নিজে যা দেন: নাম, মোবাইল নম্বর, এলাকা, প্রোফাইল ছবি, পোস্ট, মন্তব্য ও বার্তা। সমাজ প্রোফাইলে জন্ম তারিখ শুধু বয়সের জন্য নেওয়া হয়।", "রক্তদাতা, চিকিৎসক, আইনজীবী, রিসোর্ট বা দোকান হিসেবে নিবন্ধন করলে আপনার দেওয়া নাম, ফোন, ঠিকানা ও পেশাগত তথ্য।", "ভ্রমণ পাসপোর্ট, মেডিকেল কার্ড, অ্যালার্ম, নোট ও পছন্দ শুধু আপনার ফোনেই থাকে।", "অবস্থান: জরুরি পাতায় \"আমার অবস্থানসহ বার্তা পাঠান\" চাপলেই নেওয়া হয় এবং আপনার SMS-এ বসে; আমরা সংরক্ষণ করি না। অ্যাপ কন্ট্যাক্ট লিস্ট, ক্যামেরা বা মাইক্রোফোন ব্যবহার করে না।"]], ["৩. কেন ব্যবহার করা হয়", ["অ্যাপের সুবিধা চালাতে: তালিকা দেখানো, বার্তা পৌঁছানো, ফিড সাজানো, শপের অর্ডার সামলানো।", "তথ্য যাতে নির্ভুল থাকে সেজন্য কাস্টমার কেয়ার জমা-দেওয়া তথ্য দেখে অনুমোদন দেয়।", "আমরা আপনার তথ্য বিক্রি করি না, বিজ্ঞাপনদাতাকেও দিই না।"]], ["৪. কোন তথ্য অন্যরা দেখতে পায়", ["অনুমোদনের পর নিবন্ধিত তথ্য (যেমন রক্তদাতার নাম, গ্রুপ, এলাকা, ফোন) অ্যাপে সবাই দেখতে পায়। নিবন্ধনের সময় সম্মতির ঘরে টিক দিয়ে এটি আপনি ঠিক করেন।", "সমাজে আপনার নাম, ছবি, এলাকা ও পোস্ট অন্যরা দেখে। মোবাইল নম্বর ও জন্ম তারিখ দেখানো হয় না।", "বার্তা শুধু প্রেরক ও প্রাপক (গ্রুপে সদস্যরা) দেখেন।"]], ["৫. তথ্য কোথায় থাকে", ["আপনার ফোনে এবং অনলাইন ডাটাবেসে (Supabase)। যোগাযোগ HTTPS-এ সুরক্ষিত, ডাটাবেসে প্রবেশের কড়া নিয়ম চালু আছে, আর পাসওয়ার্ড সরাসরি রাখা হয় না — শুধু একমুখী হ্যাশ থাকে।", "কোরআন, নামাজের সময়, মুদ্রা ও স্বর্ণের দামের মতো তথ্য পাবলিক সেবা থেকে আনা হয়; এতে আপনার ব্যক্তিগত তথ্য যায় না।"]], ["৬. কতদিন থাকে", ["আপনি মুছে না ফেলা পর্যন্ত। দীর্ঘদিন ব্যবহার না হলে বা নিয়মের বাইরের তথ্য কাস্টমার কেয়ার সরিয়ে দিতে পারে।"]], ["৭. আপনার অধিকার", ["নিজের নিবন্ধন, নোটিশ ও পোস্ট যেকোনো সময় \"মুছুন\" চেপে মুছতে পারেন — অনলাইন থেকেও মুছে যায়।", "সমাজ প্রোফাইল ও সব পোস্ট একসাথে মুছতে: সমাজ → প্রোফাইল → \"আমার প্রোফাইল ও সব পোস্ট মুছুন\"।", "ভুল সংশোধন বা অন্য কিছু মোছাতে অ্যাপের \"কাস্টমার কেয়ারকে বার্তা\" ব্যবহার করুন; আমরা দ্রুত সাহায্য করব।"]], ["৮. বয়স", ["সমাজ প্রোফাইলের জন্য কমপক্ষে ১৩ বছর লাগে। অল্প বয়সীরা অভিভাবকের সাথে ব্যবহার করলে ভালো। রক্তদান ও চিকিৎসা নিবন্ধন প্রাপ্তবয়স্কদের জন্য।"]], ["৯. জেনে রাখুন", ["নিবন্ধিত তথ্য ব্যবহারকারীরা নিজে দেন; জরুরি প্রয়োজনে নিজে একবার যাচাই করে নিন এবং দরকারে ৯৯৯ নম্বরে ফোন করুন।", "অ্যাপে জুয়া বা বাজির কোনো খেলা নেই।"]], ["১০. নীতি হালনাগাদ", ["নীতি বদলালে এই পাতায় নতুন তারিখসহ জানানো হবে। শেষ হালনাগাদ: অক্টোবর ২০২৬।"]], ["১১. যোগাযোগ", ["অ্যাপের ভেতরে \"কাস্টমার কেয়ারকে বার্তা\" দিন — আমরা পাশে আছি।"]]]};
+    GUIDES.privacy={intro:'🔒 আপনার তথ্য কীভাবে ব্যবহার ও সুরক্ষিত হয় — সংক্ষেপে ও সহজ ভাষায়।',calls:[],links:[],sections:[["১. এই নীতি কীসের জন্য", ["\"আমার বাংলাদেশ\" অ্যাপ সেবা-তথ্য, স্থানীয় তালিকা, নোটিশ, সমাজ, কথা ও শপের সুবিধা দেয়। এই পাতায় সহজ ভাষায় লেখা আছে আমরা কোন তথ্য নিই, কেন নিই এবং আপনি কী করতে পারেন।"]], ["২. কী কী তথ্য নেওয়া হয়", ["আপনি নিজে যা দেন: নাম, মোবাইল নম্বর, এলাকা, প্রোফাইল ছবি, পোস্ট, মন্তব্য ও বার্তা। সমাজ প্রোফাইলে জন্ম তারিখ শুধু বয়সের জন্য নেওয়া হয়।", "রক্তদাতা, চিকিৎসক, আইনজীবী, রিসোর্ট বা দোকান হিসেবে নিবন্ধন করলে আপনার দেওয়া নাম, ফোন, ঠিকানা ও পেশাগত তথ্য।", "ভ্রমণ পাসপোর্ট, মেডিকেল কার্ড, অ্যালার্ম, নোট ও পছন্দ শুধু আপনার ফোনেই থাকে।", "অবস্থান: জরুরি পাতায় \"আমার অবস্থানসহ বার্তা পাঠান\" চাপলেই নেওয়া হয় এবং আপনার SMS-এ বসে; আমরা সংরক্ষণ করি না। অ্যাপ কন্ট্যাক্ট লিস্ট, ক্যামেরা বা মাইক্রোফোন ব্যবহার করে না।"]], ["৩. কেন ব্যবহার করা হয়", ["অ্যাপের সুবিধা চালাতে: তালিকা দেখানো, বার্তা পৌঁছানো, ফিড সাজানো, শপের অর্ডার সামলানো।", "তথ্য যাতে নির্ভুল থাকে সেজন্য কাস্টমার কেয়ার জমা-দেওয়া তথ্য দেখে অনুমোদন দেয়।", "আমরা আপনার তথ্য বিক্রি করি না, বিজ্ঞাপনদাতাকেও দিই না।"]], ["৪. কোন তথ্য অন্যরা দেখতে পায়", ["অনুমোদনের পর নিবন্ধিত তথ্য (যেমন রক্তদাতার নাম, গ্রুপ, এলাকা, ফোন) অ্যাপে সবাই দেখতে পায়। নিবন্ধনের সময় সম্মতির ঘরে টিক দিয়ে এটি আপনি ঠিক করেন।", "সমাজে আপনার নাম, ছবি, এলাকা ও পোস্ট অন্যরা দেখে। মোবাইল নম্বর ও জন্ম তারিখ দেখানো হয় না।", "বার্তা শুধু প্রেরক ও প্রাপক (গ্রুপে সদস্যরা) দেখেন।"]], ["৫. তথ্য কোথায় থাকে", ["আপনার ফোনে এবং অনলাইন ডাটাবেসে (Supabase)। যোগাযোগ HTTPS-এ সুরক্ষিত, ডাটাবেসে প্রবেশের কড়া নিয়ম চালু আছে, আর পাসওয়ার্ড সরাসরি রাখা হয় না — শুধু একমুখী হ্যাশ থাকে।", "কোরআন, আবহাওয়া (open-meteo.com), মুদ্রা ও স্বর্ণের দামের মতো তথ্য পাবলিক সেবা থেকে আনা হয়; এতে আপনার ব্যক্তিগত তথ্য যায় না।"]], ["৬. কতদিন থাকে", ["আপনি মুছে না ফেলা পর্যন্ত। দীর্ঘদিন ব্যবহার না হলে বা নিয়মের বাইরের তথ্য কাস্টমার কেয়ার সরিয়ে দিতে পারে।"]], ["৭. আপনার অধিকার", ["নিজের নিবন্ধন, নোটিশ ও পোস্ট যেকোনো সময় \"মুছুন\" চেপে মুছতে পারেন — অনলাইন থেকেও মুছে যায়।", "সমাজ প্রোফাইল ও সব পোস্ট একসাথে মুছতে: সমাজ → প্রোফাইল → \"আমার প্রোফাইল ও সব পোস্ট মুছুন\"।", "ভুল সংশোধন বা অন্য কিছু মোছাতে অ্যাপের \"কাস্টমার কেয়ারকে বার্তা\" ব্যবহার করুন; আমরা দ্রুত সাহায্য করব।"]], ["৮. বয়স", ["সমাজ প্রোফাইলের জন্য কমপক্ষে ১৩ বছর লাগে। অল্প বয়সীরা অভিভাবকের সাথে ব্যবহার করলে ভালো। রক্তদান ও চিকিৎসা নিবন্ধন প্রাপ্তবয়স্কদের জন্য।"]], ["৯. জেনে রাখুন", ["নিবন্ধিত তথ্য ব্যবহারকারীরা নিজে দেন; জরুরি প্রয়োজনে নিজে একবার যাচাই করে নিন এবং দরকারে ৯৯৯ নম্বরে ফোন করুন।", "অ্যাপে জুয়া বা বাজির কোনো খেলা নেই।"]], ["১০. নীতি হালনাগাদ", ["নীতি বদলালে এই পাতায় নতুন তারিখসহ জানানো হবে। শেষ হালনাগাদ: অক্টোবর ২০২৬।"]], ["১১. যোগাযোগ", ["অ্যাপের ভেতরে \"কাস্টমার কেয়ারকে বার্তা\" দিন — আমরা পাশে আছি।"]]]};
     GUIDES.mall={intro:'🏬 শপিং মল, বিপণিবিতান ও সুপারশপ খুঁজুন এবং আপনার নিজের মল/দোকান নিবন্ধন করুন।',calls:[],links:[['কাছাকাছি শপিং মল (গুগল ম্যাপ)','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('shopping mall near me')],['সুপারশপ (গুগল ম্যাপ)','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('super shop near me')],['ফুড কোর্ট ও রেস্টুরেন্ট (গুগল ম্যাপ)','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('food court near me')]]};
     function renderGuide(list,id){
       const G=GUIDES[id];if(!G)return;
@@ -7994,6 +7994,88 @@
     chips([['🚨 জরুরি নম্বর কী?',function(){ask('৯৯৯')}],['🏙️ রাজধানী কোথায়?',function(){ask('রাজধানী')}],['🩸 রক্ত লাগবে',function(){ask('রক্ত লাগবে')}],['🧮 ১২৫ × ৪',function(){ask('১২৫ × ৪')}],['📅 আজ কত তারিখ?',function(){ask('আজ কত তারিখ')}]]);
     var f=el('div');f.className='ai-in';var i=document.createElement('input');i.className='form-field';i.placeholder='প্রশ্ন লিখুন…';i.autocomplete='off';var sb=el('button','','➤');sb.setAttribute('aria-label','পাঠান');
     var go=function(){var v=i.value;i.value='';ask(v)};sb.onclick=go;i.onkeydown=function(e){if(e.key==='Enter')go()};f.appendChild(i);f.appendChild(sb);w.appendChild(f);m.classList.add('active')};
+})();
+</script>
+
+<script>
+/* ===== v30: পরিষ্কার লাইট থিম + ফাইল শেয়ার/সেভ শিট ===== */
+(function(){
+  var st=document.createElement('style');st.id='ltCss';
+  var P='#0f0f0f',C='#010101',I='#181818';
+  st.textContent=
+  'html.amar-lt body{background-color:'+P+'}html.amar-lt .app-container,html.amar-lt .modal-content,html.amar-lt .modal-header,html.amar-lt .bottom-nav{background-color:'+P+'}'+
+  'html.amar-lt .quick-ribbon,html.amar-lt .item-card,html.amar-lt .cat-card,html.amar-lt .notice,html.amar-lt [style*="background:#0b2b20"],html.amar-lt [style*="background:#0b241c"]{background:'+C+'!important;box-shadow:0 0 0 1px rgba(16,185,129,.25)}'+
+  'html.amar-lt .quick-icon,html.amar-lt .cat-icon-box,html.amar-lt .search-input,html.amar-lt .form-field,html.amar-lt .chip,html.amar-lt .step-btn,html.amar-lt [style*="background:#0a251c"],html.amar-lt [style*="background:#061812"],html.amar-lt [style*="background:#071f17"]{background:'+I+'!important}'+
+  'html.amar-lt .mn-prof,html.amar-lt .mn-dark,html.amar-lt .mn-card,html.amar-lt .mn-box,html.amar-lt .cat-card{background:'+C+'!important;box-shadow:0 0 0 1px rgba(16,185,129,.25)}html.amar-lt .mn-st div,html.amar-lt .mn-bar,html.amar-lt .mn-tw button:not(.on){background:'+I+'}'+
+  ['rgb(11, 43, 32)','rgb(11, 36, 28)','rgb(9, 34, 26)'].map(function(c){return 'html.amar-lt [style*="background: '+c+'"]'}).join(',')+'{background:'+C+'!important}'+
+  ['rgb(10, 37, 28)','rgb(6, 24, 18)','rgb(7, 31, 23)'].map(function(c){return 'html.amar-lt [style*="background: '+c+'"]'}).join(',')+'{background:'+I+'!important}'+
+  'html.amar-lt .app-header{background:#050505;box-shadow:0 1px 0 rgba(16,185,129,.25)}'+
+  'html.amar-lt .modal-header{box-shadow:0 1px 0 rgba(16,185,129,.25)!important}';
+  document.head.appendChild(st);
+  var _ap=window.applyPrefs;
+  window.applyPrefs=function(){var r=_ap.apply(this,arguments);try{var L=prefs().theme==='light';document.documentElement.classList.toggle('amar-lt',L);if(L){var f=document.documentElement.style.filter;if(f.indexOf('saturate')<0)document.documentElement.style.filter=f+' saturate(1.2)'}}catch(e){}return r};
+  try{window.applyPrefs()}catch(e){}
+  function el(t,c,x){var e=document.createElement(t);if(c)e.style.cssText=c;if(x!=null)e.textContent=x;return e}
+  window.amarFiles=function(files,title){
+    var ov=el('div','position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:99999;display:flex;align-items:flex-end;justify-content:center');
+    var bx=el('div','width:100%;max-width:440px;background:#09221a;border:1px solid #10b981;border-radius:24px 24px 0 0;padding:18px 18px 22px;color:#fff');
+    ov.appendChild(bx);bx.appendChild(el('div','font-size:16px;font-weight:800;margin-bottom:4px','✅ ফাইল তৈরি হয়েছে'));
+    bx.appendChild(el('div','font-size:12.5px;color:#a7f3d0;margin-bottom:12px;word-break:break-all',files.map(function(f){return f.name}).join(', ')));
+    function close(){ov.remove()}
+    function mkb(t,fn,cls){var b=el('button','width:100%;padding:13px;border-radius:14px;border:1px solid #10b981;margin-bottom:8px;font-size:14.5px;font-weight:700;cursor:pointer;color:#fff;background:'+(cls?'#059669':'#0b2b20'),t);b.onclick=fn;bx.appendChild(b);return b}
+    var fl=files.map(function(f){return new File([f.blob],f.name,{type:f.blob.type||'application/octet-stream'})});
+    var canS=false;try{canS=!!(navigator.canShare&&navigator.canShare({files:fl}))}catch(e){}
+    var msg=el('div','font-size:12px;color:#fca5a5;min-height:16px;margin-top:2px');
+    function dl(){files.forEach(function(f,i){setTimeout(function(){var a=document.createElement('a');a.href=URL.createObjectURL(f.blob);a.download=f.name;a.rel='noopener';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000)},i*350)});msg.style.color='#a7f3d0';msg.textContent='ডাউনলোড শুরু হয়েছে — ফোনের "ডাউনলোড" ফোল্ডার দেখুন।'}
+    if(canS)mkb('📤 শেয়ার করুন (হোয়াটসঅ্যাপ, মেসেঞ্জার…)',function(){navigator.share({files:fl,title:title||files[0].name}).then(close).catch(function(e){if(e&&e.name!=='AbortError'){msg.style.color='#fca5a5';msg.textContent='শেয়ার হয়নি — নিচের "সেভ" বা "খুলুন" ব্যবহার করুন।'}})},1);
+    mkb('⬇️ ফোনে সেভ করুন',dl,!canS);
+    mkb('👁️ খুলে দেখুন',function(){var f=files[0],u=URL.createObjectURL(f.blob);var w=window.open(u,'_blank');if(!w){location.href=u}setTimeout(function(){URL.revokeObjectURL(u)},60000)});
+    mkb('বন্ধ করুন',close);bx.appendChild(msg);ov.addEventListener('click',function(e){if(e.target===ov)close()});document.body.appendChild(ov)};
+  window.tmShareBlob=function(b,name,title){window.amarFiles([{blob:b,name:name}],title)};
+  window.pgImages=async function(d,name){var bl=await pgBlobs(d,'image/png');window.amarFiles(bl.map(function(b,i){return{blob:b,name:bl.length>1?name+'-'+(i+1)+'.png':name+'.png'}}),name)};
+})();
+</script>
+
+<script>
+/* ===== v31: আজকের বাংলাদেশ কার্ড (সার্ভার-খরচ শূন্য) ===== */
+(function(){
+  var B=function(n){return String(n).replace(/[0-9]/g,function(d){return '০১২৩৪৫৬৭৮৯'[d]})};
+  function el(t,c,x){var e=document.createElement(t);if(c)e.style.cssText=c;if(x!=null)e.textContent=x;return e}
+  var BM=[[3,14,'চৈত্র'],[1,12,'ফাল্গুন'],[0,13,'মাঘ'],[11,14,'পৌষ'],[10,14,'অগ্রহায়ণ'],[9,15,'কার্তিক'],[8,15,'আশ্বিন'],[7,16,'ভাদ্র'],[6,16,'শ্রাবণ'],[5,15,'আষাঢ়'],[4,15,'জ্যৈষ্ঠ'],[3,14,'বৈশাখ']];
+  function bnDate(d){var y=d.getFullYear(),t=new Date(y,d.getMonth(),d.getDate()).getTime(),best=null;
+    [[3,14,'বৈশাখ'],[4,15,'জ্যৈষ্ঠ'],[5,15,'আষাঢ়'],[6,16,'শ্রাবণ'],[7,16,'ভাদ্র'],[8,15,'আশ্বিন'],[9,15,'কার্তিক'],[10,14,'অগ্রহায়ণ'],[11,14,'পৌষ'],[0,13,'মাঘ'],[1,12,'ফাল্গুন'],[2,14,'চৈত্র']].forEach(function(m){var yy=m[0]<3?y:y;var s=new Date(yy,m[0],m[1]).getTime();if(s<=t&&(!best||s>best.s))best={s:s,n:m[2]}});
+    if(!best){best={s:new Date(y-1,11,14).getTime(),n:'পৌষ'}}
+    var day=Math.round((t-best.s)/864e5)+1,by=(d.getMonth()>3||(d.getMonth()===3&&d.getDate()>=14))?y-593:y-594;return B(day)+' '+best.n+' '+B(by)}
+  function hijri(d){try{return new Intl.DateTimeFormat('bn-BD-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(d).replace(/\s*যুগ$/,'').replace(/\s*এএইচ$/,'')+' হিজরি'}catch(e){return ''}}
+  var DAYS={'1-1':'ইংরেজি নববর্ষ','8-3':'আন্তর্জাতিক নারী দিবস','17-3':'শিশু দিবস','25-3':'গণহত্যা দিবস','26-3':'মহান স্বাধীনতা দিবস','14-4':'পহেলা বৈশাখ','1-5':'মে দিবস','14-6':'বিশ্ব রক্তদাতা দিবস','5-6':'বিশ্ব পরিবেশ দিবস','8-9':'আন্তর্জাতিক সাক্ষরতা দিবস','15-10':'বিশ্ব হাত ধোয়া দিবস','10-12':'মানবাধিকার দিবস','14-12':'শহীদ বুদ্ধিজীবী দিবস','16-12':'মহান বিজয় দিবস','21-2':'শহীদ দিবস ও আন্তর্জাতিক মাতৃভাষা দিবস','7-4':'বিশ্ব স্বাস্থ্য দিবস','20-11':'বিশ্ব শিশু দিবস'};
+  var TIPS=['জরুরি প্রয়োজনে ৯৯৯ — পুলিশ, ফায়ার সার্ভিস ও অ্যাম্বুলেন্স একই নম্বরে।','সরকারি যেকোনো সেবার তথ্যের জন্য ৩৩৩ নম্বরে ফোন করা যায়।','নারী ও শিশু নির্যাতনের খবর জানাতে ১০৯ নম্বরে ফোন করুন (বিনা খরচে)।','দিনে অন্তত ৮ গ্লাস পানি পান করুন; ডায়রিয়ায় খাবার স্যালাইন খুব কাজের।','রক্তদানের পর অন্তত ৪ মাস পরে আবার রক্ত দেওয়া যায়।','হাত ধোয়ার সময় সাবান দিয়ে অন্তত ২০ সেকেন্ড ঘষুন।','অজানা নম্বর থেকে ওটিপি বা পিন চাইলে কখনও দেবেন না — এটা প্রতারণা।','বিকাশ/নগদের পিন কাউকে বলবেন না, এমনকি কাস্টমার কেয়ার পরিচয় দিলেও।','দুর্নীতির অভিযোগ জানাতে দুদকের হটলাইন ১০৬।','আইনি সহায়তা দরকার হলে জাতীয় আইনগত সহায়তা হেল্পলাইন ১৬৪৩০।','রাস্তা পার হতে জেব্রা ক্রসিং ব্যবহার করুন; মোবাইলে কথা বলতে বলতে হাঁটবেন না।','বজ্রপাতের সময় খোলা মাঠ ও গাছের নিচ এড়িয়ে পাকা ঘরে আশ্রয় নিন।','দিনের কাজ শেষে ফোনের গুরুত্বপূর্ণ ফাইলের ব্যাকআপ রাখুন।','ডেঙ্গু প্রতিরোধে বাড়ির আশপাশে পানি জমতে দেবেন না।','হঠাৎ বুকে ব্যথা বা শ্বাসকষ্ট হলে দেরি না করে হাসপাতালে যান।','নিজের এনআইডি ও ব্যক্তিগত তথ্যের ছবি অচেনা কাউকে পাঠাবেন না।','সন্তানের সাথে আজ অন্তত ১০ মিনিট গল্প করুন — এটাই সেরা বিনিয়োগ।','প্রতিবেশীর খোঁজ নিন; বিপদে সবার আগে তারাই পাশে দাঁড়ায়।','স্থানীয় দোকান ও কারিগরদের পণ্য কিনলে এলাকার অর্থনীতি শক্ত হয়।','শিশুদের টিকা সময়মতো দিন — ইপিআই কেন্দ্রে বিনামূল্যে পাওয়া যায়।','গরমে বেশি সময় রোদে থাকলে হিটস্ট্রোকের ঝুঁকি থাকে; ছায়ায় বিশ্রাম নিন।','ভোর বা সন্ধ্যায় ১৫ মিনিট হাঁটা হৃদয় ও মন দুটোই ভালো রাখে।','অনলাইনে কেনাকাটায় আগে বিক্রেতার রিভিউ ও যোগাযোগ যাচাই করুন।'];
+  var PN=[['fajr','ফজর'],['dhuhr','যোহর'],['asr','আসর'],['maghrib','মাগরিব'],['isha','এশা']];
+  function nextPrayer(){try{var d='ঢাকা';try{d=localStorage.getItem('amarPrayerDist_v1')||state.district||'ঢাকা'}catch(e){}if(!TM_PTS[d])d='ঢাকা';var ll=TM_PTS[d],now=new Date(),pt=prayerTimes(now,ll[1],ll[0],6),h=now.getHours()+now.getMinutes()/60;
+    for(var i=0;i<PN.length;i++){var v=pt[PN[i][0]];if(v>h)return{n:PN[i][1],h:v,d:d,tm:false}}
+    var t2=prayerTimes(new Date(now.getTime()+864e5),ll[1],ll[0],6);return{n:'ফজর',h:t2.fajr,d:d,tm:true}}catch(e){return null}}
+  function hm(h){var x=Math.round(h*60),H=Math.floor(x/60)%24,M=x%60,ap=H>=12?'দুপুর/বিকাল':'সকাল';var h12=H%12||12;var per=H<4?'রাত':H<6?'ভোর':H<12?'সকাল':H<15?'দুপুর':H<17?'বিকাল':H<19?'সন্ধ্যা':'রাত';return per+' '+B(h12)+':'+B(('0'+M).slice(-2))}
+  function weather(cb){var K='amarWx_v1';try{var c=JSON.parse(localStorage.getItem(K)||'null');if(c&&Date.now()-c.t<3600000){cb(c);return}}catch(e){}
+    var d='ঢাকা';try{d=localStorage.getItem('amarPrayerDist_v1')||state.district||'ঢাকা'}catch(e){}if(!TM_PTS[d])d='ঢাকা';var ll=TM_PTS[d];
+    var ac=new AbortController();setTimeout(function(){ac.abort()},6000);
+    fetch('https://api.open-meteo.com/v1/forecast?latitude='+ll[1]+'&longitude='+ll[0]+'&current=temperature_2m,weather_code&daily=precipitation_probability_max&timezone=Asia%2FDhaka&forecast_days=1',{signal:ac.signal}).then(function(r){return r.json()}).then(function(j){var o={t:Date.now(),temp:Math.round(j.current.temperature_2m),code:j.current.weather_code,rain:(j.daily&&j.daily.precipitation_probability_max||[0])[0],d:d};try{localStorage.setItem(K,JSON.stringify(o))}catch(e){}cb(o)}).catch(function(){try{var c=JSON.parse(localStorage.getItem(K)||'null');if(c)cb(c)}catch(e){}})}
+  function wIcon(c){return c===0?'☀️':c<=2?'🌤️':c===3?'☁️':c<=48?'🌫️':c<=67?'🌧️':c<=77?'❄️':c<=82?'🌦️':'⛈️'}
+  function build(){var host=document.getElementById('todayCard');if(!host){var q=document.querySelector('.quick-ribbon');if(!q)return;host=el('div');host.id='todayCard';q.parentNode.insertBefore(host,q)}
+    host.textContent='';var now=new Date();
+    var card=el('div','margin:6px 0 12px;border-radius:22px;padding:16px;background:linear-gradient(135deg,#065f46,#0f766e);border:1px solid rgba(110,231,183,.35);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.25)');
+    var top=el('div','display:flex;justify-content:space-between;align-items:flex-start;gap:8px');
+    var l=el('div');l.appendChild(el('div','font-size:11.5px;opacity:.85;font-weight:700;letter-spacing:.3px','🇧🇩 আজকের বাংলাদেশ'));
+    l.appendChild(el('div','font-size:19px;font-weight:800;margin-top:3px',now.toLocaleDateString('bn-BD',{weekday:'long',day:'numeric',month:'long'})));
+    l.appendChild(el('div','font-size:12.5px;opacity:.9;margin-top:2px',bnDate(now)+' বঙ্গাব্দ'+(hijri(now)?' · '+hijri(now):'')));top.appendChild(l);
+    var wx=el('div','text-align:right;font-size:12px;min-width:70px');top.appendChild(wx);card.appendChild(top);
+    var sp=DAYS[now.getDate()+'-'+(now.getMonth()+1)];if(sp)card.appendChild(el('div','margin-top:10px;background:rgba(255,255,255,.16);border-radius:12px;padding:8px 12px;font-size:13px;font-weight:700','🎉 আজ '+sp));
+    var np=nextPrayer();if(np){var r=el('button','margin-top:10px;width:100%;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.22);border:0;border-radius:12px;padding:10px 12px;color:#fff;font-size:13.5px;cursor:pointer');r.appendChild(el('span','','🕌 পরের নামাজ: '+np.n+(np.tm?' (আগামীকাল)':'')));r.appendChild(el('b','',hm(np.h)));r.onclick=function(){openCategoryModal('islamic')};card.appendChild(r)}
+    var di=Math.floor((Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())-Date.UTC(now.getFullYear(),0,0))/864e5);
+    card.appendChild(el('div','margin-top:10px;font-size:12.5px;line-height:1.7;opacity:.95','💡 '+TIPS[di%TIPS.length]));
+    host.appendChild(card);
+    weather(function(o){if(!wx.isConnected)return;wx.textContent='';wx.appendChild(el('div','font-size:22px;font-weight:800',wIcon(o.code)+' '+B(o.temp)+'°'));wx.appendChild(el('div','opacity:.9','বৃষ্টির সম্ভাবনা '+B(o.rain||0)+'%'));wx.appendChild(el('div','opacity:.75;font-size:11px',o.d))})}
+  var go=function(){try{build()}catch(e){}};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(go,400)});else setTimeout(go,400);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)go()});
 })();
 </script>
 
