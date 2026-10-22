@@ -1,5 +1,5 @@
 // সার্ভিস ওয়ার্কার: অ্যাপের মূল ফাইল ক্যাশ করে, যাতে ইন্টারনেট ছাড়াও খোলে। Supabase ও অন্য API সবসময় নেটওয়ার্ক থেকে।
-const V = 'amar-bd-v31';
+const V = 'amar-bd-v36';
 const SHELL = ['./MyBangladesh_App.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

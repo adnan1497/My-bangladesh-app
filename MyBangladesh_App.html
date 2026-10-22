@@ -1165,7 +1165,7 @@
       SPECIALTIES.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;sel.appendChild(o)});
       const q=mk('input','width:100%;padding:10px 14px;border-radius:12px;background:#061812;border:1px solid #10b981;color:#fff;font-size:13px;margin-bottom:10px;outline:none');q.placeholder='চিকিৎসকের নাম খুঁজুন…';
       list.appendChild(sel);list.appendChild(q);
-      list.appendChild(mk('p','font-size:10.5px;color:#fcd34d;line-height:1.6;margin:0 0 10px','⚠️ এখানকার তথ্য চিকিৎসকরা নিজে দিয়েছেন, অ্যাপ যাচাই করেনি। চিকিৎসা নেওয়ার আগে বিএমডিসি (bmdc.org.bd) থেকে নিবন্ধন যাচাই করে নিন। জরুরি অবস্থায় ৯৯৯ বা ১৬২৬৩-এ ফোন করুন।'));
+      list.appendChild(mk('p','font-size:10.5px;color:#fcd34d;line-height:1.6;margin:0 0 10px','ℹ️ এখানকার তথ্য চিকিৎসকরা নিজে দিয়েছেন। চাইলে bmdc.org.bd-তে নিবন্ধন মিলিয়ে নিতে পারেন। জরুরি প্রয়োজনে ৯৯৯ বা ১৬২৬৩।'));
       list.appendChild(mk('div','font-size:13px;font-weight:700;color:#7dd3fc;margin:6px 0','📇 স্বাস্থ্য ডিরেক্টরি ও যাচাই (সরকারি সাইটের ঠিকানা বদলাতে পারে)'));
       [['বিএমডিসি','চিকিৎসকের নিবন্ধন যাচাই','https://www.bmdc.org.bd'],['স্বাস্থ্য অধিদপ্তর (ডিজিএইচএস)','হাসপাতাল ও স্বাস্থ্যসেবা তথ্য','https://dghs.gov.bd'],['ঔষধ প্রশাসন অধিদপ্তর','অনুমোদিত ঔষধ ও ফার্মেসি তথ্য','https://dgda.gov.bd']].forEach(x=>list.appendChild(linkCard(x[0],x[1],x[2],'খুলুন')));
       list.appendChild(mk('p','font-size:11px;color:#6ee7b7;margin:4px 0 10px','📞 স্বাস্থ্য বাতায়ন: ১৬২৬৩ (সরকারি স্বাস্থ্য পরামর্শ)'));
@@ -1736,7 +1736,7 @@
       const ac=mk('div','display:flex;gap:6px;margin-bottom:8px;align-items:center');
       const chip=(t,fn)=>{const c=mk('button','',t);c.style.cssText='padding:6px 12px;border-radius:999px;font-size:12px;cursor:pointer;color:#fff;border:1px solid rgba(16,185,129,.5);background:#0a251c';c.onclick=fn;ac.appendChild(c)};
       chip('🔍 খুঁজুন',()=>{CHAT.search=!CHAT.search;if(!CHAT.search)CHAT.q='';buildChat()});chip('ⓘ তথ্য',()=>msgPeer.isGroup?groupInfo():msgInfo());
-      ac.appendChild(mk('span','font-size:10px;color:#fcd34d;line-height:1.4;flex:1;margin-left:4px','⚠️ ওটিপি/পাসওয়ার্ড পাঠাবেন না। জরুরি ৯৯৯।'));b.appendChild(ac);
+      ac.appendChild(mk('span','font-size:10px;color:#fcd34d;line-height:1.4;flex:1;margin-left:4px','🔒 ওটিপি/পাসওয়ার্ড শুধু নিজের কাছে রাখুন। জরুরি ৯৯৯।'));b.appendChild(ac);
       if(CHAT.search){const si=document.createElement('input');si.className='form-field';si.placeholder='🔍 এই চ্যাটে খুঁজুন…';si.value=CHAT.q;si.maxLength=40;si.style.cssText='margin:0 0 8px;padding:9px 12px';si.oninput=()=>{CHAT.q=si.value.trim().toLowerCase();drawChat()};b.appendChild(si);setTimeout(()=>{try{si.focus()}catch(e){}},50)}
       const list=mk('div','height:'+(CHAT.search?'38vh':'46vh')+';overflow-y:auto;background:'+MPF_BG[mpf().bg][1]+';border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px');list.id='chatList';b.appendChild(list);
       const row=mk('div','display:flex;gap:8px;margin-top:8px');row.id='chatRow';
@@ -2308,7 +2308,7 @@
       list.appendChild(mk('p','font-size:11px;color:#6ee7b7;line-height:1.6;margin:0 0 10px','জনপ্রিয় সোশ্যাল মিডিয়া ও মেসেজিং। লিংকে চাপলে সংশ্লিষ্ট অ্যাপ বা ব্রাউজারে খুলবে।'));
       if(sc){list.appendChild(linkCard('👥 '+sc+' — ফেসবুকে খুঁজুন','এলাকার পেজ ও গ্রুপ','https://www.facebook.com/search/top?q='+encodeURIComponent(sc),'খুঁজুন'));list.appendChild(linkCard('▶️ '+sc+' — ইউটিউবে খুঁজুন','এলাকার ভিডিও','https://www.youtube.com/results?search_query='+encodeURIComponent(sc),'খুঁজুন'))}
       [['📘 ফেসবুক','https://www.facebook.com'],['💬 মেসেঞ্জার','https://www.messenger.com'],['▶️ ইউটিউব','https://www.youtube.com'],['🟢 হোয়াটসঅ্যাপ','https://web.whatsapp.com'],['📸 ইনস্টাগ্রাম','https://www.instagram.com'],['🎵 টিকটক','https://www.tiktok.com'],['𝕏 এক্স (টুইটার)','https://x.com'],['💼 লিংকডইন','https://www.linkedin.com'],['✈️ টেলিগ্রাম','https://web.telegram.org'],['📌 পিন্টারেস্ট','https://www.pinterest.com'],['👽 রেডিট','https://www.reddit.com'],['📧 জিমেইল','https://mail.google.com']].forEach(([n,u])=>list.appendChild(linkCard(n,'অফিসিয়াল সাইট',u,'খুলুন')));
-      list.appendChild(mk('p','font-size:10.5px;color:#fcd34d;line-height:1.6;margin-top:6px','⚠️ অচেনা লিংক, ওটিপি বা টাকা চাওয়া মেসেজ থেকে সাবধান। কখনো পাসওয়ার্ড বা ওটিপি কাউকে দেবেন না।'));
+      list.appendChild(mk('p','font-size:10.5px;color:#fcd34d;line-height:1.6;margin-top:6px','🔒 ওটিপি বা পাসওয়ার্ড শুধু নিজের কাছে রাখুন।'));
     }
     function renderTravel(list){
       list.appendChild(mk('p','font-size:11px;color:#6ee7b7;line-height:1.6;margin:0 0 10px','টিকিট, যাতায়াত ও আবহাওয়ার সরকারি/অফিসিয়াল সেবা।'));
@@ -2389,7 +2389,7 @@
     function entryCodeScreen(box,code,then){
       box.innerHTML='';box.appendChild(mk('div','font-size:34px;text-align:center','🔑'));box.appendChild(mk('h3','text-align:center;font-size:18px;margin:4px 0 6px','আপনার রিকভারি কোড'));
       box.appendChild(mk('div','text-align:center;font-size:30px;font-weight:800;letter-spacing:3px;color:#fde68a;background:#0a251c;border:1px dashed #fcd34d;border-radius:14px;padding:14px;margin:8px 0;user-select:all',code));
-      box.appendChild(mk('p','font-size:12.5px;color:#fcd34d;line-height:1.8','⚠️ এই কোডটি কাগজে লিখে বা স্ক্রিনশট নিয়ে রাখুন। পাসওয়ার্ড ভুলে গেলে এই কোড দিয়ে নিজেই নতুন পাসওয়ার্ড বানাতে পারবেন। কোডটি আর দেখানো হবে না এবং কাউকে দেবেন না।'));
+      box.appendChild(mk('p','font-size:12.5px;color:#fcd34d;line-height:1.8','💡 এই কোডটি লিখে বা স্ক্রিনশট নিয়ে রাখুন। পাসওয়ার্ড ভুলে গেলে এটি দিয়ে নিজেই নতুন পাসওয়ার্ড বানাতে পারবেন। কোডটি আর দেখানো হবে না।'));
       const cp=mk('button','','📋 কোড কপি করুন');cp.className='change-btn';cp.style.cssText='width:100%;padding:10px;margin-bottom:8px;cursor:pointer';cp.onclick=()=>{try{navigator.clipboard.writeText(code);cp.textContent='✅ কপি হয়েছে'}catch(e){}};box.appendChild(cp);
       const ok=mk('button','','রেখেছি — চালিয়ে যান');ok.className='primary-btn';ok.onclick=then;box.appendChild(ok);
     }
@@ -2415,7 +2415,7 @@
         fld('আপনার নাম *','eRName',{max:60,ac:'name',val:pre.name||'',ph:'সম্পূর্ণ নাম'});fld('মোবাইল নম্বর * (যেকোনো দেশের)','eRPhone',{mode:'tel',max:20,ac:'tel',val:pre.phone||'',ph:'01XXXXXXXXX / +966XXXXXXXXX'});
         {const d=fld('জন্ম তারিখ * (কমপক্ষে ১৩ বছর বয়স)','eRDob',{type:'date'});const t=new Date();d.max=new Date(t.getFullYear()-13,t.getMonth(),t.getDate()).toISOString().slice(0,10);d.min='1900-01-01'}
         const pw=fld('পাসওয়ার্ড * (যা খুশি, কমপক্ষে ৪ অক্ষর)','eRPw',{type:'password',ac:'new-password'});eye(pw);
-        const lb=document.createElement('label');lb.style.cssText='display:flex;gap:8px;align-items:flex-start;margin-top:6px;font-size:11.5px;line-height:1.6;color:#a7f3d0';const cb=document.createElement('input');cb.type='checkbox';cb.id='eRAgree';lb.appendChild(cb);lb.appendChild(mk('span','','আমি ভদ্র আচরণ করব; অন্যকে হয়রানি, ঘৃণা বা ভুয়া তথ্য ছড়াব না।'));box.appendChild(lb);box.appendChild(er);
+        const lb=document.createElement('label');lb.style.cssText='display:flex;gap:8px;align-items:flex-start;margin-top:6px;font-size:11.5px;line-height:1.6;color:#a7f3d0';const cb=document.createElement('input');cb.type='checkbox';cb.id='eRAgree';lb.appendChild(cb);lb.appendChild(mk('span','','আমি সবার সাথে ভদ্র আচরণ করব।'));box.appendChild(lb);box.appendChild(er);
         const b=mk('button','','অ্যাকাউন্ট খুলুন');b.className='primary-btn';b.onclick=async()=>{
           er.style.display='none';const name=$('eRName').value.trim(),k=phoneKey($('eRPhone').value),p=$('eRPw').value;
           if(name.length<2)return fail('নাম লিখুন।');if(!/^[0-9]{7,15}$/.test(k))return fail('সঠিক মোবাইল নম্বর লিখুন।');const dobS=$('eRDob').value,age=ageFromDob(dobS);if(age===null)return fail('সঠিক জন্ম তারিখ বাছুন।');if(age<13||age>110)return fail('বয়স কমপক্ষে ১৩ বছর হতে হবে।');if(p.length<4)return fail('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের দিন।');if(!$('eRAgree').checked)return fail('শর্তের ঘরে টিক দিন।');
@@ -2793,7 +2793,7 @@
         Object.entries(HADITH_BOOKS).forEach(([k,B])=>{
           const c=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:12px;margin-bottom:10px;cursor:pointer');c.appendChild(mk('b','font-size:15px;display:block','📗 '+B.name));c.appendChild(mk('span','font-size:11px;color:#a7f3d0',fmt(B.n)+'টি অধ্যায় (কিতাব)'));c.onclick=()=>chapters(k);box.appendChild(c);
         });
-        box.appendChild(mk('p','font-size:10.5px;color:#fcd34d;line-height:1.6;margin-top:8px','⚠️ বাংলা অনুবাদ ও গ্রেড ডিজিটাল উৎস থেকে নেওয়া; কোনো বিষয়ে আমল বা ফতোয়ার আগে নির্ভরযোগ্য আলেমের পরামর্শ নিন।'));
+        box.appendChild(mk('p','font-size:10.5px;color:#fcd34d;line-height:1.6;margin-top:8px','ℹ️ বাংলা অনুবাদ ও গ্রেড ডিজিটাল উৎস থেকে নেওয়া। আমলের আগে আলেমের পরামর্শ নিলে ভালো।'));
       };
       const chapters=k=>{
         const B=HADITH_BOOKS[k];box.innerHTML='';islamBack(box,'গ্রন্থের তালিকা',home);box.appendChild(mk('b','font-size:17px;display:block;margin-bottom:6px',B.name));
@@ -2897,7 +2897,7 @@
     }
     function renderIslamic(list,start){
       const root=mk('div','');list.appendChild(root);
-      const TABS=[['🕌','নামাজের সময়','prayer'],['📖','কুরআন','quran'],['📚','হাদিস','hadith'],['🤲','দোয়া','dua'],['📿','তাসবিহ','tasbih'],['🔤','পড়তে শিখুন','learn'],['🔗','ইসলামিক সাইট','links']];
+      const TABS=[['🕌','নামাজের সময়','prayer'],['🔔','আযান','azan'],['📖','কুরআন','quran'],['📚','হাদিস','hadith'],['🤲','দোয়া','dua'],['📿','তাসবিহ','tasbih'],['🔤','পড়তে শিখুন','learn'],['🔗','ইসলামিক সাইট','links']];
       const show=tab=>{
         root.innerHTML='';
         if(tab!=='home'){const b=gBtn('← ইসলামিক হোম',()=>show('home'));b.style.marginBottom='10px';root.appendChild(b)}
@@ -2912,6 +2912,7 @@
         if(tab==='quran')renderQuran(body);
         else if(tab==='hadith')renderHadith(body);
         else if(tab==='prayer')islamPrayer(body);
+        else if(tab==='azan')islamAzan(body);
         else if(tab==='dua'){body.appendChild(mk('p','font-size:11.5px;color:#6ee7b7;line-height:1.7;margin:0 0 10px','🤲 দৈনন্দিন জীবনের দোয়া — আরবি ও বাংলা অর্থসহ। শুদ্ধ উচ্চারণ কোনো আলেম বা শিক্ষকের কাছে শুনে শিখুন।'));
           DUAS.forEach(([t,a,m])=>{const c=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.25);border-radius:14px;padding:12px;margin-bottom:10px');c.appendChild(mk('b','font-size:14px;display:block',t));c.appendChild(mk('div',arStyle+'font-size:23px;color:#fff;margin-top:6px',a));c.appendChild(mk('p','font-size:13px;line-height:1.7;color:#d1fae5;margin-top:4px',m));body.appendChild(c)})}
         else if(tab==='tasbih')islamTasbih(body);
@@ -3010,7 +3011,7 @@
       try{let p=await LN.checkPermissions();if(p.display!=='granted')p=await LN.requestPermissions();
         try{if(LN.checkExactNotificationSetting){const e=await LN.checkExactNotificationSetting();if(e&&e.exact_alarm&&e.exact_alarm!=='granted'&&LN.requestExactNotificationSetting)await LN.requestExactNotificationSetting()}}catch(_){}
         await LN.createChannel({id:'alarm2',name:'অ্যালার্ম',description:'জোরে বাজে',importance:5,visibility:1,sound:'alarm.wav',vibration:true,lights:true});
-        const pend=await LN.getPending();if(pend&&pend.notifications&&pend.notifications.length)await LN.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
+        const pend=await LN.getPending();if(pend&&pend.notifications&&pend.notifications.length)await LN.cancel({notifications:pend.notifications.filter(n=>n.id!==7001&&!(n.id>=7100&&n.id<7200)).map(n=>({id:n.id}))});
         const list=[],now=new Date();
         getAlarms().filter(a=>a.on).forEach(a=>{const [h,m]=a.time.split(':').map(Number);const base={title:'⏰ '+(a.label||'অ্যালার্ম'),body:a.time+' — বন্ধ করতে চাপুন',channelId:'alarm2',extra:{alarmId:a.id,label:a.label||'',time:a.time},ongoing:false,autoCancel:true};
           if(a.days&&a.days.length){a.days.forEach(d=>list.push(Object.assign({id:natId(a.id+'d'+d)},base,{schedule:{on:{weekday:d+1,hour:h,minute:m},allowWhileIdle:true}})))}
@@ -3046,7 +3047,7 @@
       });
     }
     function renderAlarm(list){
-      list.appendChild(mk('div','font-size:11px;color:#fcd34d;line-height:1.7;background:#2b2410;border:1px solid rgba(251,191,36,.4);border-radius:12px;padding:9px 11px;margin-bottom:12px','⚠️ অ্যালার্ম শুধু তখনই বাজবে যখন অ্যাপটি ব্রাউজারে খোলা থাকবে (ব্যাকগ্রাউন্ডে থাকলেও চলে, কিন্তু ব্রাউজার বন্ধ করলে বাজবে না)। ঘুম থেকে ওঠার মতো জরুরি অ্যালার্মের জন্য ফোনের ক্লক অ্যাপ ব্যবহার করুন।'));
+      list.appendChild(mk('div','font-size:11px;color:#fcd34d;line-height:1.7;background:#2b2410;border:1px solid rgba(251,191,36,.4);border-radius:12px;padding:9px 11px;margin-bottom:12px','⏰ অ্যালার্ম অ্যাপ খোলা থাকলে বাজে। APK অ্যাপে অ্যাপ বন্ধ থাকলেও বাজে।'));
       const f=mk('div','background:#0a251c;border:1px solid rgba(16,185,129,.35);border-radius:14px;padding:12px;margin-bottom:12px');
       f.appendChild(mk('b','font-size:14px;display:block;margin-bottom:6px','➕ নতুন অ্যালার্ম'));
       const tm=document.createElement('input');tm.type='time';tm.className='form-field';tm.id='alTime';tm.value='05:00';f.appendChild(tm);
@@ -3068,7 +3069,7 @@
         const row=mk('label','display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.6;cursor:pointer');const cb=document.createElement('input');cb.type='checkbox';cb.checked=bgWanted();cb.style.marginTop='4px';
         cb.onchange=async()=>{try{localStorage.setItem('amarBgKeep_v1',cb.checked?'1':'0')}catch(e){}if(cb.checked){bgKeepOn();try{if('Notification' in window&&Notification.permission==='default')await Notification.requestPermission()}catch(e){}}else bgKeepOff()};
         row.appendChild(cb);row.appendChild(mk('span','','📢 অ্যাপের বাইরে (হোম স্ক্রিনে/অন্য অ্যাপে) থাকলেও অ্যালার্ম ও বার্তার শব্দ চালু রাখুন'));nb.appendChild(row);
-        nb.appendChild(mk('p','font-size:11px;color:#fde68a;line-height:1.7;margin-top:6px','⚠️ সীমাবদ্ধতা: এটি ব্রাউজার-অ্যাপ। অ্যাপটি ব্যাকগ্রাউন্ডে খোলা রাখুন (রিসেন্ট অ্যাপ থেকে ঝেড়ে ফেলবেন না) এবং ব্যাটারি-সেভার/ব্যাটারি অপটিমাইজেশন থেকে এই অ্যাপ বাদ দিন। ফোন একেবারে বন্ধ হলে বা অ্যাপ জোর করে বন্ধ করলে বাজবে না। নিশ্চিন্ত থাকতে ফোনের নিজস্ব অ্যালার্মও সেট করুন।'));list.appendChild(nb)}
+        nb.appendChild(mk('p','font-size:11px;color:#fde68a;line-height:1.7;margin-top:6px','ℹ️ সবচেয়ে ভালো ফলের জন্য APK অ্যাপ ব্যবহার করুন এবং ফোনের ব্যাটারি-সেভার থেকে এই অ্যাপ বাদ রাখুন।'));list.appendChild(nb)}
       const box=mk('div','');box.id='alarmListBox';list.appendChild(box);drawAlarms();
     }
     // ===== ব্যবসা হিসাব: বাকি খাতা · ক্যাশবুক · স্টক · মেমো · কর্মী · রিপোর্ট · ক্যালকুলেটর =====
@@ -3482,7 +3483,7 @@
       row('📤 বন্ধুকে অ্যাপ শেয়ার করুন',()=>{const u='https://adnan1497.github.io/My-bangladesh-app/MyBangladesh_App.html';const t='আমার বাংলাদেশ — জরুরি সেবা, হাসপাতাল, রক্ত, ব্যবসা হিসাব, সরকারি সেবা সব এক অ্যাপে।';if(navigator.share)navigator.share({title:'আমার বাংলাদেশ',text:t,url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(t+' '+u);alert('লিংক কপি হয়েছে')}catch(e){prompt('কপি করুন:',t+' '+u)}}try{amTrack('share')}catch(e){}});
       row('📝 কাস্টমার কেয়ারকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৩১'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৩৬'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -4159,7 +4160,7 @@
       });
     }
     function updRegTab(){const b=$('tab_reg');if(!b)return;const n=bizPending()+(window.__admPendSrv||0);b.textContent='📝 নিবন্ধন'+(n?' ('+fmt(n)+')':'')}
-    GUIDES.privacy={intro:'🔒 আপনার তথ্য কীভাবে ব্যবহার ও সুরক্ষিত হয় — সংক্ষেপে ও সহজ ভাষায়।',calls:[],links:[],sections:[["১. এই নীতি কীসের জন্য", ["\"আমার বাংলাদেশ\" অ্যাপ সেবা-তথ্য, স্থানীয় তালিকা, নোটিশ, সমাজ, কথা ও শপের সুবিধা দেয়। এই পাতায় সহজ ভাষায় লেখা আছে আমরা কোন তথ্য নিই, কেন নিই এবং আপনি কী করতে পারেন।"]], ["২. কী কী তথ্য নেওয়া হয়", ["আপনি নিজে যা দেন: নাম, মোবাইল নম্বর, এলাকা, প্রোফাইল ছবি, পোস্ট, মন্তব্য ও বার্তা। সমাজ প্রোফাইলে জন্ম তারিখ শুধু বয়সের জন্য নেওয়া হয়।", "রক্তদাতা, চিকিৎসক, আইনজীবী, রিসোর্ট বা দোকান হিসেবে নিবন্ধন করলে আপনার দেওয়া নাম, ফোন, ঠিকানা ও পেশাগত তথ্য।", "ভ্রমণ পাসপোর্ট, মেডিকেল কার্ড, অ্যালার্ম, নোট ও পছন্দ শুধু আপনার ফোনেই থাকে।", "অবস্থান: জরুরি পাতায় \"আমার অবস্থানসহ বার্তা পাঠান\" চাপলেই নেওয়া হয় এবং আপনার SMS-এ বসে; আমরা সংরক্ষণ করি না। অ্যাপ কন্ট্যাক্ট লিস্ট, ক্যামেরা বা মাইক্রোফোন ব্যবহার করে না।"]], ["৩. কেন ব্যবহার করা হয়", ["অ্যাপের সুবিধা চালাতে: তালিকা দেখানো, বার্তা পৌঁছানো, ফিড সাজানো, শপের অর্ডার সামলানো।", "তথ্য যাতে নির্ভুল থাকে সেজন্য কাস্টমার কেয়ার জমা-দেওয়া তথ্য দেখে অনুমোদন দেয়।", "আমরা আপনার তথ্য বিক্রি করি না, বিজ্ঞাপনদাতাকেও দিই না।"]], ["৪. কোন তথ্য অন্যরা দেখতে পায়", ["অনুমোদনের পর নিবন্ধিত তথ্য (যেমন রক্তদাতার নাম, গ্রুপ, এলাকা, ফোন) অ্যাপে সবাই দেখতে পায়। নিবন্ধনের সময় সম্মতির ঘরে টিক দিয়ে এটি আপনি ঠিক করেন।", "সমাজে আপনার নাম, ছবি, এলাকা ও পোস্ট অন্যরা দেখে। মোবাইল নম্বর ও জন্ম তারিখ দেখানো হয় না।", "বার্তা শুধু প্রেরক ও প্রাপক (গ্রুপে সদস্যরা) দেখেন।"]], ["৫. তথ্য কোথায় থাকে", ["আপনার ফোনে এবং অনলাইন ডাটাবেসে (Supabase)। যোগাযোগ HTTPS-এ সুরক্ষিত, ডাটাবেসে প্রবেশের কড়া নিয়ম চালু আছে, আর পাসওয়ার্ড সরাসরি রাখা হয় না — শুধু একমুখী হ্যাশ থাকে।", "কোরআন, আবহাওয়া (open-meteo.com), মুদ্রা ও স্বর্ণের দামের মতো তথ্য পাবলিক সেবা থেকে আনা হয়; এতে আপনার ব্যক্তিগত তথ্য যায় না।"]], ["৬. কতদিন থাকে", ["আপনি মুছে না ফেলা পর্যন্ত। দীর্ঘদিন ব্যবহার না হলে বা নিয়মের বাইরের তথ্য কাস্টমার কেয়ার সরিয়ে দিতে পারে।"]], ["৭. আপনার অধিকার", ["নিজের নিবন্ধন, নোটিশ ও পোস্ট যেকোনো সময় \"মুছুন\" চেপে মুছতে পারেন — অনলাইন থেকেও মুছে যায়।", "সমাজ প্রোফাইল ও সব পোস্ট একসাথে মুছতে: সমাজ → প্রোফাইল → \"আমার প্রোফাইল ও সব পোস্ট মুছুন\"।", "ভুল সংশোধন বা অন্য কিছু মোছাতে অ্যাপের \"কাস্টমার কেয়ারকে বার্তা\" ব্যবহার করুন; আমরা দ্রুত সাহায্য করব।"]], ["৮. বয়স", ["সমাজ প্রোফাইলের জন্য কমপক্ষে ১৩ বছর লাগে। অল্প বয়সীরা অভিভাবকের সাথে ব্যবহার করলে ভালো। রক্তদান ও চিকিৎসা নিবন্ধন প্রাপ্তবয়স্কদের জন্য।"]], ["৯. জেনে রাখুন", ["নিবন্ধিত তথ্য ব্যবহারকারীরা নিজে দেন; জরুরি প্রয়োজনে নিজে একবার যাচাই করে নিন এবং দরকারে ৯৯৯ নম্বরে ফোন করুন।", "অ্যাপে জুয়া বা বাজির কোনো খেলা নেই।"]], ["১০. নীতি হালনাগাদ", ["নীতি বদলালে এই পাতায় নতুন তারিখসহ জানানো হবে। শেষ হালনাগাদ: অক্টোবর ২০২৬।"]], ["১১. যোগাযোগ", ["অ্যাপের ভেতরে \"কাস্টমার কেয়ারকে বার্তা\" দিন — আমরা পাশে আছি।"]]]};
+    GUIDES.privacy={intro:'🔒 আপনার তথ্য কীভাবে ব্যবহার ও সুরক্ষিত হয় — সংক্ষেপে ও সহজ ভাষায়।',calls:[],links:[],sections:[["১. এই নীতি কীসের জন্য", ["\"আমার বাংলাদেশ\" অ্যাপ সেবা-তথ্য, স্থানীয় তালিকা, নোটিশ, সমাজ, কথা ও শপের সুবিধা দেয়। এই পাতায় সহজ ভাষায় লেখা আছে আমরা কোন তথ্য নিই, কেন নিই এবং আপনি কী করতে পারেন।"]], ["২. কী কী তথ্য নেওয়া হয়", ["আপনি নিজে যা দেন: নাম, মোবাইল নম্বর, এলাকা, প্রোফাইল ছবি, পোস্ট, মন্তব্য ও বার্তা। সমাজ প্রোফাইলে জন্ম তারিখ শুধু বয়সের জন্য নেওয়া হয়।", "রক্তদাতা, চিকিৎসক, আইনজীবী, রিসোর্ট বা দোকান হিসেবে নিবন্ধন করলে আপনার দেওয়া নাম, ফোন, ঠিকানা ও পেশাগত তথ্য।", "ভ্রমণ পাসপোর্ট, মেডিকেল কার্ড, অ্যালার্ম, নোট ও পছন্দ শুধু আপনার ফোনেই থাকে।", "অবস্থান: জরুরি পাতায় \"আমার অবস্থানসহ বার্তা পাঠান\" চাপলেই নেওয়া হয় এবং আপনার SMS-এ বসে; আমরা সংরক্ষণ করি না। অ্যাপ কন্ট্যাক্ট লিস্ট, ক্যামেরা বা মাইক্রোফোন ব্যবহার করে না।"]], ["৩. কেন ব্যবহার করা হয়", ["অ্যাপের সুবিধা চালাতে: তালিকা দেখানো, বার্তা পৌঁছানো, ফিড সাজানো, শপের অর্ডার সামলানো।", "তথ্য যাতে নির্ভুল থাকে সেজন্য কাস্টমার কেয়ার জমা-দেওয়া তথ্য দেখে অনুমোদন দেয়।", "আমরা আপনার তথ্য বিক্রি করি না, বিজ্ঞাপনদাতাকেও দিই না।"]], ["৪. কোন তথ্য অন্যরা দেখতে পায়", ["অনুমোদনের পর নিবন্ধিত তথ্য (যেমন রক্তদাতার নাম, গ্রুপ, এলাকা, ফোন) অ্যাপে সবাই দেখতে পায়। নিবন্ধনের সময় সম্মতির ঘরে টিক দিয়ে এটি আপনি ঠিক করেন।", "সমাজে আপনার নাম, ছবি, এলাকা ও পোস্ট অন্যরা দেখে। মোবাইল নম্বর ও জন্ম তারিখ দেখানো হয় না।", "বার্তা শুধু প্রেরক ও প্রাপক (গ্রুপে সদস্যরা) দেখেন।"]], ["৫. তথ্য কোথায় থাকে", ["আপনার ফোনে এবং অনলাইন ডাটাবেসে (Supabase)। যোগাযোগ HTTPS-এ সুরক্ষিত, ডাটাবেসে প্রবেশের কড়া নিয়ম চালু আছে, আর পাসওয়ার্ড সরাসরি রাখা হয় না — শুধু একমুখী হ্যাশ থাকে।", "কোরআন, আবহাওয়া (open-meteo.com), মুদ্রা ও স্বর্ণের দামের মতো তথ্য পাবলিক সেবা থেকে আনা হয়; এতে আপনার ব্যক্তিগত তথ্য যায় না।"]], ["৬. কতদিন থাকে", ["আপনি মুছে না ফেলা পর্যন্ত। দীর্ঘদিন ব্যবহার না হলে বা নিয়মের বাইরের তথ্য কাস্টমার কেয়ার সরিয়ে দিতে পারে।"]], ["৭. আপনার অধিকার", ["নিজের নিবন্ধন, নোটিশ ও পোস্ট যেকোনো সময় \"মুছুন\" চেপে মুছতে পারেন — অনলাইন থেকেও মুছে যায়।", "সমাজ প্রোফাইল ও সব পোস্ট একসাথে মুছতে: সমাজ → প্রোফাইল → \"আমার প্রোফাইল ও সব পোস্ট মুছুন\"।", "ভুল সংশোধন বা অন্য কিছু মোছাতে অ্যাপের \"কাস্টমার কেয়ারকে বার্তা\" ব্যবহার করুন; আমরা দ্রুত সাহায্য করব।"]], ["৮. বয়স", ["সমাজ প্রোফাইলের জন্য কমপক্ষে ১৩ বছর লাগে। অল্প বয়সীরা অভিভাবকের সাথে ব্যবহার করলে ভালো। রক্তদান ও চিকিৎসা নিবন্ধন প্রাপ্তবয়স্কদের জন্য।"]], ["৯. আরও কিছু কথা", ["নিবন্ধিত তথ্য ব্যবহারকারীরা নিজে দেন। জরুরি প্রয়োজনে ৯৯৯ নম্বরে ফোন করুন।", "অ্যাপে জুয়া বা বাজির কোনো খেলা নেই।"]], ["১০. নীতি হালনাগাদ", ["নীতি বদলালে এই পাতায় নতুন তারিখসহ জানানো হবে। শেষ হালনাগাদ: অক্টোবর ২০২৬।"]], ["১১. যোগাযোগ", ["অ্যাপের ভেতরে \"কাস্টমার কেয়ারকে বার্তা\" দিন — আমরা পাশে আছি।"]]]};
     GUIDES.mall={intro:'🏬 শপিং মল, বিপণিবিতান ও সুপারশপ খুঁজুন এবং আপনার নিজের মল/দোকান নিবন্ধন করুন।',calls:[],links:[['কাছাকাছি শপিং মল (গুগল ম্যাপ)','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('shopping mall near me')],['সুপারশপ (গুগল ম্যাপ)','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('super shop near me')],['ফুড কোর্ট ও রেস্টুরেন্ট (গুগল ম্যাপ)','https://www.google.com/maps/search/?api=1&query='+encodeURIComponent('food court near me')]]};
     function renderGuide(list,id){
       const G=GUIDES[id];if(!G)return;
@@ -4645,7 +4646,7 @@
     }
     function renderCurrency(list){
       const tf=(n,d)=>Number(n).toLocaleString('bn-BD',{maximumFractionDigits:d===undefined?2:d});
-      list.appendChild(mk('p','font-size:11.5px;color:#fcd34d;line-height:1.7;margin:0 0 10px','⚠️ এখানকার দাম ইন্টারনেট থেকে আসা আন্তর্জাতিক বাজারদর (আনুমানিক)। ব্যাংক/মানি এক্সচেঞ্জের কেনা-বেচার রেট ও গয়নার দোকানের দাম ভিন্ন হয়। লেনদেনের আগে নিজে যাচাই করুন।'));
+      list.appendChild(mk('p','font-size:11.5px;color:#fcd34d;line-height:1.7;margin:0 0 10px','ℹ️ এখানকার দাম আন্তর্জাতিক বাজারদরের আনুমানিক হিসাব। ব্যাংক বা দোকানের দর কিছুটা আলাদা হতে পারে।'));
       const status=mk('p','font-size:11px;color:#6ee7b7;margin:0 0 8px','⏳ দাম আনা হচ্ছে…');list.appendChild(status);
       const body=mk('div','');list.appendChild(body);
       const rb=mk('button','','🔄 নতুন করে আনুন');rb.className='change-btn';rb.style.cssText='margin-bottom:10px';list.insertBefore(rb,body);
@@ -5113,7 +5114,7 @@
     function renderNotices(list,opt){
       opt=opt||{};const TYPES=opt.types||NOTICE_TYPES;
       const area=[state.union,state.upazila,state.district,state.division].filter(Boolean)[0]||'বাংলাদেশ';
-      list.appendChild(mk('p','font-size:11.5px;color:#fcd34d;line-height:1.7;margin:0 0 10px',opt.intro||'📌 এলাকার সবার জন্য ঘোষণা ও খবর। জমা দেওয়া নোটিশ কাস্টমার কেয়ারের অনুমোদনের পর অনলাইনে সব ফোনে দেখা যায়; ভুয়া বা ক্ষতিকর মনে হলে 🚩 রিপোর্ট করুন।'));
+      list.appendChild(mk('p','font-size:11.5px;color:#fcd34d;line-height:1.7;margin:0 0 10px',opt.intro||'📌 এলাকার সবার জন্য ঘোষণা ও খবর। জমা দেওয়া নোটিশ কাস্টমার কেয়ারের অনুমোদনের পর সবাই দেখতে পায়।'));
       const formBox=mk('div','');const feed=mk('div','');
       const addBtn=mk('button','',opt.addLabel||('➕ '+area+' এলাকায় নোটিশ দিন'));addBtn.className='primary-btn';addBtn.style.marginTop='0';list.appendChild(addBtn);list.appendChild(formBox);
       const chipRow=mk('div','display:flex;gap:6px;flex-wrap:wrap;margin:10px 0');let filt='';
@@ -7923,11 +7924,16 @@
       var sv=0;try{sv=u?socSaved(u).length:0}catch(e){}
       var items=[['🛍️','#f59e0b','শপ','কেনাকাটা ও অর্ডার',function(){openCategoryModal('shop')}],
         ['💬','#10b981','কথা','মেসেজ ও গ্রুপ',function(){openInbox()}],
-        ['✨','#a78bfa','এআই সহায়ক','যেকোনো প্রশ্ন করুন',function(){openAI()}],
         ['📱','#38bdf8','সমাজ','ফিড, বন্ধু, পোস্ট',function(){openCategoryModal('social')}],
         ['🔖','#c084fc','সংরক্ষিত','পরে পড়ার পোস্ট',function(){try{soc.tab='settings';soc.view=null}catch(e){}openCategoryModal('social')},sv?fmt(sv):''],
         ['🩸','#f43f5e','রক্তদান','দাতা খুঁজুন',function(){openCategoryModal('blood')}],
         ['💼','#fbbf24','চাকরি','নতুন বিজ্ঞপ্তি',function(){openCategoryModal('jobs')}],
+        ['🪪','#0ea5e9','পরিচয় কার্ড','QR সহ জরুরি কার্ড',function(){openIdCard()}],
+        ['🖼️','#ec4899','শেয়ার কার্ড','শুভেচ্ছা ও আজকের কার্ড',function(){openShareCard()}],
+        ['🌅','#f59e0b','সকালের সারাংশ','রোজ ৭টায় নোটিফিকেশন',function(){amarMorningToggle()}],
+        ['🧠','#f59e0b','দৈনিক কুইজ','রোজ ৫টি প্রশ্ন',function(){openQuiz()}],
+        ['✅','#10b981','আমার অভ্যাস','নামাজ, পানি, ধারা',function(){openHabits()}],
+        ['🔄','#38bdf8','রূপান্তর','জমি, টাকা-কথায়, দিন',function(){openConverter()}],
         ['📊','#34d399','আমার ব্যবহার','কোন সেবা বেশি খুলেছেন',function(){openUsage()}],
         ['🎧','#0ea5e9','কাস্টমার কেয়ার','সমস্যা বা পরামর্শ জানান',function(){openAdminChat()}],
         ['🔒','#94a3b8','গোপনীয়তা','নীতি ও অধিকার',function(){openCategoryModal('privacy')}],
@@ -7955,45 +7961,15 @@
 </script>
 
 <script>
-/* ===== পূর্ণ পাতা + আমার বাংলাদেশ এআই সহায়ক (v28) ===== */
+/* ===== পূর্ণ পাতা (সমাজ) ===== */
 (function(){
   var st=document.createElement('style');
-  st.textContent='.amar-full{background:#09221a!important;backdrop-filter:none!important;align-items:stretch!important}.amar-full .modal-content{max-width:none!important;width:100%!important;height:100%!important;max-height:100%!important;border-radius:0!important;border:0!important;animation:none!important}.ai-wrap{display:flex;flex-direction:column;height:100%}.ai-log{flex:1;overflow-y:auto;padding:6px 2px 10px}.ai-b{max-width:86%;padding:10px 13px;border-radius:18px;margin:6px 0;font-size:14px;line-height:1.7;white-space:pre-wrap;word-break:break-word}.ai-b.bot{background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-bottom-left-radius:6px}.ai-b.me{background:#059669;margin-left:auto;border-bottom-right-radius:6px}.ai-ch{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}.ai-ch button{border:1px solid rgba(16,185,129,.5);background:#061812;color:#fff;border-radius:99px;padding:7px 12px;font-size:12.5px;cursor:pointer}.ai-in{display:flex;gap:8px;padding:8px 0 4px;position:sticky;bottom:0;background:#09221a}.ai-in input{flex:1;border-radius:99px;padding:12px 16px;font-size:16px}.ai-in button{width:46px;height:46px;border-radius:50%;border:0;background:#10b981;color:#fff;font-size:18px;cursor:pointer}';
+  st.textContent='.amar-full{background:#09221a!important;backdrop-filter:none!important;align-items:stretch!important}.amar-full .modal-content{max-width:none!important;width:100%!important;height:100%!important;max-height:100%!important;border-radius:0!important;border:0!important;animation:none!important}';
   document.head.appendChild(st);
   var _oc=window.openCategoryModal;
   window.openCategoryModal=function(id){var r=_oc.apply(this,arguments);try{var d=document.getElementById('detailModal');if(d)d.classList.toggle('amar-full',id==='social')}catch(e){}return r};
   var _cm=window.closeModal;
   window.closeModal=function(id){var r=_cm.apply(this,arguments);try{if(id==='detailModal')document.getElementById('detailModal').classList.remove('amar-full')}catch(e){}return r};
-  function el(t,c,x){var e=document.createElement(t);if(c)e.style.cssText=c;if(x!=null)e.textContent=x;return e}
-  var B=function(n){return String(n).replace(/[0-9]/g,function(d){return '০১২৩৪৫৬৭৮৯'[d]})};
-  var HOT={'৯৯৯':'জাতীয় জরুরি সেবা — পুলিশ, ফায়ার সার্ভিস ও অ্যাম্বুলেন্সের জন্য।','৩৩৩':'জাতীয় তথ্য সেবা — সরকারি সেবা ও তথ্যের জন্য।','১০৯':'নারী ও শিশু নির্যাতন প্রতিরোধে জাতীয় হেল্পলাইন।','১০৯৮':'শিশু হেল্পলাইন।','১৬২৬৩':'স্বাস্থ্য বাতায়ন — স্বাস্থ্য পরামর্শ।','১০৬':'দুর্নীতি দমন কমিশন (দুদক) হটলাইন।','১৬৪৩০':'জাতীয় আইনগত সহায়তা হেল্পলাইন।'};
-  var FACT=[[/রাজধানী/,'বাংলাদেশের রাজধানী ঢাকা।'],[/স্বাধীনতা দিবস/,'স্বাধীনতা দিবস ২৬ মার্চ।'],[/বিজয় দিবস/,'বিজয় দিবস ১৬ ডিসেম্বর।'],[/ভাষা দিবস|শহীদ দিবস/,'আন্তর্জাতিক মাতৃভাষা দিবস ২১ ফেব্রুয়ারি।'],[/জাতীয় ফল/,'জাতীয় ফল কাঁঠাল।'],[/জাতীয় ফুল/,'জাতীয় ফুল শাপলা।'],[/জাতীয় পাখি/,'জাতীয় পাখি দোয়েল।'],[/জাতীয় মাছ/,'জাতীয় মাছ ইলিশ।'],[/জাতীয় পশু/,'জাতীয় পশু রয়েল বেঙ্গল টাইগার।'],[/জাতীয় সংগীত/,'জাতীয় সংগীত "আমার সোনার বাংলা" — রচনা রবীন্দ্রনাথ ঠাকুর।'],[/কয়টি জেলা|কত জেলা|জেলা কয়/,'বাংলাদেশে ৬৪টি জেলা।'],[/কয়টি বিভাগ|কত বিভাগ|বিভাগ কয়/,'বাংলাদেশে ৮টি প্রশাসনিক বিভাগ: ঢাকা, চট্টগ্রাম, রাজশাহী, খুলনা, বরিশাল, সিলেট, রংপুর ও ময়মনসিংহ।'],[/মুদ্রা/,'বাংলাদেশের মুদ্রা টাকা (৳)।']];
-  var GO=[[/রক্ত|ব্লাড/,'blood','রক্তদাতা'],[/চাকরি|জব/,'jobs','চাকরি'],[/ডাক্তার|চিকিৎসক|হাসপাতাল/,'doctor','ডাক্তার'],[/উকিল|আইনজীবী|মামলা/,'lawyer','আইনজীবী'],[/শপ|কেনা|অর্ডার|পণ্য/,'shop','শপ'],[/নামাজ|কোরআন|কুরআন|হাদিস|দোয়া|ইসলাম/,'islamic','ইসলামিক'],[/পত্রিকা|সংবাদ|খবর/,'news','পত্রিকা'],[/ম্যাপ|মানচিত্র/,'maps','ম্যাপ'],[/হারানো|হারিয়ে/,'lost','হারানো-প্রাপ্তি'],[/পুলিশ|ফায়ার|অ্যাম্বুলেন্স|জরুরি/,'emergency','জরুরি সেবা'],[/ভ্রমণ|ঘুরতে|পাসপোর্ট/,'travel','ভ্রমণ'],[/সমাজ|পোস্ট|বন্ধু/,'social','সমাজ'],[/ইভেন্ট|অনুষ্ঠান/,'events','ইভেন্ট'],[/নোট/,'notes','নোট'],[/ক্যালকুলেটর|টুল/,'tools','টুলস']];
-  function calc(q){var t=q.replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)}).replace(/[×x]/g,'*').replace(/÷/g,'/').replace(/[^0-9+\-*/().% ]/g,'').trim();if(!/\d/.test(t)||!/[+\-*/%]/.test(t)||t.length>40)return null;try{var v=Function('"use strict";return ('+t.replace(/(\d+(?:\.\d+)?)%/g,'($1/100)')+')')();if(typeof v==='number'&&isFinite(v))return B(Math.round(v*1e6)/1e6)}catch(e){}return null}
-  function answer(q){var s=q.trim(),acts=[];
-    var h=s.replace(/[০-৯]/g,function(d){return String('০১২৩৪৫৬৭৮৯'.indexOf(d))});
-    for(var k in HOT){var kk=k.replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)});if(h.indexOf(kk)>=0)return{t:k+' — '+HOT[k],a:[['📞 ডায়াল করুন',function(){location.href='tel:'+kk}]]}}
-    if(/সময়|কয়টা বাজে|কটা বাজে/.test(s)){var n=new Date();return{t:'এখন সময় '+B(n.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}))+'।'}}
-    if(/আজ.*(তারিখ|দিন|বার)|তারিখ কত|আজকের/.test(s)){return{t:'আজ '+new Date().toLocaleDateString('bn-BD',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'।'}}
-    for(var i=0;i<FACT.length;i++)if(FACT[i][0].test(s))return{t:FACT[i][1]};
-    var c=calc(s);if(c!==null)return{t:'উত্তর: '+c};
-    for(var j=0;j<GO.length;j++)if(GO[j][0].test(s))acts.push(['➡️ '+GO[j][2]+' খুলুন',(function(id){return function(){closeModal('aiModal');setTimeout(function(){openCategoryModal(id)},30)}})(GO[j][1])]);
-    if(acts.length)return{t:'এ বিষয়ে অ্যাপে সরাসরি সেবা আছে — নিচের বোতামে চাপুন।',a:acts.slice(0,3)};
-    if(/^(হাই|হ্যালো|সালাম|আসসালামু|হ্যালো)/.test(s))return{t:'ওয়ালাইকুম আসসালাম! আমি আমার বাংলাদেশ এআই। জরুরি নম্বর, দেশের তথ্য, তারিখ-সময়, হিসাব বা অ্যাপের সেবা — যা জানতে চান জিজ্ঞাসা করুন।'};
-    if(/ধন্যবাদ|থ্যাংক/.test(s))return{t:'আপনাকেও ধন্যবাদ! আর কিছু জানতে চাইলে বলুন।'};
-    return{t:'দুঃখিত, এই প্রশ্নের উত্তর আমার জানা নেই। অন্যভাবে লিখে দেখুন, অথবা কাস্টমার কেয়ারকে জিজ্ঞাসা করুন।',a:[['🎧 কাস্টমার কেয়ার',function(){closeModal('aiModal');setTimeout(openAdminChat,30)}]]}}
-  window.openAI=function(){var m=document.getElementById('aiModal');
-    if(!m){m=document.createElement('div');m.className='modal-overlay amar-full';m.id='aiModal';m.innerHTML='<div class="modal-content"><div class="ai-wrap"></div></div>';document.body.appendChild(m)}
-    var w=m.querySelector('.ai-wrap');w.textContent='';
-    var h=el('div');h.className='modal-header';h.appendChild(el('h3','font-size:18px','✨ আমার বাংলাদেশ এআই'));var x=el('button','','✕');x.className='close-btn';x.onclick=function(){closeModal('aiModal')};h.appendChild(x);w.appendChild(h);
-    var log=el('div');log.className='ai-log';w.appendChild(log);
-    function bub(t,k){var b=el('div','',t);b.className='ai-b '+k;log.appendChild(b);log.scrollTop=log.scrollHeight}
-    function chips(a){var c=el('div');c.className='ai-ch';a.forEach(function(x){var b=el('button','',x[0]);b.onclick=x[1];c.appendChild(b)});log.appendChild(c);log.scrollTop=log.scrollHeight}
-    function ask(q){if(!q.trim())return;bub(q,'me');var r=answer(q);setTimeout(function(){bub(r.t,'bot');if(r.a)chips(r.a)},250)}
-    bub('আসসালামু আলাইকুম! আমি আমার বাংলাদেশ এআই 👋\nজরুরি নম্বর, দেশের তথ্য, তারিখ-সময়, হিসাব বা অ্যাপের যেকোনো সেবা — জিজ্ঞাসা করুন।','bot');
-    chips([['🚨 জরুরি নম্বর কী?',function(){ask('৯৯৯')}],['🏙️ রাজধানী কোথায়?',function(){ask('রাজধানী')}],['🩸 রক্ত লাগবে',function(){ask('রক্ত লাগবে')}],['🧮 ১২৫ × ৪',function(){ask('১২৫ × ৪')}],['📅 আজ কত তারিখ?',function(){ask('আজ কত তারিখ')}]]);
-    var f=el('div');f.className='ai-in';var i=document.createElement('input');i.className='form-field';i.placeholder='প্রশ্ন লিখুন…';i.autocomplete='off';var sb=el('button','','➤');sb.setAttribute('aria-label','পাঠান');
-    var go=function(){var v=i.value;i.value='';ask(v)};sb.onclick=go;i.onkeydown=function(e){if(e.key==='Enter')go()};f.appendChild(i);f.appendChild(sb);w.appendChild(f);m.classList.add('active')};
 })();
 </script>
 
@@ -8069,13 +8045,252 @@
     var wx=el('div','text-align:right;font-size:12px;min-width:70px');top.appendChild(wx);card.appendChild(top);
     var sp=DAYS[now.getDate()+'-'+(now.getMonth()+1)];if(sp)card.appendChild(el('div','margin-top:10px;background:rgba(255,255,255,.16);border-radius:12px;padding:8px 12px;font-size:13px;font-weight:700','🎉 আজ '+sp));
     var np=nextPrayer();if(np){var r=el('button','margin-top:10px;width:100%;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.22);border:0;border-radius:12px;padding:10px 12px;color:#fff;font-size:13.5px;cursor:pointer');r.appendChild(el('span','','🕌 পরের নামাজ: '+np.n+(np.tm?' (আগামীকাল)':'')));r.appendChild(el('b','',hm(np.h)));r.onclick=function(){openCategoryModal('islamic')};card.appendChild(r)}
-    var di=Math.floor((Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())-Date.UTC(now.getFullYear(),0,0))/864e5);
+    var di=Math.floor((Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())-Date.UTC(now.getFullYear(),0,0))/864e5);window.__todayTip=function(i){return TIPS[i%TIPS.length]};
     card.appendChild(el('div','margin-top:10px;font-size:12.5px;line-height:1.7;opacity:.95','💡 '+TIPS[di%TIPS.length]));
     host.appendChild(card);
     weather(function(o){if(!wx.isConnected)return;wx.textContent='';wx.appendChild(el('div','font-size:22px;font-weight:800',wIcon(o.code)+' '+B(o.temp)+'°'));wx.appendChild(el('div','opacity:.9','বৃষ্টির সম্ভাবনা '+B(o.rain||0)+'%'));wx.appendChild(el('div','opacity:.75;font-size:11px',o.d))})}
   var go=function(){try{build()}catch(e){}};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(go,400)});else setTimeout(go,400);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)go()});
+})();
+</script>
+
+<script>
+/* ===== v32: দৈনিক কুইজ, আমার অভ্যাস, রূপান্তর ও টাকা-কথায় (সব ফোনেই, Supabase লাগে না) ===== */
+(function(){
+  var B=function(n){return String(n).replace(/[0-9]/g,function(d){return '০১২৩৪৫৬৭৮৯'[d]})};
+  var EN=function(s){return String(s).replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)})};
+  function el(t,c,x){var e=document.createElement(t);if(c)e.style.cssText=c;if(x!=null)e.textContent=x;return e}
+  function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+  function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+  function dkey(o){var d=new Date();d.setDate(d.getDate()-(o||0));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+  function ensure(id){var m=document.getElementById(id);if(!m){m=document.createElement('div');m.className='modal-overlay';m.id=id;m.innerHTML='<div class="modal-content"><div class="mn-wrap"></div></div>';m.addEventListener('click',function(e){if(e.target===m)closeModal(id)});document.body.appendChild(m)}return m}
+  function open(id,title,draw){var m=ensure(id);var w=m.querySelector('.mn-wrap');function d(){w.textContent='';var h=el('div');h.className='modal-header';h.appendChild(el('h3','font-size:18px',title));var x=el('button','','✕');x.className='close-btn';x.onclick=function(){closeModal(id)};h.appendChild(x);w.appendChild(h);draw(w,d)}d();m.classList.add('active')}
+  var BOX='background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:14px;margin-bottom:12px';
+  var INP='width:100%;padding:12px;border-radius:12px;background:#061812;border:1px solid rgba(16,185,129,.6);color:#fff;font-size:16px;box-sizing:border-box';
+  /* ---- কুইজ ---- */
+  var Q=[['বাংলাদেশের রাজধানীর নাম কী?',['ঢাকা','চট্টগ্রাম','খুলনা','রাজশাহী'],0],['মহান স্বাধীনতা দিবস কবে?',['২৬ মার্চ','১৬ ডিসেম্বর','২১ ফেব্রুয়ারি','১৭ এপ্রিল'],0],['মহান বিজয় দিবস কবে?',['২৬ মার্চ','১৬ ডিসেম্বর','১৪ এপ্রিল','১ মে'],1],['আন্তর্জাতিক মাতৃভাষা দিবস কবে?',['২১ ফেব্রুয়ারি','২৬ মার্চ','১৬ ডিসেম্বর','৮ মার্চ'],0],['বাংলাদেশের জাতীয় ফুল কোনটি?',['গোলাপ','শাপলা','বেলি','কৃষ্ণচূড়া'],1],['বাংলাদেশের জাতীয় পাখি কোনটি?',['কোকিল','ময়ূর','দোয়েল','শালিক'],2],['বাংলাদেশের জাতীয় ফল কোনটি?',['আম','লিচু','কাঁঠাল','জাম'],2],['বাংলাদেশের জাতীয় মাছ কোনটি?',['রুই','ইলিশ','কই','পাবদা'],1],['বাংলাদেশের জাতীয় পশু কোনটি?',['হাতি','রয়েল বেঙ্গল টাইগার','হরিণ','গন্ডার'],1],['জাতীয় সংগীত "আমার সোনার বাংলা" কে রচনা করেন?',['কাজী নজরুল ইসলাম','রবীন্দ্রনাথ ঠাকুর','জীবনানন্দ দাশ','জসীমউদ্দীন'],1],['বাংলাদেশের জাতীয় কবি কে?',['কাজী নজরুল ইসলাম','রবীন্দ্রনাথ ঠাকুর','মাইকেল মধুসূদন','সুকান্ত ভট্টাচার্য'],0],['বাংলাদেশে প্রশাসনিক বিভাগ কয়টি?',['৬','৭','৮','৯'],2],['বাংলাদেশে জেলা কয়টি?',['৬৪','৬০','৬৮','৭২'],0],['বিশ্বের দীর্ঘতম প্রাকৃতিক সমুদ্রসৈকত কোথায়?',['কুয়াকাটা','কক্সবাজার','সেন্ট মার্টিন','টেকনাফ'],1],['বিশ্বের বৃহত্তম ম্যানগ্রোভ বন কোনটি?',['সুন্দরবন','লাউয়াছড়া','মধুপুর','রেমা-কালেঙ্গা'],0],['বাংলাদেশের মুদ্রার নাম কী?',['রুপি','টাকা','রিয়াল','ডলার'],1],['জাতীয় সংসদ ভবনের স্থপতি কে?',['লুই আই কান','মাজহারুল ইসলাম','ফজলুর রহমান খান','এফ আর খান'],0],['জাতীয় স্মৃতিসৌধ কোন উপজেলায়?',['সাভার','গাজীপুর সদর','কেরানীগঞ্জ','কেশবপুর'],0],['বাংলাদেশের সংবিধান কত সালে গৃহীত হয়?',['১৯৭১','১৯৭২','১৯৭৪','১৯৭৫'],1],['পদ্মা সেতু কত সালে যান চলাচলের জন্য খুলে দেওয়া হয়?',['২০২০','২০২১','২০২২','২০২৩'],2],['বাংলাদেশ ও ভারতের সীমান্ত নদী কোনটি?',['পদ্মা-মহানন্দা অংশ','বুড়িগঙ্গা','কর্ণফুলী','কপোতাক্ষ'],0],['পৃথিবীর বৃহত্তম মহাসাগর কোনটি?',['আটলান্টিক','প্রশান্ত','ভারত','আর্কটিক'],1],['সূর্যের সবচেয়ে কাছের গ্রহ কোনটি?',['শুক্র','বুধ','মঙ্গল','পৃথিবী'],1],['পূর্ণবয়স্ক মানুষের দেহে হাড়ের সংখ্যা কত?',['১০৬','২০৬','৩০৬','১৫৬'],1],['পানির রাসায়নিক সংকেত কী?',['CO₂','H₂O','O₂','NaCl'],1],['পৃথিবীর বৃহত্তম মহাদেশ কোনটি?',['আফ্রিকা','এশিয়া','ইউরোপ','উত্তর আমেরিকা'],1],['কম্পিউটারের "মস্তিষ্ক" কোনটিকে বলা হয়?',['র‍্যাম','সিপিইউ','মাউস','মনিটর'],1],['কোন রক্তের গ্রুপকে সার্বজনীন দাতা বলা হয়?',['A+','AB+','O−','B+'],2],['ভিটামিন সি-এর ভালো উৎস কোনটি?',['লেবু','ভাত','ডিম','দুধ'],0],['১ ঘণ্টায় কত মিনিট?',['৫০','৬০','১০০','৩০'],1],['আলোর গতি প্রায় কত?',['৩ লক্ষ কিমি/সেকেন্ড','৩ হাজার কিমি/সেকেন্ড','৩০ কিমি/সেকেন্ড','৩ কোটি কিমি/সেকেন্ড'],0],['জাতীয় জরুরি সেবার নম্বর কত?',['১০০','৯৯৯','১৯৯','৯১১'],1],['২০০৬ সালে শান্তিতে নোবেল পান কে?',['ড. মুহাম্মদ ইউনূস','ড. কুদরত-ই-খুদা','ফজলে হাসান আবেদ','অমর্ত্য সেন'],0],['শহীদ মিনার কোথায় অবস্থিত?',['ঢাকা','চট্টগ্রাম','সিলেট','রাজশাহী'],0],['বাংলা নববর্ষের প্রথম মাসের নাম কী?',['বৈশাখ','চৈত্র','আষাঢ়','কার্তিক'],0],['কোন বিভাগে সিলেট জেলা অবস্থিত?',['সিলেট বিভাগ','ঢাকা বিভাগ','চট্টগ্রাম বিভাগ','রংপুর বিভাগ'],0]];
+  function qOfDay(){var n=Math.floor(new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()).getTime()/864e5),out=[];for(var i=0;i<5;i++)out.push((n*5+i*7)%Q.length);var seen={};out=out.filter(function(x){if(seen[x])return false;seen[x]=1;return true});var k=0;while(out.length<5){if(!seen[k]){out.push(k);seen[k]=1}k++}return out}
+  window.openQuiz=function(){open('quizModal','🧠 দৈনিক কুইজ',function(w,redraw){
+    var S=rd('amarQuiz_v1',{days:{}}),t=dkey(0),done=S.days[t];var idx=qOfDay();
+    var streak=0;for(var i=done?0:1;i<60;i++){if(S.days[dkey(i)]!=null)streak++;else break}
+    var tot=0,cnt=0;for(var k in S.days){tot+=S.days[k];cnt++}
+    var st=el('div',BOX+';display:flex;justify-content:space-around;text-align:center');[['🔥 ধারা',B(streak)+' দিন'],['📅 খেলেছেন',B(cnt)+' দিন'],['⭐ মোট স্কোর',B(tot)]].forEach(function(a){var d=el('div');d.appendChild(el('div','font-size:12px;color:#a7f3d0',a[0]));d.appendChild(el('b','font-size:17px',a[1]));st.appendChild(d)});w.appendChild(st);
+    if(done!=null){w.appendChild(el('div',BOX+';text-align:center','')).innerHTML='';var bx=w.lastChild;bx.appendChild(el('div','font-size:40px','🎉'));bx.appendChild(el('b','font-size:18px','আজকের স্কোর: '+B(done)+'/৫'));bx.appendChild(el('p','font-size:13px;color:#a7f3d0;margin-top:6px;line-height:1.7','আগামীকাল নতুন ৫টি প্রশ্ন আসবে। ধারা ধরে রাখতে রোজ একবার খুলুন!'));
+      var sh=el('button','margin-top:8px;padding:11px 18px;border-radius:12px;border:0;background:#10b981;color:#fff;font-weight:700;cursor:pointer','📤 স্কোর শেয়ার করুন');sh.onclick=function(){var tx='🧠 আমার বাংলাদেশ কুইজে আজ '+B(done)+'/৫ পেয়েছি! ধারা: '+B(streak)+' দিন 🔥 তুমি কত পাও?';try{if(navigator.share)navigator.share({text:tx}).catch(function(){});else navigator.clipboard.writeText(tx)}catch(e){}};bx.appendChild(sh);return}
+    var qi=0,sc=0,box=el('div',BOX);w.appendChild(box);
+    function show(){box.textContent='';if(qi>=idx.length){S.days[t]=sc;var ks=Object.keys(S.days).sort();while(ks.length>90)delete S.days[ks.shift()];wr('amarQuiz_v1',S);redraw();return}
+      var q=Q[idx[qi]];box.appendChild(el('div','font-size:12px;color:#a7f3d0','প্রশ্ন '+B(qi+1)+'/৫'));box.appendChild(el('div','font-size:16px;font-weight:800;margin:6px 0 12px;line-height:1.6',q[0]));
+      var ans=false;q[1].forEach(function(o,i){var b=el('button','width:100%;text-align:left;padding:13px;border-radius:14px;border:1px solid rgba(16,185,129,.5);background:#061812;color:#fff;font-size:14.5px;margin-bottom:8px;cursor:pointer',o);b.onclick=function(){if(ans)return;ans=true;var ok=i===q[2];if(ok)sc++;b.style.background=ok?'#059669':'#b91c1c';if(!ok){box.querySelectorAll('button')[q[2]].style.background='#059669'}var nx=el('button','width:100%;padding:12px;border-radius:14px;border:0;background:#10b981;color:#fff;font-weight:800;margin-top:4px;cursor:pointer',qi===4?'ফলাফল দেখুন':'পরের প্রশ্ন ➡️');nx.onclick=function(){qi++;show()};box.appendChild(nx)};box.appendChild(b)})}
+    show()})};
+  /* ---- অভ্যাস ---- */
+  var HAB=[['p','🕌 পাঁচ ওয়াক্ত নামাজ',5],['w','💧 পানি (গ্লাস)',8],['r','📖 ১৫ মিনিট পড়া',1],['k','🚶 হাঁটা/ব্যায়াম',1],['f','👨‍👩‍👧 পরিবারের সাথে সময়',1]];
+  function hScore(d){if(!d)return 0;var s=0;HAB.forEach(function(h){s+=Math.min(1,(d[h[0]]||0)/h[2])});return Math.round(s/HAB.length*100)}
+  window.openHabits=function(){open('habitModal','✅ আমার অভ্যাস',function(w,redraw){
+    var S=rd('amarHabit_v1',{}),t=dkey(0);S[t]=S[t]||{};var d=S[t];
+    var streak=0;for(var i=hScore(d)>=60?0:1;i<90;i++){if(hScore(S[dkey(i)])>=60)streak++;else break}
+    var hd=el('div',BOX+';text-align:center');hd.appendChild(el('div','font-size:13px;color:#a7f3d0','আজকের অগ্রগতি'));hd.appendChild(el('div','font-size:34px;font-weight:800',B(hScore(d))+'%'));var bar=el('div','height:8px;border-radius:99px;background:#061812;overflow:hidden;margin:8px 0');bar.appendChild(el('i','display:block;height:100%;width:'+hScore(d)+'%;background:linear-gradient(90deg,#10b981,#34d399)'));hd.appendChild(bar);hd.appendChild(el('div','font-size:13px','🔥 টানা '+B(streak)+' দিন (৬০%+ হলে দিন গণনা হয়)'));w.appendChild(hd);
+    function save(){wr('amarHabit_v1',S);redraw()}
+    HAB.forEach(function(h){var r=el('div',BOX+';display:flex;align-items:center;gap:10px;padding:12px');r.appendChild(el('span','flex:1;font-size:14.5px;font-weight:700',h[1]));
+      if(h[2]===1){var c=el('button','width:44px;height:44px;border-radius:50%;border:2px solid #10b981;font-size:20px;cursor:pointer;color:#fff;background:'+(d[h[0]]?'#059669':'transparent'),d[h[0]]?'✓':'');c.onclick=function(){d[h[0]]=d[h[0]]?0:1;save()};r.appendChild(c)}
+      else{var m=el('button','width:40px;height:40px;border-radius:50%;border:1px solid #10b981;background:#061812;color:#fff;font-size:20px;cursor:pointer','−');m.onclick=function(){d[h[0]]=Math.max(0,(d[h[0]]||0)-1);save()};var n=el('b','min-width:46px;text-align:center;font-size:16px',B(d[h[0]]||0)+'/'+B(h[2]));var p=el('button','width:40px;height:40px;border-radius:50%;border:0;background:#10b981;color:#fff;font-size:20px;cursor:pointer','+');p.onclick=function(){d[h[0]]=Math.min(h[2]+(h[0]==='w'?4:0),(d[h[0]]||0)+1);save()};r.appendChild(m);r.appendChild(n);r.appendChild(p)}
+      w.appendChild(r)});
+    var cb=el('div',BOX);cb.appendChild(el('div','font-weight:800;margin-bottom:8px','গত ৭ দিন'));var g=el('div','display:flex;align-items:flex-end;gap:8px;height:90px');
+    for(var j=6;j>=0;j--){var sc=hScore(S[dkey(j)]),col=el('div','flex:1;text-align:center');col.appendChild(el('div','height:'+Math.max(4,sc*0.7)+'px;border-radius:8px 8px 3px 3px;background:'+(sc>=60?'#10b981':'#475569')));var dd=new Date();dd.setDate(dd.getDate()-j);col.appendChild(el('div','font-size:10.5px;color:#a7f3d0;margin-top:4px',['রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র','শনি'][dd.getDay()]));g.appendChild(col)}cb.appendChild(g);w.appendChild(cb);
+    w.appendChild(el('p','font-size:11.5px;color:#a7f3d0;text-align:center;line-height:1.7','এই হিসাব শুধু আপনার ফোনে থাকে।'))})};
+  /* ---- রূপান্তর ও টাকা-কথায় ---- */
+  var W0='শূন্য,এক,দুই,তিন,চার,পাঁচ,ছয়,সাত,আট,নয়,দশ,এগারো,বারো,তেরো,চৌদ্দ,পনেরো,ষোলো,সতেরো,আঠারো,উনিশ,বিশ,একুশ,বাইশ,তেইশ,চব্বিশ,পঁচিশ,ছাব্বিশ,সাতাশ,আটাশ,ঊনত্রিশ,ত্রিশ,একত্রিশ,বত্রিশ,তেত্রিশ,চৌত্রিশ,পঁয়ত্রিশ,ছত্রিশ,সাঁইত্রিশ,আটত্রিশ,ঊনচল্লিশ,চল্লিশ,একচল্লিশ,বিয়াল্লিশ,তেতাল্লিশ,চুয়াল্লিশ,পঁয়তাল্লিশ,ছেচল্লিশ,সাতচল্লিশ,আটচল্লিশ,ঊনপঞ্চাশ,পঞ্চাশ,একান্ন,বাহান্ন,তিপ্পান্ন,চুয়ান্ন,পঞ্চান্ন,ছাপ্পান্ন,সাতান্ন,আটান্ন,ঊনষাট,ষাট,একষট্টি,বাষট্টি,তেষট্টি,চৌষট্টি,পঁয়ষট্টি,ছেষট্টি,সাতষট্টি,আটষট্টি,ঊনসত্তর,সত্তর,একাত্তর,বাহাত্তর,তিয়াত্তর,চুয়াত্তর,পঁচাত্তর,ছিয়াত্তর,সাতাত্তর,আটাত্তর,ঊনআশি,আশি,একাশি,বিরাশি,তিরাশি,চুরাশি,পঁচাশি,ছিয়াশি,সাতাশি,অষ্টাশি,ঊননব্বই,নব্বই,একানব্বই,বিরানব্বই,তিরানব্বই,চুরানব্বই,পঁচানব্বই,ছিয়ানব্বই,সাতানব্বই,আটানব্বই,নিরানব্বই'.split(',');
+  function words(n){if(n===0)return 'শূন্য';var o=[];[[1e7,'কোটি'],[1e5,'লক্ষ'],[1e3,'হাজার'],[100,'শত']].forEach(function(u){var q=Math.floor(n/u[0]);if(q){o.push((u[0]===1e7?words(q):W0[q])+' '+u[1]);n%=u[0]}});if(n)o.push(W0[n]);return o.join(' ')}
+  window.bnWords=words;
+  var LAND={'শতক':435.6,'বর্গফুট':1,'বর্গমিটার':10.7639,'কাঠা':720,'বিঘা':14400,'একর':43560,'হেক্টর':107639.1};
+  window.openConverter=function(){open('convModal','🔄 রূপান্তর ও টাকা-কথায়',function(w){
+    var b1=el('div',BOX);b1.appendChild(el('div','font-weight:800;margin-bottom:8px','🔢 টাকা অঙ্কে → কথায়'));var i1=el('input',INP);i1.inputMode='numeric';i1.placeholder='যেমন: ১২৫০৫০০';i1.autocomplete='off';b1.appendChild(i1);var o1=el('div','margin-top:10px;font-size:15px;line-height:1.8;color:#6ee7b7;font-weight:700;word-break:break-word');b1.appendChild(o1);
+    var cp=el('button','margin-top:8px;padding:9px 14px;border-radius:10px;border:1px solid #10b981;background:#061812;color:#fff;cursor:pointer;display:none','📋 কপি');b1.appendChild(cp);
+    i1.oninput=function(){var v=EN(i1.value).replace(/[^0-9.]/g,'');var ps=v.split('.');var n=parseInt(ps[0]||'0',10);if(!v||isNaN(n)||n>=1e12){o1.textContent=n>=1e12?'সংখ্যা অনেক বড়':'';cp.style.display='none';return}var t=words(n)+' টাকা';var pa=(ps[1]||'').slice(0,2);if(pa&&parseInt(pa,10)>0){t+=' '+words(parseInt((pa+'0').slice(0,2),10))+' পয়সা'}t+=' মাত্র';o1.textContent=t;cp.style.display='inline-block';cp.onclick=function(){try{navigator.clipboard.writeText(t);cp.textContent='✓ কপি হয়েছে'}catch(e){}}};w.appendChild(b1);
+    var b2=el('div',BOX);b2.appendChild(el('div','font-weight:800;margin-bottom:4px','🌾 জমির পরিমাপ রূপান্তর'));b2.appendChild(el('div','font-size:11.5px;color:#a7f3d0;margin-bottom:8px;line-height:1.6','ধরা হয়েছে: ১ শতক = ৪৩৫.৬ বর্গফুট, ১ কাঠা = ৭২০ বর্গফুট, ১ বিঘা = ২০ কাঠা। এলাকাভেদে কাঠা-বিঘা কিছুটা আলাদা হতে পারে — দলিলের মাপ মিলিয়ে নিন।'));
+    var i2=el('input',INP);i2.inputMode='decimal';i2.placeholder='পরিমাণ লিখুন';i2.autocomplete='off';b2.appendChild(i2);var sl=el('select',INP+';margin-top:8px');Object.keys(LAND).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=k;sl.appendChild(o)});sl.value='শতক';b2.appendChild(sl);var o2=el('div','margin-top:10px');b2.appendChild(o2);
+    function conv(){o2.textContent='';var v=parseFloat(EN(i2.value).replace(/[^0-9.]/g,''));if(!isFinite(v)){return}var base=v*LAND[sl.value];Object.keys(LAND).forEach(function(k){if(k===sl.value)return;var r=el('div','display:flex;justify-content:space-between;padding:8px 10px;background:#0a251c;border-radius:10px;margin-bottom:4px;font-size:13.5px');r.appendChild(el('span','',k));r.appendChild(el('b','',B(Math.round(base/LAND[k]*1000)/1000)));o2.appendChild(r)})}
+    i2.oninput=conv;sl.onchange=conv;w.appendChild(b2);
+    var b3=el('div',BOX);b3.appendChild(el('div','font-weight:800;margin-bottom:8px','📅 দিন গণনা'));var d1=el('input',INP);d1.type='date';b3.appendChild(d1);var o3=el('div','margin-top:10px;font-size:14.5px;color:#6ee7b7;font-weight:700;line-height:1.8');b3.appendChild(o3);
+    d1.onchange=function(){if(!d1.value)return;var a=new Date(d1.value+'T00:00:00'),n=new Date();n.setHours(0,0,0,0);var df=Math.round((a-n)/864e5);if(df===0){o3.textContent='আজই সেই দিন!';return}var ad=Math.abs(df),y=Math.floor(ad/365),mo=Math.floor(ad%365/30),dd=ad%365%30;o3.textContent=(df>0?'আর ':'')+B(ad)+' দিন '+(df>0?'বাকি':'আগে')+' (প্রায় '+(y?B(y)+' বছর ':'')+B(mo)+' মাস '+B(dd)+' দিন)'};w.appendChild(b3)})};
+  /* ---- মেনু/হোমে বোতাম ---- */
+  function chips(){var h=document.getElementById('todayCard');if(!h||h.querySelector('.ex-chips'))return;var c=el('div','display:flex;gap:8px;margin:-2px 0 12px;overflow-x:auto');c.className='ex-chips';[['🪪','পরিচয় কার্ড',openIdCard],['🖼️','শেয়ার কার্ড',openShareCard],['🧠','দৈনিক কুইজ',openQuiz],['✅','আমার অভ্যাস',openHabits],['🔄','রূপান্তর ও কথায়',openConverter]].forEach(function(a){var b=el('button','flex:1;min-width:104px;padding:12px 8px;border-radius:16px;border:1px solid rgba(16,185,129,.35);background:#0b2b20;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px');b.appendChild(el('span','font-size:22px',a[0]));b.appendChild(el('span','',a[1]));b.onclick=a[2];c.appendChild(b)});h.appendChild(c)}
+  setInterval(chips,1500);
+})();
+</script>
+
+<script>
+/* ===== v33: পরিচয় কার্ড (QR), শেয়ার কার্ড, এআই-এর নতুন দক্ষতা, অফলাইন ব্যানার, সকালের নোটিফিকেশন ===== */
+(function(){
+(function(){
+  var EXP=new Array(512),LOG=new Array(256),x=1,i;for(i=0;i<255;i++){EXP[i]=x;LOG[x]=i;x<<=1;if(x&256)x^=0x11d}for(i=255;i<512;i++)EXP[i]=EXP[i-255];
+  function gmul(a,b){return a&&b?EXP[LOG[a]+LOG[b]]:0}
+  function rsGen(n){var g=[1];for(var i=0;i<n;i++){var ng=new Array(g.length+1).fill(0);for(var j=0;j<g.length;j++){ng[j]^=g[j];ng[j+1]^=gmul(g[j],EXP[i])}g=ng}return g}
+  function rsEnc(data,n){var g=rsGen(n),res=new Array(n).fill(0);data.forEach(function(d){var f=d^res[0];res.shift();res.push(0);if(f)for(var j=0;j<n;j++)res[j]^=gmul(g[j+1],f)});return res}
+  var T={1:[10,[[1,16]]],2:[16,[[1,28]]],3:[26,[[1,44]]],4:[18,[[2,32]]],5:[24,[[2,43]]],6:[16,[[4,27]]],7:[18,[[4,31]]],8:[22,[[2,38],[2,39]]],9:[22,[[3,36],[2,37]]],10:[26,[[4,43],[1,44]]]};
+  var AL={1:[],2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],7:[6,22,38],8:[6,24,42],9:[6,26,46],10:[6,28,50]};
+  function bch(v,g,gl){var d=v<<(gl-1);var top=function(n){return 31-Math.clz32(n)};while(top(d)>=gl-1&&d){d^=g<<(top(d)-(gl-1))}return d}
+  function fmt(mask){var d=(0<<3)|mask;var r=bch(d,0x537,11);return(((d<<10)|r)^0x5412)}
+  function ver(v){var r=bch(v,0x1f25,13);return(v<<12)|r}
+  window.amarQR=function(text){
+    var b=unescape(encodeURIComponent(text)),bytes=[];for(var i=0;i<b.length;i++)bytes.push(b.charCodeAt(i));
+    var v=0,dc;for(var k=1;k<=10;k++){var tot=T[k][1].reduce(function(s,a){return s+a[0]*a[1]},0);if(bytes.length<=tot-(k<=9?2:3)){v=k;dc=tot;break}}
+    if(!v)return null;
+    var bits=[];function put(val,n){for(var i=n-1;i>=0;i--)bits.push((val>>i)&1)}
+    put(4,4);put(bytes.length,v<=9?8:16);bytes.forEach(function(c){put(c,8)});
+    var cap=dc*8;for(i=0;i<4&&bits.length<cap;i++)bits.push(0);while(bits.length%8)bits.push(0);
+    var cw=[];for(i=0;i<bits.length;i+=8){var c=0;for(var j=0;j<8;j++)c=c*2+bits[i+j];cw.push(c)}
+    for(var p=0;cw.length<dc;p++)cw.push(p%2?17:236);
+    var blocks=[],pos=0;T[v][1].forEach(function(a){for(var q=0;q<a[0];q++){blocks.push(cw.slice(pos,pos+a[1]));pos+=a[1]}});
+    var ecs=blocks.map(function(bl){return rsEnc(bl,T[v][0])}),out=[],mx=Math.max.apply(null,blocks.map(function(x){return x.length}));
+    for(i=0;i<mx;i++)blocks.forEach(function(bl){if(i<bl.length)out.push(bl[i])});
+    for(i=0;i<T[v][0];i++)ecs.forEach(function(e){out.push(e[i])});
+    var fb=[];out.forEach(function(c){for(var j=7;j>=0;j--)fb.push((c>>j)&1)});var rem=(v>=2&&v<=6)?7:0;for(i=0;i<rem;i++)fb.push(0);
+    var n=17+4*v,M=[],F=[];for(i=0;i<n;i++){M.push(new Array(n).fill(0));F.push(new Array(n).fill(false))}
+    function set(r,c,val){M[r][c]=val?1:0;F[r][c]=true}
+    function finder(r,c){for(var y=-1;y<=7;y++)for(var x=-1;x<=7;x++){var rr=r+y,cc=c+x;if(rr<0||cc<0||rr>=n||cc>=n)continue;var d=(y>=0&&y<=6&&(x===0||x===6))||(x>=0&&x<=6&&(y===0||y===6))||(y>=2&&y<=4&&x>=2&&x<=4);set(rr,cc,d)}}
+    finder(0,0);finder(0,n-7);finder(n-7,0);
+    var al=AL[v];al.forEach(function(r){al.forEach(function(c){if((r===6&&c===6)||(r===6&&c===al[al.length-1])||(c===6&&r===al[al.length-1]))return;for(var y=-2;y<=2;y++)for(var x=-2;x<=2;x++)set(r+y,c+x,Math.max(Math.abs(x),Math.abs(y))!==1)})});
+    for(i=8;i<n-8;i++){if(!F[6][i])set(6,i,i%2===0);if(!F[i][6])set(i,6,i%2===0)}
+    set(n-8,8,1);
+    for(i=0;i<9;i++){if(!F[8][i])set(8,i,0);if(!F[i][8])set(i,8,0)}for(i=0;i<8;i++){if(!F[8][n-1-i])set(8,n-1-i,0);if(!F[n-1-i][8])set(n-1-i,8,0)}
+    if(v>=7){var vi=ver(v);for(i=0;i<18;i++){var bt=(vi>>i)&1,a=Math.floor(i/3),bb=i%3+n-11;set(a,bb,bt);set(bb,a,bt)}}
+    var cells=[],up=true;for(var cx=n-1;cx>0;cx-=2){if(cx===6)cx--;for(var t=0;t<n;t++){var r=up?n-1-t:t;for(var d=0;d<2;d++){var c=cx-d;if(!F[r][c])cells.push([r,c])}}up=!up}
+    cells.forEach(function(rc,idx){M[rc[0]][rc[1]]=idx<fb.length?fb[idx]:0});
+    var mf=[function(r,c){return(r+c)%2===0},function(r,c){return r%2===0},function(r,c){return c%3===0},function(r,c){return(r+c)%3===0},function(r,c){return(Math.floor(r/2)+Math.floor(c/3))%2===0},function(r,c){return(r*c)%2+(r*c)%3===0},function(r,c){return((r*c)%2+(r*c)%3)%2===0},function(r,c){return((r+c)%2+(r*c)%3)%2===0}];
+    function build(m){var G=M.map(function(row){return row.slice()});cells.forEach(function(rc){if(mf[m](rc[0],rc[1]))G[rc[0]][rc[1]]^=1});var f=fmt(m);
+      for(var i=0;i<15;i++){var bt=(f>>i)&1;
+        if(i<6)G[i][8]=bt;else if(i===6)G[7][8]=bt;else if(i===7)G[8][8]=bt;else if(i===8)G[8][7]=bt;else G[8][14-i]=bt;
+        if(i<8)G[8][n-1-i]=bt;else G[n-15+i][8]=bt}
+      G[n-8][8]=1;return G}
+    function pen(G){var s=0,i,j;for(i=0;i<n;i++){var rr=1,cc=1;for(j=1;j<n;j++){if(G[i][j]===G[i][j-1]){rr++;if(rr===5)s+=3;else if(rr>5)s++}else rr=1;if(G[j][i]===G[j-1][i]){cc++;if(cc===5)s+=3;else if(cc>5)s++}else cc=1}}
+      for(i=0;i<n-1;i++)for(j=0;j<n-1;j++){var a=G[i][j];if(a===G[i][j+1]&&a===G[i+1][j]&&a===G[i+1][j+1])s+=3}
+      var dk=0;for(i=0;i<n;i++)for(j=0;j<n;j++)dk+=G[i][j];s+=Math.floor(Math.abs(dk*20/(n*n)-10))*10;return s}
+    var best=null,bp=1e9;for(var m=0;m<8;m++){var G=build(m),p=pen(G);if(p<bp){bp=p;best=G}}
+    return{n:n,v:v,get:function(r,c){return best[r][c]===1}}};
+})();
+
+  var B=function(n){return String(n).replace(/[0-9]/g,function(d){return '০১২৩৪৫৬৭৮৯'[d]})};
+  var EN=function(s){return String(s).replace(/[০-৯]/g,function(d){return '০১২৩৪৫৬৭৮৯'.indexOf(d)})};
+  var FONT='"Hind Siliguri","Noto Sans Bengali","Kalpurush","Siyam Rupali",sans-serif';
+  function el(t,c,x){var e=document.createElement(t);if(c)e.style.cssText=c;if(x!=null)e.textContent=x;return e}
+  function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+  function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+  function ensure(id){var m=document.getElementById(id);if(!m){m=document.createElement('div');m.className='modal-overlay';m.id=id;m.innerHTML='<div class="modal-content"><div class="mn-wrap"></div></div>';m.addEventListener('click',function(e){if(e.target===m)closeModal(id)});document.body.appendChild(m)}return m}
+  function open(id,title,draw){var m=ensure(id),w=m.querySelector('.mn-wrap');w.textContent='';var h=el('div');h.className='modal-header';h.appendChild(el('h3','font-size:18px',title));var x=el('button','','✕');x.className='close-btn';x.onclick=function(){closeModal(id)};h.appendChild(x);w.appendChild(h);draw(w);m.classList.add('active')}
+  var BOX='background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:14px;margin-bottom:12px';
+  var INP='width:100%;padding:12px;border-radius:12px;background:#061812;border:1px solid rgba(16,185,129,.6);color:#fff;font-size:16px;box-sizing:border-box;margin-bottom:8px';
+  function toBlob(cv){return new Promise(function(r){cv.toBlob(function(b){r(b)},'image/png')})}
+  function wrap(x,t,w){var out=[];String(t).split('\n').forEach(function(par){var line='';par.split(/(\s+)/).forEach(function(tk){if(!tk)return;var test=line+tk;if(x.measureText(test).width<=w||!line.trim()){line=test}else{out.push(line.trim());line=tk.trim()?tk:''}});out.push(line.trim())});return out}
+  function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+  function drawQR(x,text,px,py,size){var q=amarQR(text);if(!q)return false;var b=2,N=q.n+2*b,s=size/N;x.fillStyle='#fff';x.fillRect(px,py,size,size);x.fillStyle='#000';for(var r=0;r<q.n;r++)for(var c=0;c<q.n;c++)if(q.get(r,c))x.fillRect(px+(c+b)*s,py+(r+b)*s,Math.ceil(s),Math.ceil(s));return true}
+  function flag(x,cx,cy,r){x.save();x.beginPath();x.arc(cx,cy,r+4,0,7);x.fillStyle='#fff';x.fill();x.beginPath();x.arc(cx,cy,r,0,7);x.clip();x.fillStyle='#006a4e';x.fillRect(cx-r,cy-r,2*r,2*r);x.fillStyle='#f42a41';x.beginPath();x.arc(cx-r*.1,cy,r*.45,0,7);x.fill();x.restore()}
+  var THEMES=[['#065f46','#0f766e'],['#1e3a8a','#7c3aed'],['#9a3412','#be123c'],['#0f172a','#0e7490'],['#4c1d95','#be185d'],['#92400e','#b45309']];
+  /* ---- পরিচয় কার্ড ---- */
+  window.openIdCard=function(){
+    var med={};try{med=getMed()}catch(e){}var S=rd('amarIdCard_v1',null)||{name:med.name||'',blood:med.blood||'',phone:(med.contacts&&med.contacts[0]&&med.contacts[0].phone)||'',area:'',health:false};
+    open('idModal','🪪 ডিজিটাল পরিচয় কার্ড',function(w){
+      w.appendChild(el('p','font-size:12px;color:#a7f3d0;line-height:1.7;margin:0 0 10px','জরুরি অবস্থায় কেউ QR স্ক্যান করলে আপনার নাম, রক্তের গ্রুপ ও জরুরি নম্বর দেখতে পাবে। আপনার তথ্য আপনার ফোনেই থাকে।'));
+      var cv=el('canvas','width:100%;border-radius:18px;display:block;margin-bottom:12px');cv.width=1000;cv.height=620;w.appendChild(cv);
+      var f=el('div',BOX);[['name','নাম','text'],['blood','রক্তের গ্রুপ (যেমন: B+)','text'],['phone','জরুরি যোগাযোগ নম্বর','tel'],['area','এলাকা (ঐচ্ছিক)','text']].forEach(function(a){var i=el('input',INP);i.type=a[2];i.placeholder=a[1];i.value=S[a[0]]||'';i.autocomplete='off';i.oninput=function(){S[a[0]]=i.value;draw()};f.appendChild(i)});
+      var lb=el('label','display:flex;gap:8px;align-items:center;font-size:12.5px;color:#a7f3d0;line-height:1.5');var ck=el('input');ck.type='checkbox';ck.checked=!!S.health;ck.onchange=function(){S.health=ck.checked;draw()};lb.appendChild(ck);lb.appendChild(el('span','','অ্যালার্জি ও রোগের তথ্যও কার্ডে দিন'));f.appendChild(lb);w.appendChild(f);
+      function qrText(){var t='🇧🇩 আমার বাংলাদেশ — পরিচয় কার্ড\nনাম: '+(S.name||'-');if(S.blood)t+='\nরক্ত: '+S.blood;if(S.phone)t+='\nজরুরি: '+S.phone;if(S.area)t+='\nএলাকা: '+S.area;if(S.health){try{var m=getMed();if(m.allergy)t+='\nঅ্যালার্জি: '+m.allergy;if(m.cond)t+='\nরোগ: '+m.cond}catch(e){}}return t}
+      function draw(){var x=cv.getContext('2d'),g=x.createLinearGradient(0,0,1000,620);g.addColorStop(0,'#065f46');g.addColorStop(1,'#0f766e');x.fillStyle=g;rr(x,0,0,1000,620,36);x.fill();
+        x.fillStyle='rgba(255,255,255,.07)';x.beginPath();x.arc(900,60,220,0,7);x.fill();flag(x,70,70,34);x.fillStyle='#fff';x.font='700 30px '+FONT;x.fillText('আমার বাংলাদেশ',120,82);x.font='400 22px '+FONT;x.fillStyle='rgba(255,255,255,.8)';x.fillText('ডিজিটাল পরিচয় ও জরুরি কার্ড',120,114);
+        x.fillStyle='#fff';x.font='700 52px '+FONT;var nm=wrap(x,S.name||'আপনার নাম',520)[0];x.fillText(nm,50,230);
+        if(S.blood){x.fillStyle='#f42a41';rr(x,50,265,190,90,22);x.fill();x.fillStyle='#fff';x.font='700 24px '+FONT;x.fillText('রক্তের গ্রুপ',68,296);x.font='700 40px '+FONT;x.fillText(S.blood,68,340)}
+        x.fillStyle='#fff';x.font='400 26px '+FONT;var y=410;if(S.phone){x.fillStyle='rgba(255,255,255,.75)';x.font='400 22px '+FONT;x.fillText('জরুরি যোগাযোগ',50,y);x.fillStyle='#fff';x.font='700 38px '+FONT;x.fillText(B(S.phone),50,y+46);y+=100}
+        if(S.area){x.fillStyle='rgba(255,255,255,.85)';x.font='400 26px '+FONT;x.fillText('📍 '+S.area,50,y+10)}
+        var ok=drawQR(x,qrText(),620,170,330);if(!ok){x.fillStyle='#fff';x.font='400 20px '+FONT;x.fillText('তথ্য বেশি বড় — কমিয়ে দিন',620,330)}
+        x.fillStyle='rgba(255,255,255,.7)';x.font='400 20px '+FONT;x.fillText('স্ক্যান করলে তথ্য দেখা যাবে',650,535);x.fillText('আমার বাংলাদেশ অ্যাপ',50,585);wr('amarIdCard_v1',S)}
+      draw();var bt=el('button','width:100%;padding:14px;border-radius:14px;border:0;background:#10b981;color:#fff;font-size:15px;font-weight:800;cursor:pointer','📤 কার্ড শেয়ার / সেভ করুন');bt.onclick=function(){toBlob(cv).then(function(b){amarFiles([{blob:b,name:'amar-porichoy-card.png'}],'পরিচয় কার্ড')})};w.appendChild(bt)})};
+  /* ---- শেয়ার কার্ড ---- */
+  window.amarMakeCard=function(o){var cv=document.createElement('canvas');cv.width=1080;cv.height=o.h||1350;var x=cv.getContext('2d'),H=cv.height,th=THEMES[o.th||0],g=x.createLinearGradient(0,0,1080,H);g.addColorStop(0,th[0]);g.addColorStop(1,th[1]);x.fillStyle=g;x.fillRect(0,0,1080,H);
+    x.fillStyle='rgba(255,255,255,.06)';x.beginPath();x.arc(950,120,320,0,7);x.fill();x.beginPath();x.arc(80,H-100,260,0,7);x.fill();
+    flag(x,100,110,46);x.fillStyle='#fff';x.font='700 40px '+FONT;x.fillText('আমার বাংলাদেশ',165,125);
+    x.textAlign='center';x.fillStyle='#fff';var y=H*0.38;if(o.emoji){x.font='170px '+FONT;x.fillText(o.emoji,540,y);y+=130}if(o.top){x.font='700 40px '+FONT;x.fillStyle='rgba(255,255,255,.85)';wrap(x,o.top,900).forEach(function(l){x.fillText(l,540,y);y+=56});y+=20}
+    var fs=o.size||80;x.font='800 '+fs+'px '+FONT;x.fillStyle='#fff';var lines=wrap(x,o.big||'',900);while(lines.length>6&&fs>40){fs-=6;x.font='800 '+fs+'px '+FONT;lines=wrap(x,o.big,900)}lines.forEach(function(l){x.fillText(l,540,y+fs*0.2);y+=fs*1.35});
+    if(o.sub){y+=24;x.font='400 38px '+FONT;x.fillStyle='rgba(255,255,255,.9)';wrap(x,o.sub,880).forEach(function(l){x.fillText(l,540,y);y+=56})}
+    x.fillStyle='rgba(0,0,0,.25)';rr(x,140,H-170,800,96,48);x.fill();x.fillStyle='#fff';x.font='700 30px '+FONT;x.fillText('🇧🇩 আমার বাংলাদেশ অ্যাপ',540,H-110);x.font='400 24px '+FONT;x.fillStyle='rgba(255,255,255,.8)';x.fillText('এক অ্যাপে বাংলাদেশ',540,H-60);return cv};
+  window.openShareCard=function(){
+    var OCC=[['🌙','ঈদ মোবারক','ঈদের আনন্দ ছড়িয়ে পড়ুক সবার জীবনে। ঈদ মোবারক!',0],['🕌','জুমার মোবারক','আপনার ও পরিবারের জন্য জুমার দিনের বরকত, শান্তি ও রহমত কামনা করছি।',0],['🌙','রমজান মোবারক','রমজানের রহমত ও বরকতে ভরে উঠুক আপনার জীবন।',3],['🎂','শুভ জন্মদিন','জন্মদিনে অফুরন্ত ভালোবাসা ও শুভকামনা। সুস্থ থাকুন, ভালো থাকুন।',4],['💍','শুভ বিবাহবার্ষিকী','ভালোবাসায় ভরা থাকুক আপনাদের সারাটা জীবন।',4],['💐','শুভ বিবাহ','নতুন জীবনের শুরুতে আপনাদের জন্য অনেক অনেক দোয়া ও শুভকামনা।',2],['🎉','শুভ নববর্ষ','পহেলা বৈশাখের শুভেচ্ছা! নতুন বছর আনন্দ ও সাফল্যে ভরে উঠুক।',2],['☀️','শুভ সকাল','নতুন দিনের শুরুটা হোক হাসি ও আশায় ভরা।',5],['🌙','শুভ রাত্রি','দিনের ক্লান্তি ভুলে শান্তির ঘুমে ডুবে যান। শুভ রাত্রি।',3],['🤝','ধন্যবাদ','আপনার সহযোগিতার জন্য আন্তরিক কৃতজ্ঞতা।',1],['🎊','অভিনন্দন','আপনার এই সাফল্যে আমরা গর্বিত। অভিনন্দন!',4],['🌿','সুস্থ হয়ে উঠুন','দ্রুত সুস্থ হয়ে উঠুন — আপনার জন্য দোয়া ও ভালোবাসা রইল।',0],['✈️','শুভ যাত্রা','আপনার পথচলা নিরাপদ ও আনন্দময় হোক।',1],['📚','পরীক্ষায় শুভকামনা','পরিশ্রমের ফল পাবেনই — পরীক্ষার জন্য অনেক শুভকামনা।',1],['🌟','সফল হোন','আপনার স্বপ্ন সত্যি হোক — শুভকামনা রইল।',5],['🇧🇩','স্বাধীনতা দিবসের শুভেচ্ছা','মহান স্বাধীনতা দিবসে সকল শহীদের প্রতি গভীর শ্রদ্ধা।',0],['🇧🇩','বিজয় দিবসের শুভেচ্ছা','মহান বিজয় দিবসে সকল বীরের প্রতি গভীর শ্রদ্ধা।',0],['🕊️','মহান শহীদ দিবস','ভাষা শহীদদের প্রতি বিনম্র শ্রদ্ধা।',3],['🪔','শুভ দুর্গাপূজা','পূজার আনন্দে ভরে উঠুক সবার মন। শুভ শারদীয়া!',2],['🎄','শুভ বড়দিন','বড়দিনের আনন্দ ও শান্তি সবার জীবনে ছড়িয়ে পড়ুক।',0],['🪷','শুভ বুদ্ধ পূর্ণিমা','বুদ্ধ পূর্ণিমার শান্তি ও মৈত্রী সবার জীবনে আসুক।',5],['🏡','নতুন বাড়ির শুভেচ্ছা','নতুন ঠিকানায় সুখ ও শান্তি বিরাজ করুক।',5],['👶','নতুন সন্তানের শুভেচ্ছা','নতুন অতিথির আগমনে আপনাদের পরিবারে আনন্দ ও দোয়া।',4]];
+    var fri=new Date().getDay()===5,st={mode:'today',th:0,occ:fri?1:7,text:'',who:''};
+    open('cardModal','🖼️ শেয়ার কার্ড বানান',function(w){
+      var tabs=el('div','display:flex;gap:6px;margin-bottom:10px');var ctl=el('div'),pv=el('canvas','width:100%;border-radius:16px;margin-bottom:10px;display:block'),cv=null;
+      [['today','📅 আজকের দিন'],['wish','💌 শুভেচ্ছা'],['quiz','🧠 কুইজ স্কোর']].forEach(function(a){var b=el('button','flex:1;padding:9px 4px;border-radius:12px;border:0;font-weight:700;font-size:12.5px;cursor:pointer;color:#fff;background:'+(st.mode===a[0]?'#059669':'#061812'),a[1]);b.onclick=function(){st.mode=a[0];tabs.querySelectorAll('button').forEach(function(x){x.style.background='#061812'});b.style.background='#059669';ctl2();render()};tabs.appendChild(b)});
+      w.appendChild(tabs);w.appendChild(pv);w.appendChild(ctl);
+      var th=el('div','display:flex;gap:8px;margin:6px 0 10px');THEMES.forEach(function(t,i){var b=el('button','width:38px;height:38px;border-radius:50%;border:2px solid #fff;cursor:pointer;background:linear-gradient(135deg,'+t[0]+','+t[1]+')');b.onclick=function(){st.th=i;render()};th.appendChild(b)});w.appendChild(th);
+      var sh=el('button','width:100%;padding:14px;border-radius:14px;border:0;background:#10b981;color:#fff;font-size:15px;font-weight:800;cursor:pointer','📤 শেয়ার / সেভ করুন');sh.onclick=function(){toBlob(cv).then(function(b){amarFiles([{blob:b,name:'amar-bangladesh-card.png'}],'আমার বাংলাদেশ')})};w.appendChild(sh);
+      function ctl2(){ctl.textContent='';if(st.mode==='wish'){var gr=el('div','display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px');OCC.forEach(function(o,ix){var cb=el('button','padding:7px 11px;border-radius:99px;border:1px solid rgba(16,185,129,.5);color:#fff;font-size:12.5px;cursor:pointer;background:'+(st.occ===ix?'#059669':'#061812'),o[0]+' '+o[1]);cb.onclick=function(){st.occ=ix;st.th=o[3];gr.querySelectorAll('button').forEach(function(x){x.style.background='#061812'});cb.style.background='#059669';render()};gr.appendChild(cb)});ctl.appendChild(gr);var i=el('input',INP);i.placeholder='নিজের কথা লিখুন (ঐচ্ছিক)';i.oninput=function(){st.text=i.value;render()};ctl.appendChild(i);var j=el('input',INP);j.placeholder='প্রাপকের নাম (ঐচ্ছিক)';j.oninput=function(){st.who=j.value;render()};ctl.appendChild(j)}}
+      function render(){var n=new Date(),o;
+        if(st.mode==='today'){var di=Math.floor((Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())-Date.UTC(n.getFullYear(),0,0))/864e5);var tip='';try{tip=window.__todayTip?window.__todayTip(di):''}catch(e){}o={top:n.getDay()===5?'জুমার মোবারক 🕌':'আজকের বাংলাদেশ',big:n.toLocaleDateString('bn-BD',{weekday:'long',day:'numeric',month:'long'}),sub:tip||'প্রতিদিন নতুন কিছু জানুন, ভালো থাকুন।',th:st.th,size:76}}
+        else if(st.mode==='wish'){var oc=OCC[st.occ];o={top:st.who?(st.who+' —'):'',emoji:oc[0],big:oc[1],sub:st.text||oc[2],th:st.th,size:88}}
+        else{var Q=rd('amarQuiz_v1',{days:{}}),t=n.getFullYear()+'-'+(n.getMonth()+1)+'-'+n.getDate(),sc=Q.days[t];o={top:'🧠 দৈনিক কুইজ',big:sc!=null?('আজ পেয়েছি '+B(sc)+'/৫'):'আজকের কুইজ বাকি!',sub:sc!=null?'তুমি কত পাও? অ্যাপে এসে খেলে দেখাও!':'অ্যাপ খুলে ৫টি প্রশ্নের উত্তর দিন।',th:st.th,size:84}}
+        cv=amarMakeCard(o);pv.width=cv.width;pv.height=cv.height;pv.getContext('2d').drawImage(cv,0,0)}
+      ctl2();render()})};
+  /* ---- অফলাইন ব্যানার ---- */
+  function bar(){var b=document.getElementById('offBar');if(navigator.onLine){if(b)b.remove();return}if(b)return;b=el('div','position:fixed;top:0;left:0;right:0;z-index:99998;background:#92400e;color:#fff;font-size:12px;text-align:center;padding:5px 8px;line-height:1.5','📴 ইন্টারনেট নেই — জরুরি নম্বর, নামাজ, কুইজ ও অভ্যাস চলছে');b.id='offBar';document.body.appendChild(b)}
+  window.addEventListener('online',bar);window.addEventListener('offline',bar);setTimeout(bar,1500);
+  /* ---- সকালের সারাংশ নোটিফিকেশন (APK) ---- */
+  window.amarMorning=async function(on,quiet){var LN=null;try{LN=CAPN()}catch(e){}
+    if(!LN){if(!quiet)alert('সকালের নোটিফিকেশন শুধু APK অ্যাপে চালু হয়। ব্রাউজারে সম্ভব নয়।');return false}
+    try{if(!on){await LN.cancel({notifications:[{id:7001}]});wr('amarMorning_v1',0);return false}
+      var p=await LN.checkPermissions();if(p.display!=='granted')p=await LN.requestPermissions();if(p.display!=='granted')return false;
+      await LN.schedule({notifications:[{id:7001,title:'🇧🇩 আজকের বাংলাদেশ',body:'আজকের তারিখ, নামাজের সময়, আবহাওয়া ও একটি কাজের পরামর্শ — দেখে নিন।',schedule:{on:{hour:7,minute:0},allowWhileIdle:true}}]});wr('amarMorning_v1',1);return true}catch(e){return false}};
+  window.amarMorningToggle=function(){var on=!rd('amarMorning_v1',0);amarMorning(on).then(function(r){if(on&&r)alert('✅ রোজ সকাল ৭টায় "আজকের বাংলাদেশ" নোটিফিকেশন আসবে।');else if(!on)alert('সকালের নোটিফিকেশন বন্ধ হয়েছে।')})};
+  setTimeout(function(){if(rd('amarMorning_v1',0))amarMorning(true,true)},4000);
+})();
+</script>
+
+<script>
+/* ===== v34: আযান (নামাজের ওয়াক্তে) — ইসলামিক হাবের ভেতরে ===== */
+(function(){
+  var B=function(n){return String(n).replace(/[0-9]/g,function(d){return '০১২৩৪৫৬৭৮৯'[d]})};
+  function el(t,c,x){var e=document.createElement(t);if(c)e.style.cssText=c;if(x!=null)e.textContent=x;return e}
+  function rd(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+  function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+  var PN=[['fajr','ফজর'],['dhuhr','যোহর'],['asr','আসর'],['maghrib','মাগরিব'],['isha','এশা']];
+  function cfg(){var c=rd('amarAzan_v1',{});if(!c||typeof c!=='object')c={};c.w=c.w||{fajr:1,dhuhr:1,asr:1,maghrib:1,isha:1};if(c.vol==null)c.vol=1;c.on=!!c.on;return c}
+  function dist(){var d='ঢাকা';try{d=localStorage.getItem('amarPrayerDist_v1')||state.district||'ঢাকা'}catch(e){}if(!TM_PTS[d])d='ঢাকা';return d}
+  function times(date){var d=dist(),ll=TM_PTS[d];return prayerTimes(date,ll[1],ll[0],6)}
+  /* অডিও ফাইল: IndexedDB */
+  function db(){return new Promise(function(res,rej){var r=indexedDB.open('amarAzanDB',1);r.onupgradeneeded=function(){r.result.createObjectStore('f')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}
+  function fput(b,name){return db().then(function(d){return new Promise(function(res,rej){var t=d.transaction('f','readwrite');t.objectStore('f').put({blob:b,name:name},'azan');t.oncomplete=res;t.onerror=function(){rej(t.error)}})})}
+  function fget(){return db().then(function(d){return new Promise(function(res){var q=d.transaction('f').objectStore('f').get('azan');q.onsuccess=function(){res(q.result||null)};q.onerror=function(){res(null)}})}).catch(function(){return null})}
+  function fdel(){return db().then(function(d){return new Promise(function(res){var t=d.transaction('f','readwrite');t.objectStore('f').delete('azan');t.oncomplete=res})}).catch(function(){})}
+  var cur=null,stopBtn=null;
+  function stop(){try{if(cur){cur.pause();cur=null}}catch(e){}window.__azanPlaying=false;if(stopBtn){stopBtn.remove();stopBtn=null}}
+  function chime(vol){try{var C=new(window.AudioContext||window.webkitAudioContext)(),t=C.currentTime;[523,659,784,659,523].forEach(function(f,i){var o=C.createOscillator(),g=C.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*.55);g.gain.linearRampToValueAtTime(.35*vol,t+i*.55+.05);g.gain.exponentialRampToValueAtTime(.001,t+i*.55+.5);o.connect(g);g.connect(C.destination);o.start(t+i*.55);o.stop(t+i*.55+.55)});setTimeout(function(){window.__azanPlaying=false;if(stopBtn){stopBtn.remove();stopBtn=null}},3000)}catch(e){}}
+  function play(name){stop();window.__azanPlaying=true;var c=cfg();
+    stopBtn=el('button','position:fixed;left:50%;transform:translateX(-50%);bottom:90px;z-index:99997;background:#b91c1c;color:#fff;border:0;border-radius:999px;padding:12px 20px;font-size:14px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.4);cursor:pointer','🔕 আযান বন্ধ করুন'+(name?' ('+name+')':''));stopBtn.onclick=stop;document.body.appendChild(stopBtn);
+    fget().then(function(r){if(r&&r.blob){var u=URL.createObjectURL(r.blob);cur=new Audio(u);cur.volume=Math.min(1,c.vol);cur.onended=function(){stop();URL.revokeObjectURL(u)};cur.play().catch(function(){chime(c.vol)})}else chime(c.vol)})}
+  window.azanPlay=play;
+  /* ওয়াক্ত পরীক্ষা */
+  function tick(now){var c=cfg();if(!c.on)return;now=now||new Date();var pt;try{pt=times(now)}catch(e){return}var m=now.getHours()*60+now.getMinutes()+now.getSeconds()/60,dk=now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate(),pl=rd('amarAzanPlayed_v1',{});
+    PN.forEach(function(p){if(!c.w[p[0]])return;var v=pt[p[0]]*60;if(m>=v&&m<v+2&&pl[dk+p[0]]!==1){pl[dk+p[0]]=1;var ks=Object.keys(pl);if(ks.length>30)delete pl[ks[0]];wr('amarAzanPlayed_v1',pl);play(p[1]);try{showToast('🕌 '+p[1]+' এর ওয়াক্ত হয়েছে')}catch(e){}}})}
+  window.__azanTick=tick;setInterval(function(){tick()},15000);
+  /* নেটিভ (APK) নোটিফিকেশন: আগামী ৩ দিন */
+  window.azanSchedule=async function(){var LN=null;try{LN=CAPN()}catch(e){}if(!LN)return false;var c=cfg();
+    try{var pend=await LN.getPending(),old=(pend&&pend.notifications||[]).filter(function(n){return n.id>=7100&&n.id<7200}).map(function(n){return{id:n.id}});if(old.length)await LN.cancel({notifications:old});
+      if(!c.on)return false;var p=await LN.checkPermissions();if(p.display!=='granted')p=await LN.requestPermissions();if(p.display!=='granted')return false;
+      var list=[],now=new Date();for(var d=0;d<3;d++){var day=new Date(now.getFullYear(),now.getMonth(),now.getDate()+d),pt=times(day);PN.forEach(function(w,i){if(!c.w[w[0]])return;var v=pt[w[0]],at=new Date(day.getFullYear(),day.getMonth(),day.getDate(),Math.floor(v),Math.floor((v%1)*60),0);if(at<=now)return;list.push({id:7100+d*5+i,title:'🕌 '+w[1]+' এর আযান',body:'ওয়াক্ত হয়েছে — নামাজের প্রস্তুতি নিন।',schedule:{at:at,allowWhileIdle:true}})})}
+      if(list.length)await LN.schedule({notifications:list});return true}catch(e){return false}};
+  setTimeout(function(){window.azanSchedule()},5000);
+  /* UI */
+  window.islamAzan=function(body){var c=cfg();
+    function save(){wr('amarAzan_v1',c);window.azanSchedule()}
+    var BOX='background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:16px;padding:12px;margin-bottom:10px';
+    body.appendChild(el('p','font-size:12px;color:#6ee7b7;line-height:1.8;margin:0 0 10px','🔔 নামাজের ওয়াক্ত হলে আযান বাজবে। সময় আপনার বেছে নেওয়া জেলার (নামাজের সময় পাতা) হিসাব অনুযায়ী। জামাতের সময়সূচির জন্য নিজের মসজিদের সাথে মিলিয়ে নিন।'));
+    var mb=el('div',BOX+';display:flex;align-items:center;gap:10px');mb.appendChild(el('b','flex:1;font-size:14.5px','আযান চালু'));var tg=el('button','width:52px;height:30px;border-radius:99px;border:0;position:relative;cursor:pointer;background:'+(c.on?'#10b981':'#334155'));var kn=el('i','position:absolute;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;left:'+(c.on?'25px':'3px'));tg.appendChild(kn);tg.onclick=function(){c.on=!c.on;save();tg.style.background=c.on?'#10b981':'#334155';kn.style.left=c.on?'25px':'3px'};mb.appendChild(tg);body.appendChild(mb);
+    var pt;try{pt=times(new Date())}catch(e){pt={}}
+    var wl=el('div',BOX);PN.forEach(function(p){var r=el('div','display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(16,185,129,.15)');var v=pt[p[0]]||0,H=Math.floor(v),M=Math.round((v%1)*60);if(M===60){H++;M=0}r.appendChild(el('span','flex:1;font-size:14px','🕌 '+p[1]));r.appendChild(el('span','font-size:13px;color:#a7f3d0',B(H%12||12)+':'+B(('0'+M).slice(-2))));var k=el('input','width:22px;height:22px');k.type='checkbox';k.checked=!!c.w[p[0]];k.onchange=function(){c.w[p[0]]=k.checked?1:0;save()};r.appendChild(k);wl.appendChild(r)});body.appendChild(wl);
+    var ab=el('div',BOX);ab.appendChild(el('div','font-weight:700;font-size:14px;margin-bottom:6px','🎧 আযানের অডিও'));var nm=el('div','font-size:12.5px;color:#a7f3d0;margin-bottom:8px;line-height:1.7','লোড হচ্ছে…');ab.appendChild(nm);
+    function showName(){fget().then(function(r){nm.textContent=r?'বেছে নেওয়া ফাইল: '+r.name:'কোনো ফাইল নেই — আপাতত সাধারণ সুর বাজবে। ফোনে রাখা যেকোনো আযানের mp3 ফাইল বেছে নিন।'})}showName();
+    var fi=el('input','display:none');fi.type='file';fi.accept='audio/*';fi.onchange=function(){var f=fi.files&&fi.files[0];if(!f)return;if(f.size>8*1024*1024){alert('ফাইল ৮ এমবি-র বেশি। ছোট ফাইল বেছে নিন।');return}fput(f,f.name).then(showName)};ab.appendChild(fi);
+    var row=el('div','display:flex;gap:8px;flex-wrap:wrap');function bt(t,fn,pri){var b=el('button','padding:10px 14px;border-radius:12px;border:1px solid #10b981;color:#fff;font-size:13px;font-weight:700;cursor:pointer;background:'+(pri?'#059669':'#061812'),t);b.onclick=fn;row.appendChild(b)}
+    bt('📂 ফাইল বেছে নিন',function(){fi.click()},1);bt('▶️ শুনে দেখুন',function(){play('')});bt('🗑️ মুছুন',function(){fdel().then(showName)});ab.appendChild(row);
+    var vl=el('div','margin-top:10px;font-size:12.5px;color:#a7f3d0','🔊 আওয়াজ');var vr=el('input','width:100%');vr.type='range';vr.min='20';vr.max='100';vr.value=String(Math.round(c.vol*100));vr.onchange=function(){c.vol=vr.value/100;save()};vl.appendChild(vr);ab.appendChild(vl);body.appendChild(ab);
+    body.appendChild(el('p','font-size:11.5px;color:#a7f3d0;line-height:1.8','ℹ️ অ্যাপ খোলা থাকলে ওয়াক্তে আযান বাজবে। APK অ্যাপে অ্যাপ বন্ধ থাকলেও ওয়াক্তে নোটিফিকেশন আসবে। ব্রাউজারে অ্যাপ বন্ধ থাকলে আসে না — ফোনের নিয়মের কারণে।'))};
 })();
 </script>
 
