@@ -3483,7 +3483,7 @@
       row('📤 বন্ধুকে অ্যাপ শেয়ার করুন',()=>{const u='https://adnan1497.github.io/My-bangladesh-app/MyBangladesh_App.html';const t='আমার বাংলাদেশ — জরুরি সেবা, হাসপাতাল, রক্ত, ব্যবসা হিসাব, সরকারি সেবা সব এক অ্যাপে।';if(navigator.share)navigator.share({title:'আমার বাংলাদেশ',text:t,url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(t+' '+u);alert('লিংক কপি হয়েছে')}catch(e){prompt('কপি করুন:',t+' '+u)}}try{amTrack('share')}catch(e){}});
       row('📝 কাস্টমার কেয়ারকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৪১'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৪৩'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -8350,7 +8350,7 @@
    ['🚑 জরুরি ও স্বাস্থ্য',['emergency','sos','hospital','doctor','pharmacy','ambulance','blood','firstaid','healthlog','maternal','police','fire','disaster','shelter','water','disability']],
    ['🎓 শিক্ষা ও ক্যারিয়ার',['school','education','coaching','results','scholarship','skills','jobs','labor','gk','quiz']],
    ['🏛️ সরকারি ও আইনি',['govservice','government','passport','land','publicservices','localgov','complaint','consumer','rights','lawyer','tax','womenChild','socialSafety','cybersafety','postal','eservices']],
-   ['💰 অর্থ ও ব্যবসা',['bank','mobilebank','currency','pension','mymoney','bizacc','business','shop','market','mall','remittance','probashi','farming','cropx','fisheries','livestock','rent']],
+   ['💰 অর্থ ও ব্যবসা',['bank','mobilebank','currency','pension','mymoney','bizacc','messhisab','business','shop','market','mall','remittance','probashi','farming','cropx','fisheries','livestock','rent']],
    ['🧭 জীবনযাপন ও ভ্রমণ',['travel','travelmap','maps','fuel','utility','restaurant','hotel','resort','parks','tourist','environment','notice','lost','events','news','about']],
    ['🕌 ধর্ম',['islamic','religious']],
    ['🎮 বিনোদন, সমাজ ও টুলস',['social','games','tools','notes','alarm']]
@@ -8668,6 +8668,119 @@
 })();
 </script>
 <script>
+/* ===== ম্যাচ/মেসের হিসাব (v43): হোস্টেল-মেসে একসাথে খাওয়ার মিল, বাজার, জমা ও খরচ ===== */
+(function(){
+  var KEY='amarMessHisab_v1',D,W,V={t:'home',id:null,m:null,tab:'sum',day:null};
+  var BN='০১২৩৪৫৬৭৮৯';function bn(n){return String(n).replace(/[0-9]/g,function(c){return BN[c]})}
+  function num(s){var v=parseFloat(String(s==null?'':s).replace(/[০-৯]/g,function(c){return BN.indexOf(c)}).replace(/[,\s৳]/g,''));return isFinite(v)?v:0}
+  function r2(n){return Math.round((Number(n)||0)*100)/100}
+  function M(n){return '৳'+bn(r2(n).toLocaleString('en-US'))}
+  function Q(n){return bn(r2(n))}
+  function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+  function load(){try{D=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){D=null}if(!D||typeof D!=='object'||Array.isArray(D))D={};if(!Array.isArray(D.mess))D.mess=[]}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){alert('সেভ করা যায়নি — ফোনের জায়গা শেষ হয়ে থাকতে পারে।')}}
+  function today(){var n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')}
+  function curM(){return today().slice(0,7)}
+  function mAdd(m,k){var p=m.split('-').map(Number),d=new Date(p[0],p[1]-1+k,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')}
+  function mLbl(m){var p=m.split('-').map(Number);return new Date(p[0],p[1]-1,1).toLocaleDateString('bn-BD',{month:'long',year:'numeric'})}
+  function dLbl(d){var p=d.split('-').map(Number);return new Date(p[0],p[1]-1,p[2]).toLocaleDateString('bn-BD',{weekday:'short',day:'numeric',month:'short'})}
+  function dim(m){var p=m.split('-').map(Number);return new Date(p[0],p[1],0).getDate()}
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+  function btn(p,txt,fn,c){var b=el('button','bf-b'+(c?' '+c:''),txt);b.type='button';b.onclick=fn;p.appendChild(b);return b}
+  function inp(p,label,o){o=o||{};if(label)p.appendChild(el('label','bf-l',label));var i=el(o.area?'textarea':'input','bf-i');if(o.area)i.rows=o.rows||4;if(o.mode)i.setAttribute('inputmode',o.mode);if(o.ph)i.placeholder=o.ph;if(o.val!=null)i.value=o.val;if(o.type)i.type=o.type;i.setAttribute('autocomplete','off');p.appendChild(i);return i}
+  function sel(p,label,opts,val){if(label)p.appendChild(el('label','bf-l',label));var s=el('select','bf-i');opts.forEach(function(o){var x=document.createElement('option');x.value=o[0];x.textContent=o[1];s.appendChild(x)});if(val)s.value=val;p.appendChild(s);return s}
+  function css(){if(document.getElementById('bfCss'))return;var s=document.createElement('style');s.id='bfCss';s.textContent=
+  '#bfW{padding:12px 14px 90px;color:#ecfdf5}.bf-c{background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:12px;margin-bottom:10px}.bf-b{border:1px solid rgba(16,185,129,.5);background:#0f3a2b;color:#fff;border-radius:11px;padding:10px 14px;font-size:13.5px;cursor:pointer}.bf-b.p{background:#059669;border-color:#059669;font-weight:700}.bf-b.d{background:#7f1d1d;border-color:#b91c1c}.bf-b.w{background:#b45309;border-color:#d97706}.bf-i{width:100%;box-sizing:border-box;background:#0a251c;color:#fff;border:1px solid rgba(16,185,129,.4);border-radius:10px;padding:11px;font-size:15px;margin-bottom:8px;font-family:inherit}.bf-l{display:block;font-size:12px;color:#a7f3d0;margin:6px 0 4px}.bf-r{display:flex;gap:8px;align-items:center}.bf-r>*{min-width:0}.bf-h{font-size:12px;color:#a7f3d0;line-height:1.6}.bf-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}.bf-sum>div{background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:9px 4px;text-align:center}.bf-sum b{display:block;font-size:15px}.bf-sum span{font-size:11px;color:#a7f3d0}.bf-st{display:flex;gap:10px;align-items:center;padding:11px 10px;border-radius:12px;background:#0b2b20;border:1px solid rgba(16,185,129,.25);margin-bottom:7px}.bf-av{width:38px;height:38px;border-radius:50%;background:#065f46;display:flex;align-items:center;justify-content:center;font-weight:800;flex:0 0 auto}.bf-bd{font-size:11.5px;padding:3px 9px;border-radius:99px;font-weight:700;white-space:nowrap}.bf-ok{background:#064e3b;color:#6ee7b7}.bf-du{background:#7f1d1d;color:#fecaca}.bf-mn{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.bf-mn b{font-size:15px}.bf-ch{display:flex;gap:6px;margin:6px 0 10px;overflow-x:auto}.bf-ch button{flex:0 0 auto;padding:8px 13px;border-radius:99px;border:1px solid rgba(16,185,129,.5);background:none;color:#fff;font-size:12.5px;cursor:pointer}.bf-ch button.on{background:#059669}.bf-ste{display:flex;align-items:center;gap:6px}.bf-ste button{width:36px;height:36px;border-radius:10px;border:1px solid rgba(16,185,129,.5);background:#0f3a2b;color:#fff;font-size:18px;cursor:pointer}.bf-ste b{min-width:34px;text-align:center;font-size:16px}.bf-tb{overflow-x:auto;margin-bottom:10px}.bf-tb table{border-collapse:collapse;font-size:12px;min-width:100%}.bf-tb td,.bf-tb th{border:1px solid rgba(16,185,129,.25);padding:5px 7px;text-align:center;white-space:nowrap}.bf-tb th{background:#0f3a2b}.bf-tb td:first-child{text-align:left;position:sticky;left:0;background:#0b2b20}';
+  document.head.appendChild(s)}
+  function mkModal(){var m=document.getElementById('bfModal');if(!m){m=document.createElement('div');m.className='modal-overlay';m.id='bfModal';m.innerHTML='<div class="modal-content"><div class="modal-header"><h3 style="font-size:18px">🍽️ ম্যাচ/মেসের হিসাব</h3><button class="close-btn" onclick="closeModal(\'bfModal\')">✕</button></div><div id="bfW"></div></div>';document.body.appendChild(m)}W=document.getElementById('bfW');return m}
+  function G(id){return D.mess.filter(function(x){return x.id===id})[0]}
+  function mem(x,id){return x.members.filter(function(m){return m.id===id})[0]}
+  function nm(x,id){var m=mem(x,id);return m?m.name:'(মুছে গেছে)'}
+  function go(t,o){V.t=t;if(o)for(var k in o)V[k]=o[k];draw();try{W.parentNode.scrollTop=0}catch(e){}}
+  function draw(){W.textContent='';({home:home,form:form,mess:messV})[V.t]()}
+  function back(to){var r=el('div','bf-r');r.style.marginBottom='10px';btn(r,'← পিছনে',function(){go(to)});W.appendChild(r)}
+  /* হিসাব */
+  function calc(x,m){
+    var R={tm:0,tb:0,fix:0,rate:0,rows:[]},act=x.members.filter(function(a){return !a.off});
+    x.members.forEach(function(a){R.rows.push({id:a.id,name:a.name,off:!!a.off,meals:0,bz:0,dep:0,fs:0})});
+    function row(id){return R.rows.filter(function(r){return r.id===id})[0]}
+    Object.keys(x.meals).forEach(function(d){if(d.slice(0,7)!==m)return;var o=x.meals[d];Object.keys(o).forEach(function(id){var r=row(id);if(r){r.meals+=o[id];R.tm+=o[id]}})});
+    x.bazar.forEach(function(b){if(b.d.slice(0,7)!==m)return;R.tb+=b.amt;var r=row(b.mid);if(r)r.bz+=b.amt});
+    x.dep.forEach(function(b){if(b.d.slice(0,7)!==m)return;var r=row(b.mid);if(r)r.dep+=b.amt});
+    x.fix.forEach(function(f){if(f.m===m)R.fix+=f.amt});
+    R.rate=R.tm>0?R.tb/R.tm:0;var n=act.length||1;
+    R.rows.forEach(function(r){r.cost=r.meals*R.rate;r.fs=r.off&&!r.meals?0:R.fix/n;r.put=r.dep+(x.bz===false?0:r.bz);r.bal=r.put-r.cost-r.fs});
+    R.dep=R.rows.reduce(function(a,r){return a+r.dep},0);return R}
+  /* হোম */
+  function home(){
+    W.appendChild(el('p','bf-h','হোস্টেল/মেসে সবাই একসাথে খায় — কে কতদিন খেল, কে কত টাকার বাজার করল, কে কত জমা দিল, আর মাস শেষে কার কত পাওনা বা দেনা — সব হিসাব এখানে। তথ্য শুধু আপনার ফোনেই থাকে।'));
+    D.mess.forEach(function(x){var R=calc(x,curM()),c=el('div','bf-st');c.style.cursor='pointer';c.onclick=function(){go('mess',{id:x.id,m:curM(),tab:'sum'})};c.appendChild(el('div','bf-av','🍽️'));var t=el('div');t.style.flex='1';t.appendChild(el('div','',x.name));t.appendChild(el('div','bf-h',bn(x.members.filter(function(a){return !a.off}).length)+' জন সদস্য · এ মাসে বাজার '+M(R.tb)));c.appendChild(t);W.appendChild(c)});
+    if(!D.mess.length){var e=el('div','bf-c');e.appendChild(el('div','','এখনো কোনো ম্যাচ/মেস নেই।'));e.appendChild(el('div','bf-h','যেমন: "রহমান ভিলা ম্যাচ"। নাম দিয়ে সদস্যদের নাম একসাথে লিখে শুরু করুন।'));W.appendChild(e)}
+    var f=btn(W,'➕ নতুন ম্যাচ খুলুন',function(){go('form',{id:null})},'p');f.style.cssText+=';width:100%;margin-top:6px'}
+  function form(){
+    var x=V.id?G(V.id):null;back(x?'mess':'home');var c=el('div','bf-c');c.appendChild(el('h4','',x?'ম্যাচ সম্পাদনা':'নতুন ম্যাচ'));
+    var n=inp(c,'ম্যাচের নাম *',{ph:'যেমন: রহমান ভিলা ম্যাচ',val:x?x.name:''});var a=x?null:inp(c,'সদস্যদের নাম (প্রতি লাইনে একজন) *',{area:1,rows:7,ph:'রাকিব\nসুমন\nতানভীর\nহাসান'});
+    var bz=sel(c,'বাজারকারী নিজের পকেট থেকে টাকা দিলে',[['1','তার জমা হিসেবে ধরুন (সাধারণ নিয়ম)'],['0','ধরবেন না — শুধু জমা-ই জমা']],x&&x.bz===false?'0':'1');
+    btn(c,x?'সেভ করুন':'ম্যাচ খুলুন',function(){var s=n.value.trim();if(!s){alert('ম্যাচের নাম লিখুন।');return}
+      if(x){x.name=s;x.bz=bz.value==='1';save();go('mess')}else{var L=a.value.split(/\n/).map(function(z){return z.trim()}).filter(Boolean);if(!L.length){alert('অন্তত একজন সদস্যের নাম লিখুন।');return}var o={id:uid(),name:s,bz:bz.value==='1',members:L.map(function(z){return{id:uid(),name:z}}),meals:{},bazar:[],dep:[],fix:[]};D.mess.push(o);save();go('mess',{id:o.id,m:curM(),tab:'meal',day:today()})}},'p').style.width='100%';W.appendChild(c);
+    if(x){var d=el('div','bf-c');d.appendChild(el('div','bf-h','ম্যাচ মুছলে এর সব মিল, বাজার ও জমার হিসাব মুছে যাবে।'));btn(d,'🗑️ ম্যাচ মুছুন',function(){if(confirm('"'+x.name+'" ম্যাচের সব হিসাব মুছবেন? ফেরানো যাবে না।')){D.mess=D.mess.filter(function(y){return y.id!==x.id});save();go('home')}},'d');W.appendChild(d)}}
+  /* ম্যাচ */
+  function messV(){
+    var x=G(V.id);if(!x){go('home');return}var m=V.m||curM();V.m=m;back('home');
+    var h=el('div','bf-r');h.style.marginBottom='8px';var t=el('div');t.style.flex='1';t.appendChild(el('b','',x.name));h.appendChild(t);btn(h,'✏️',function(){go('form')});W.appendChild(h);
+    var mn=el('div','bf-mn');btn(mn,'◀',function(){V.m=mAdd(m,-1);V.day=null;draw()});mn.appendChild(el('b','',mLbl(m)));btn(mn,'▶',function(){V.m=mAdd(m,1);V.day=null;draw()});W.appendChild(mn);
+    var ch=el('div','bf-ch');[['sum','📊 হিসাব'],['meal','🍚 মিল'],['bazar','🛒 বাজার'],['dep','💰 জমা'],['fix','🧾 অন্যান্য খরচ'],['mem','👥 সদস্য']].forEach(function(a){var b=el('button',V.tab===a[0]?'on':'',a[1]);b.onclick=function(){V.tab=a[0];draw()};ch.appendChild(b)});W.appendChild(ch);
+    ({sum:tSum,meal:tMeal,bazar:tBazar,dep:tDep,fix:tFix,mem:tMem})[V.tab](x,m)}
+  function sum3(p,a){var s=el('div','bf-sum');a.forEach(function(z){var d=el('div');d.appendChild(el('b','',z[0]));d.appendChild(el('span','',z[1]));s.appendChild(d)});p.appendChild(s)}
+  function tSum(x,m){
+    var R=calc(x,m);sum3(W,[[M(R.tb),'মোট বাজার'],[Q(R.tm),'মোট মিল'],['৳'+bn(r2(R.rate)),'মিল রেট']]);
+    if(R.tm===0)W.appendChild(el('div','bf-h','মিল-রেট = মোট বাজার ÷ মোট মিল। "মিল" ট্যাবে প্রতিদিনের মিল লিখুন, তাহলে হিসাব আপনা-আপনি হবে।'));
+    R.rows.forEach(function(r){if(r.off&&!r.meals&&!r.dep&&!r.bz)return;var c=el('div','bf-c');var t=el('div','bf-r');t.appendChild(el('b','',r.name)).style.flex='1';t.appendChild(el('span','bf-bd '+(r.bal>=0?'bf-ok':'bf-du'),(r.bal>=0?'পাবে ':'দেবে ')+M(Math.abs(r.bal))));c.appendChild(t);
+      c.appendChild(el('div','bf-h','মিল '+Q(r.meals)+' × ৳'+bn(r2(R.rate))+' = '+M(r.cost)+(r.fs?' · অন্যান্য খরচের ভাগ '+M(r.fs):'')));c.appendChild(el('div','bf-h','জমা '+M(r.dep)+(r.bz?' · বাজার করেছে '+M(r.bz)+(x.bz===false?' (ধরা হয়নি)':''):'')));W.appendChild(c)});
+    if(R.fix)W.appendChild(el('div','bf-h','অন্যান্য খরচ মোট '+M(R.fix)+' — সদস্যদের মধ্যে সমান ভাগ।'));
+    var r=el('div','bf-r');r.style.marginTop='8px';btn(r,'📤 হিসাব শেয়ার করুন',function(){share(x,m,R)},'p').style.flex='1';btn(r,'🔄 শেষে সমন্বয়',function(){settle(x,R)}).style.flex='1';W.appendChild(r);
+    var bk=el('div','bf-c');bk.style.marginTop='10px';bk.appendChild(el('div','bf-h','ফোন বদলালে হিসাব যেন না হারায়, মাঝে মাঝে ব্যাকআপ রাখুন।'));var rr=el('div','bf-r');btn(rr,'⬇️ ব্যাকআপ',function(){try{var bl=new Blob([JSON.stringify(D)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='mess-hisab-backup.json';document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},500)}catch(e){alert('ব্যাকআপ নামানো যায়নি।')}}).style.flex='1';
+    btn(rr,'⬆️ ফেরান',function(){var f=document.createElement('input');f.type='file';f.accept='.json,application/json';f.onchange=function(){var fl=f.files[0];if(!fl)return;var rd=new FileReader();rd.onload=function(){try{var o=JSON.parse(rd.result);if(!o||!Array.isArray(o.mess))throw 0;if(confirm('বর্তমান সব হিসাব মুছে ব্যাকআপ থেকে ফেরাবেন?')){D=o;save();go('home')}}catch(e){alert('ফাইলটি সঠিক নয়।')}};rd.readAsText(fl)};f.click()}).style.flex='1';bk.appendChild(rr);W.appendChild(bk)}
+  function settleList(R){var P=R.rows.filter(function(r){return r.bal>0.5}).map(function(r){return{n:r.name,a:r.bal}}),N=R.rows.filter(function(r){return r.bal<-0.5}).map(function(r){return{n:r.name,a:-r.bal}}),L=[];P.sort(function(a,b){return b.a-a.a});N.sort(function(a,b){return b.a-a.a});var i=0,j=0;while(i<N.length&&j<P.length){var t=Math.min(N[i].a,P[j].a);L.push(N[i].n+' → '+P[j].n+': '+M(t));N[i].a-=t;P[j].a-=t;if(N[i].a<0.5)i++;if(P[j].a<0.5)j++}return L}
+  function dnote(R){var d=R.rows.reduce(function(a,r){return a+r.bal},0);return Math.abs(d)>1?'\n\n(নোট: '+M(Math.abs(d))+(d>0?' অব্যয়িত জমা এখনো ম্যানেজার/বাজারকারীদের হাতে আছে — মাস শেষে সেটা সবার পাওনা অনুযায়ী ফেরত যাবে।':' কম আছে — জমা বা বাজারের এন্ট্রি আবার মিলিয়ে দেখুন।')+')':''}
+  function settle(x,R){var L=settleList(R);alert((L.length?'কে কাকে কত দেবে:\n\n'+L.join('\n'):'সবার হিসাব মিলে গেছে — কারও কিছু দেওয়ার নেই।')+dnote(R))}
+  function share(x,m,R){var L=['🍽️ '+x.name+' — '+mLbl(m),'মোট বাজার '+M(R.tb)+' · মোট মিল '+Q(R.tm)+' · মিল রেট ৳'+bn(r2(R.rate)),''];R.rows.forEach(function(r){if(r.off&&!r.meals&&!r.dep&&!r.bz)return;L.push((r.bal>=0?'✅ ':'❌ ')+r.name+' — মিল '+Q(r.meals)+', জমা '+M(r.dep)+(r.bz?', বাজার '+M(r.bz):'')+' → '+(r.bal>=0?'পাবে ':'দেবে ')+M(Math.abs(r.bal)))});var s=settleList(R);if(s.length){L.push('','লেনদেন:');s.forEach(function(z){L.push('• '+z)})}L.push('','— "আমার বাংলাদেশ" অ্যাপ');var tx=L.join('\n');if(navigator.share){navigator.share({text:tx}).catch(function(){})}else{try{navigator.clipboard.writeText(tx);alert('কপি হয়েছে — যেখানে খুশি পেস্ট করুন।')}catch(e){prompt('কপি করুন:',tx)}}}
+  /* মিল */
+  function tMeal(x,m){
+    var days=dim(m),dd=V.day&&V.day.slice(0,7)===m?V.day:(m===curM()?today():m+'-01');V.day=dd;
+    var dr=el('div','bf-r');dr.style.marginBottom='8px';var di=inp(dr,'',{type:'date',val:dd});di.style.marginBottom='0';di.onchange=function(){if(di.value){V.day=di.value;if(di.value.slice(0,7)!==V.m)V.m=di.value.slice(0,7);draw()}};W.appendChild(dr);
+    var o=x.meals[dd]||{};function put(){if(!x.meals[dd])x.meals[dd]=o}W.appendChild(el('div','bf-h','"'+dLbl(dd)+'" — কে কয় বেলা খেল (আধা বেলার জন্য ½ চাপুন)'));
+    var all=el('div','bf-r');all.style.margin='6px 0 8px';[1,2,3].forEach(function(n){btn(all,'সবাই '+bn(n),function(){put();x.members.forEach(function(a){if(!a.off)o[a.id]=n});save();draw()})});btn(all,'সব ০',function(){put();x.members.forEach(function(a){delete o[a.id]});if(!Object.keys(o).length)delete x.meals[dd];save();draw()});W.appendChild(all);
+    x.members.forEach(function(a){if(a.off)return;var v=o[a.id]||0,c=el('div','bf-st');c.appendChild(el('div','bf-av',a.name.charAt(0)));c.appendChild(el('div','',a.name)).style.flex='1';var s=el('div','bf-ste');
+      function set(n){n=Math.max(0,Math.round(n*2)/2);put();if(n)o[a.id]=n;else delete o[a.id];if(!Object.keys(o).length)delete x.meals[dd];save();draw()}
+      var mi=el('button','','−');mi.onclick=function(){set(v-1)};var vv=el('b','',Q(v));var pl=el('button','','+');pl.onclick=function(){set(v+1)};var hf=el('button','','½');hf.style.fontSize='14px';hf.onclick=function(){set(v+.5)};s.appendChild(mi);s.appendChild(vv);s.appendChild(pl);s.appendChild(hf);c.appendChild(s);W.appendChild(c)});
+    
+    var tc=el('div','bf-c');tc.appendChild(el('h4','','📅 মিল-খাতা — '+mLbl(m)));var tb=el('div','bf-tb'),t=el('table'),hr=el('tr');hr.appendChild(el('th','','নাম'));for(var d=1;d<=days;d++){var th=el('th','',bn(d));var ds=m+'-'+String(d).padStart(2,'0');th.style.cursor='pointer';(function(ds){th.onclick=function(){V.day=ds;draw()}})(ds);if(ds===dd)th.style.background='#059669';hr.appendChild(th)}hr.appendChild(el('th','','মোট'));t.appendChild(hr);
+    x.members.forEach(function(a){var tr=el('tr'),tot=0;tr.appendChild(el('td','',a.name));for(var d=1;d<=days;d++){var ds=m+'-'+String(d).padStart(2,'0'),v=(x.meals[ds]||{})[a.id]||0;tot+=v;tr.appendChild(el('td','',v?Q(v):'·'))}tr.appendChild(el('td','',Q(tot))).style.fontWeight='800';t.appendChild(tr)});tb.appendChild(t);tc.appendChild(tb);W.appendChild(tc)}
+  /* বাজার/জমা */
+  function ledger(x,m,key,title,icon,btnTxt,whoLbl){
+    var c=el('div','bf-c');c.appendChild(el('h4','',icon+' '+title));var who=sel(c,whoLbl,x.members.filter(function(a){return !a.off}).map(function(a){return[a.id,a.name]}));var am=inp(c,'টাকার পরিমাণ (৳)',{mode:'numeric'});var nt=inp(c,key==='bazar'?'কী কী কিনল (ঐচ্ছিক)':'নোট (ঐচ্ছিক)',{ph:key==='bazar'?'যেমন: চাল, ডাল, মাছ, সবজি':''});var dt=inp(c,'তারিখ',{type:'date',val:V.day&&V.day.slice(0,7)===m?V.day:(m===curM()?today():m+'-01')});
+    btn(c,btnTxt,function(){var v=num(am.value);if(v<=0){alert('টাকার পরিমাণ লিখুন।');return}if(!who.value){alert('সদস্য বাছুন।');return}x[key].push({id:uid(),d:dt.value||today(),mid:who.value,amt:v,note:nt.value.trim()});save();V.day=dt.value;V.m=(dt.value||today()).slice(0,7);draw()},'p').style.width='100%';W.appendChild(c);
+    var L=x[key].filter(function(b){return b.d.slice(0,7)===m}).sort(function(a,b){return a.d<b.d?1:-1}),tot=L.reduce(function(a,b){return a+b.amt},0);
+    var hc=el('div','bf-c');hc.appendChild(el('h4','','এ মাসের তালিকা — মোট '+M(tot)));if(!L.length)hc.appendChild(el('div','bf-h','এখনো কিছু নেই।'));
+    L.forEach(function(b){var r=el('div','bf-r');r.style.cssText='padding:7px 0;border-top:1px solid rgba(16,185,129,.15)';var t=el('div');t.style.flex='1';t.appendChild(el('div','',nm(x,b.mid)+' — '+M(b.amt)));t.appendChild(el('div','bf-h',dLbl(b.d)+(b.note?' · '+b.note:'')));r.appendChild(t);var d=el('button','bf-b d','✕');d.style.padding='6px 10px';d.onclick=function(){if(confirm('এই এন্ট্রি মুছবেন?')){x[key]=x[key].filter(function(y){return y.id!==b.id});save();draw()}};r.appendChild(d);hc.appendChild(r)});W.appendChild(hc)}
+  function tBazar(x,m){ledger(x,m,'bazar','বাজারের খরচ লিখুন','🛒','✔ বাজার যোগ করুন','কে বাজার করল')}
+  function tDep(x,m){ledger(x,m,'dep','জমা (অগ্রিম টাকা)','💰','✔ জমা যোগ করুন','কে জমা দিল')}
+  function tFix(x,m){
+    W.appendChild(el('p','bf-h','গ্যাস, বুয়ার বেতন, বিদ্যুৎ, ইন্টারনেট — যা মিলের বাইরে সবার মধ্যে সমান ভাগ হবে।'));var c=el('div','bf-c');var n=inp(c,'খরচের নাম',{ph:'যেমন: গ্যাস বিল'});var a=inp(c,'টাকা (৳)',{mode:'numeric'});btn(c,'✔ যোগ করুন',function(){var v=num(a.value);if(!n.value.trim()||v<=0){alert('নাম ও টাকা লিখুন।');return}x.fix.push({id:uid(),m:m,name:n.value.trim(),amt:v});save();draw()},'p').style.width='100%';W.appendChild(c);
+    var L=x.fix.filter(function(f){return f.m===m}),hc=el('div','bf-c');hc.appendChild(el('h4','','এ মাসের অন্যান্য খরচ — মোট '+M(L.reduce(function(a,f){return a+f.amt},0))));if(!L.length)hc.appendChild(el('div','bf-h','এখনো কিছু নেই।'));
+    L.forEach(function(f){var r=el('div','bf-r');r.style.cssText='padding:7px 0;border-top:1px solid rgba(16,185,129,.15)';r.appendChild(el('div','',f.name+' — '+M(f.amt))).style.flex='1';var d=el('button','bf-b d','✕');d.style.padding='6px 10px';d.onclick=function(){if(confirm('মুছবেন?')){x.fix=x.fix.filter(function(y){return y.id!==f.id});save();draw()}};r.appendChild(d);hc.appendChild(r)});W.appendChild(hc)}
+  function tMem(x){
+    var c=el('div','bf-c');c.appendChild(el('h4','','নতুন সদস্য'));var n=inp(c,'নাম');btn(c,'➕ যোগ করুন',function(){if(!n.value.trim()){alert('নাম লিখুন।');return}x.members.push({id:uid(),name:n.value.trim()});save();draw()},'p').style.width='100%';W.appendChild(c);
+    x.members.forEach(function(a){var r=el('div','bf-st');r.appendChild(el('div','bf-av',a.name.charAt(0)));var t=el('div');t.style.flex='1';t.appendChild(el('div','',a.name));t.appendChild(el('div','bf-h',a.off?'আর নেই (নতুন হিসাবে বাদ)':'সদস্য'));r.appendChild(t);
+      var e=el('button','bf-b','✏️');e.onclick=function(){var v=prompt('নাম বদলান:',a.name);if(v&&v.trim()){a.name=v.trim();save();draw()}};r.appendChild(e);var o=el('button','bf-b '+(a.off?'p':'w'),a.off?'ফেরান':'বাদ');o.onclick=function(){a.off=!a.off;save();draw()};r.appendChild(o);W.appendChild(r)});
+    W.appendChild(el('div','bf-h','মেস ছেড়ে গেলে "বাদ" চাপুন — আগের মাসের হিসাব ঠিক থাকবে, নতুন দিনের মিল-তালিকায় আসবে না, অন্যান্য খরচের ভাগেও ধরা হবে না।'))}
+  window.messhisabOpen=function(){css();mkModal();load();V={t:'home',id:null,m:curM(),tab:'sum',day:null};draw();document.getElementById('bfModal').classList.add('active')};
+  try{if(!CATEGORIES.some(function(c){return c.id==='messhisab'})){var k=CATEGORIES.findIndex(function(c){return c.id==='bizacc'});CATEGORIES.splice(k<0?CATEGORIES.length:k+1,0,{id:'messhisab',name:'ম্যাচ/মেসের হিসাব (মিল, বাজার, জমা)',icon:'🍽️'});try{renderCategories()}catch(e){}}}catch(e){}
+  var _o=window.openCategoryModal;window.openCategoryModal=function(id){if(id==='messhisab'){window.messhisabOpen();return}return _o.apply(this,arguments)};
+})();
+</script>
+<script>
 /* ===== অ্যাপ-শেল (v25): স্মার্ট পিছনে, ফোনের ব্যাক-বাটন, এজ-সোয়াইপ, জুমেও ঠিক থাকা ===== */
 (function(){
   const SEL='.modal-overlay.active,.modal.active';
@@ -8720,7 +8833,8 @@
       i.setAttribute('type','text');i.style.webkitTextSecurity='disc';i.dataset.pw='1';
       try{Object.defineProperty(i,'type',{configurable:true,get(){return i.dataset.shown==='1'?'text':'password'},set(v){i.dataset.shown=(v==='text')?'1':'0';i.style.webkitTextSecurity=(v==='text')?'none':'disc'}})}catch(e){}
     }
-    i.setAttribute('autocomplete','off');i.setAttribute('autocapitalize','none');i.setAttribute('autocorrect','off');i.setAttribute('spellcheck','false');
+    i.setAttribute('autocomplete',isPw?'nope-'+Math.random().toString(36).slice(2,6):'off');i.setAttribute('aria-autocomplete','none');i.setAttribute('autocapitalize','none');
+    if(isPw){try{i.removeAttribute('id_');const lb=i.previousElementSibling;if(lb&&lb.tagName==='LABEL'&&!lb.__zw){lb.__zw=1;lb.textContent=lb.textContent.replace(/পাসওয়ার্ড/g,'পাস\u200cওয়ার্ড')}if(i.placeholder)i.placeholder=i.placeholder.replace(/পাসওয়ার্ড/g,'পাস\u200cওয়ার্ড');i.setAttribute('role','textbox');i.setAttribute('enterkeyhint','done')}catch(e){}}i.setAttribute('autocorrect','off');i.setAttribute('spellcheck','false');
     i.setAttribute('data-lpignore','true');i.setAttribute('data-1p-ignore','true');i.setAttribute('data-form-type','other');
     if(isPw)i.setAttribute('name','f'+Math.random().toString(36).slice(2,9));
   }
