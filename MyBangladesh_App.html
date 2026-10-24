@@ -2851,7 +2851,8 @@
       ['🕋 হজ্জ — মূল বিষয়',['ফরজ বিষয়: ইহরাম বাঁধা, আরাফাতের ময়দানে অবস্থান (৯ জিলহজ্জ), তাওয়াফে যিয়ারত','হজ্জ জীবনে একবার, শারীরিক ও আর্থিক সামর্থ্য থাকলে ফরজ','সাফা-মারওয়ায় সাঈ ও অন্যান্য ওয়াজিব আমল সম্পর্কে হজ্জ গাইড থেকে বিস্তারিত জানুন']],
       ['🤲 ইসলামি আদব (সংক্ষেপে)',['সালাম দেওয়া: "আসসালামু আলাইকুম" — উত্তরে "ওয়া আলাইকুমুস সালাম"','খাওয়ার শুরুতে "বিসমিল্লাহ" বলা, ডান হাতে খাওয়া','হাঁচি দিলে "আলহামদুলিল্লাহ", শ্রোতা বলবে "ইয়ারহামুকাল্লাহ"','পিতা-মাতার সঙ্গে সদাচরণ, প্রতিবেশীর হক আদায়, মিথ্যা ও গীবত থেকে বিরত থাকা']]
     ];
-    function prayerTimes(d,lat,lon,tz){
+    function prayerTimes(d,lat,lon,tz,o){
+      o=o||{};const FA=o.fa||18,IA=o.ia||18,IM=o.im||0,AS=o.asr||2;
       const R=Math.PI/180,N=Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(d.getFullYear(),0,0))/864e5);
       const out={};
       const sun=(h)=>{const y=2*Math.PI/365*(N-1+(h-12)/24);
@@ -2859,9 +2860,14 @@
         const dec=0.006918-0.399912*Math.cos(y)+0.070257*Math.sin(y)-0.006758*Math.cos(2*y)+0.000907*Math.sin(2*y)-0.002697*Math.cos(3*y)+0.00148*Math.sin(3*y);return{eq,dec}};
       const {eq,dec}=sun(12);const noon=12+tz-lon/15-eq/60;
       const ha=a=>{const c=(Math.sin(a*R)-Math.sin(lat*R)*Math.sin(dec))/(Math.cos(lat*R)*Math.cos(dec));if(c<-1||c>1)return null;return Math.acos(c)/R/15};
-      const hFajr=ha(-18),hSun=ha(-0.833),hIsha=ha(-18);
-      const asrAlt=Math.atan(1/(2+Math.tan(Math.abs(lat*R-dec))))/R,hAsr=ha(asrAlt);
-      out.fajr=noon-hFajr;out.sunrise=noon-hSun;out.dhuhr=noon+0.0333;out.asr=noon+hAsr;out.maghrib=noon+hSun;out.isha=noon+hIsha;
+      const hFajr=ha(-FA),hSun=ha(-0.833),hIsha=ha(-IA);
+      const asrAlt=Math.atan(1/(AS+Math.tan(Math.abs(lat*R-dec))))/R,hAsr=ha(asrAlt);
+      out.dhuhr=noon+0.0333;
+      if(hSun==null){/* মেরু-অঞ্চল: দিন/রাত ২৪ ঘণ্টা — মধ্যাহ্ন থেকে আনুমানিক */out.sunrise=noon-6;out.maghrib=noon+6;out.fajr=noon-8;out.isha=noon+8;out.asr=noon+3.5;return out}
+      out.sunrise=noon-hSun;out.maghrib=noon+hSun;out.asr=hAsr==null?noon+3.5:noon+hAsr;
+      const night=24-2*hSun;/* রাতের দৈর্ঘ্য; কোণ না মিললে রাতের ১/৭ ভাগ নিয়ম */
+      out.fajr=hFajr==null?out.sunrise-night/7:noon-hFajr;
+      out.isha=IM?out.maghrib+IM/60:(hIsha==null?out.maghrib+night/7:noon+hIsha);
       return out;
     }
     // ===== ইসলামিক হাব: নামাজের সময়, কুরআন, হাদিস, দোয়া, তাসবিহ, পড়তে শিখুন =====
@@ -2885,10 +2891,10 @@
     ];
     const AR_LETTERS=[['ا','আলিফ'],['ب','বা'],['ت','তা'],['ث','ছা'],['ج','জীম'],['ح','হা (মোটা)'],['خ','খা'],['د','দাল'],['ذ','যাল'],['ر','রা'],['ز','যা'],['س','সীন'],['ش','শীন'],['ص','ছোয়াদ'],['ض','দোয়াদ'],['ط','তোয়া'],['ظ','যোয়া'],['ع','আইন'],['غ','গাইন'],['ف','ফা'],['ق','ক্বাফ'],['ك','কাফ'],['ل','লাম'],['م','মীম'],['ن','নূন'],['و','ওয়াও'],['ه','হা (হালকা)'],['ء','হামযা'],['ي','ইয়া']];
     const AR_MARKS=[['بَ','যবর (ــَ)','"বা" — "অ/আ" ধ্বনি'],['بِ','যের (ــِ)','"বি" — "ই" ধ্বনি'],['بُ','পেশ (ــُ)','"বু" — "উ" ধ্বনি'],['بً','দুই যবর (তানবীন)','"বান" — শেষে "ন" ধ্বনি'],['بٍ','দুই যের','"বিন"'],['بٌ','দুই পেশ','"বুন"'],['بْ','জযম (সুকুন)','"ব্" — স্বর ছাড়া থেমে যাওয়া'],['بّ','তাশদীদ','অক্ষর দুইবার পড়া ("ব্ব")'],['بَا','মাদ (টান)','"বা" — দীর্ঘ করে টেনে পড়া']];
-    function islamHero(box,distName){
-      const pt=TM_PTS[distName]||TM_PTS['ঢাকা'],now=new Date();const T=prayerTimes(now,pt[1],pt[0],6);
+    function islamHero(box){
+      const PN0=amarPNow(),now=PN0.date,distName=amarPlaceName();const T=amarPT(now,true);
       const L=[['ফজর',T.fajr],['যোহর',T.dhuhr],['আসর',T.asr],['মাগরিব',T.maghrib+2/60],['এশা',T.isha]];
-      const nowH=now.getHours()+now.getMinutes()/60;let cur=-1;L.forEach((p,i)=>{if(nowH>=p[1])cur=i});
+      const nowH=PN0.h;let cur=-1;L.forEach((p,i)=>{if(nowH>=p[1])cur=i});
       const f=h=>{h=((h%24)+24)%24;let m=Math.round(h*60);let hh=Math.floor(m/60)%24,mm=m%60;const ap=hh>=12?'PM':'AM';hh=hh%12||12;return fmt(hh)+':'+String(mm).padStart(2,'0').replace(/\d/g,c=>'০১২৩৪৫৬৭৮৯'[c])+' '+ap};
       const card=mk('div','background:linear-gradient(135deg,#064e3b,#0f766e);border-radius:18px;padding:14px;margin-bottom:12px');
       const nx=L[cur+1]||L[0];const nextH=cur+1<L.length?nx[1]:nx[1]+24,diff=Math.max(0,nextH-nowH);const dh=Math.floor(diff),dm=Math.round((diff-dh)*60);
@@ -2897,7 +2903,7 @@
       card.appendChild(mk('div','font-size:13px;color:#d1fae5','পরবর্তী: '+nx[0]+' '+f(nx[1]+(nx[0]==='ফজর'&&cur+1>=L.length?0:0))+' · আর '+fmt(dh)+' ঘণ্টা '+fmt(dm)+' মিনিট'));
       const row=mk('div','display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:12px');
       L.forEach((p,i)=>{const c=mk('div','text-align:center;border-radius:12px;padding:7px 2px;background:'+(i===cur?'rgba(253,230,138,.25)':'rgba(0,0,0,.2)')+';border:1px solid '+(i===cur?'#fde68a':'transparent'));c.appendChild(mk('div','font-size:11.5px;color:#fff',p[0]));c.appendChild(mk('div','font-size:10px;color:#d1fae5;margin-top:2px;line-height:1.3',f(p[1]).replace(' ','\n')));c.lastChild.style.whiteSpace='pre-line';row.appendChild(c)});card.appendChild(row);
-      card.appendChild(mk('div','font-size:10.5px;color:#a7f3d0;margin-top:8px;line-height:1.5','সূর্যোদয় '+f(T.sunrise)+' · গাণিতিক হিসাব (ফজর/এশা ১৮°, হানাফী আসর)। মসজিদের জামাত ও সরকারি সময়সূচির সঙ্গে ১-২ মিনিট পার্থক্য হতে পারে।'));
+      card.appendChild(mk('div','font-size:10.5px;color:#a7f3d0;margin-top:8px;line-height:1.5','সূর্যোদয় '+f(T.sunrise)+' · গাণিতিক হিসাব (স্থান ও পদ্ধতি বদলাতে নিচের "নামাজের সময়" পাতায় যান)। মসজিদের জামাত ও সরকারি সময়সূচির সঙ্গে ১-৩ মিনিট পার্থক্য হতে পারে।'));
       box.appendChild(card);
     }
     function renderIslamic(list,start){
@@ -2908,7 +2914,7 @@
         if(tab!=='home'){const b=gBtn('← ইসলামিক হোম',()=>show('home'));b.style.marginBottom='10px';root.appendChild(b)}
         const body=mk('div','');
         if(tab==='home'){
-          let d='ঢাকা';try{d=localStorage.getItem(PRAYER_KEY)||state.district||'ঢাকা'}catch(e){}if(!TM_PTS[d])d='ঢাকা';islamHero(root,d);
+          islamHero(root);
           const grid=mk('div','display:grid;grid-template-columns:repeat(3,1fr);gap:10px');
           TABS.forEach(([ic,nm,id])=>{const c=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.35);border-radius:16px;padding:14px 6px;text-align:center;cursor:pointer');c.appendChild(mk('div','font-size:28px',ic));c.appendChild(mk('div','font-size:12.5px;font-weight:700;margin-top:4px',nm));c.onclick=()=>show(id);grid.appendChild(c)});root.appendChild(grid);
           const l=qLast();if(l){const r=mk('div','margin-top:12px;background:#0a251c;border:1px solid rgba(252,211,77,.4);border-radius:14px;padding:11px;font-size:13px;cursor:pointer;color:#fde68a','📍 কুরআনে শেষ পড়া: সূরা '+SURAH[l.s-1][0]+', আয়াত '+fmt(l.a)+' — চাপুন, সেখান থেকেই শুরু হবে');r.onclick=()=>show('quran');root.appendChild(r)}
@@ -2934,13 +2940,13 @@
     }
     // ===== রোজার সময়সূচি: সেহরির শেষ ও ইফতারের সময় =====
     function hijriMD(d){try{const p=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(d),g=t=>+(p.find(x=>x.type===t)||{}).value;return{d:g('day'),m:g('month'),y:g('year')}}catch(e){return null}}
-    function islamRoza(box,distName){
-      const pt=TM_PTS[distName]||TM_PTS['ঢাকা'],now=new Date();const H=hijriMD(now);
+    function islamRoza(box){
+      const PN0=amarPNow(),now=PN0.date;const H=hijriMD(now);
       const f=h=>{h=((h%24)+24)%24;const m=Math.round(h*60);let hh=Math.floor(m/60)%24;const mm=m%60,ap=hh>=12?'PM':'AM';hh=hh%12||12;return fmt(hh)+':'+fmt(mm<10?0:Math.floor(mm/10))+(mm<10?fmt(mm):fmt(mm%10))+' '+ap};
-      const day=dt=>{const T=prayerTimes(dt,pt[1],pt[0],6);return{s:T.fajr,i:T.maghrib+2/60}};
+      const day=dt=>{const T=amarPT(dt,true);return{s:T.fajr,i:T.maghrib+2/60}};
       const wrap=mk('div','background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:14px;margin-bottom:12px');
       wrap.appendChild(mk('div','font-size:15px;font-weight:800;color:#fde68a','🌙 রোজার সময়সূচি'));
-      const t0=day(now),nowH=now.getHours()+now.getMinutes()/60;
+      const t0=day(now),nowH=PN0.h;
       let nxt,lab;if(nowH<t0.s){nxt=t0.s;lab='সেহরির শেষ সময়'}else if(nowH<t0.i){nxt=t0.i;lab='ইফতারের সময়'}else{nxt=day(new Date(now.getTime()+864e5)).s+24;lab='পরের সেহরির শেষ সময়'}
       const diff=Math.max(0,nxt-nowH),dh=Math.floor(diff),dm=Math.round((diff-dh)*60);
       wrap.appendChild(mk('div','font-size:12.5px;color:#e0e7ff;margin-top:6px',lab+' · আর '+fmt(dh)+' ঘণ্টা '+fmt(dm)+' মিনিট'));
@@ -2960,20 +2966,16 @@
       const du=mk('div','margin-top:12px;background:rgba(0,0,0,.25);border-radius:12px;padding:10px;font-size:12px;color:#e0e7ff;line-height:1.8');
       du.appendChild(mk('div','color:#fde68a;font-weight:700','🤲 সেহরির নিয়ত'));du.appendChild(mk('div','','نَوَيْتُ أَنْ أَصُومَ غَدًا مِنْ شَهْرِ رَمَضَانَ — "নাওয়াইতু আন আসুমা গাদাম মিন শাহরি রমাদান"। বাংলায় মনে মনে: "আগামীকাল রমজানের রোজা রাখার নিয়ত করলাম।"'));
       du.appendChild(mk('div','color:#fde68a;font-weight:700;margin-top:8px','🌇 ইফতারের দোয়া'));du.appendChild(mk('div','','اللَّهُمَّ لَكَ صُمْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ — "আল্লাহুম্মা লাকা সুমতু ওয়া আলা রিযকিকা আফতারতু"। অর্থ: হে আল্লাহ, আপনারই জন্য রোজা রেখেছি এবং আপনার দেওয়া রিযিক দিয়েই ইফতার করছি।'));wrap.appendChild(du);
-      wrap.appendChild(mk('div','font-size:10.5px;color:#a5b4fc;margin-top:8px;line-height:1.6','সময় গাণিতিক হিসাবে আনুমানিক (সেহরির শেষ = ফজরের শুরু, ইফতার = সূর্যাস্তের ২ মিনিট পর)। সতর্কতার জন্য সেহরি ২-৩ মিনিট আগে শেষ করা ভালো। রমজানের তারিখ চাঁদ দেখার উপর নির্ভর করে, বাংলাদেশে সৌদির চেয়ে এক দিন পরেও হতে পারে। স্থানীয় মসজিদ বা ইসলামিক ফাউন্ডেশনের ক্যালেন্ডার মিলিয়ে নিন।'));
+      wrap.appendChild(mk('div','font-size:10.5px;color:#a5b4fc;margin-top:8px;line-height:1.6','সময় গাণিতিক হিসাবে আনুমানিক (সেহরির শেষ = ফজরের শুরু, ইফতার = সূর্যাস্তের ২ মিনিট পর)। সতর্কতার জন্য সেহরি ২-৩ মিনিট আগে শেষ করা ভালো। রমজানের তারিখ চাঁদ দেখার উপর নির্ভর করে, বাংলাদেশ বা আপনার দেশে সৌদির চেয়ে এক দিন পরেও হতে পারে। স্থানীয় মসজিদ বা আপনার দেশের চাঁদ-দেখা কমিটির ঘোষণা মিলিয়ে নিন।'));
       box.appendChild(wrap)}
     function islamRozaTab(body){
-      const sel=document.createElement('select');sel.className='form-field';Object.keys(TM_PTS).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});
-      let d='ঢাকা';try{d=localStorage.getItem(PRAYER_KEY)||state.district||'ঢাকা'}catch(e){}if(!TM_PTS[d])d='ঢাকা';sel.value=d;body.appendChild(sel);
-      const out=mk('div','margin-top:10px');body.appendChild(out);
-      const draw=()=>{out.innerHTML='';islamRoza(out,sel.value);try{localStorage.setItem(PRAYER_KEY,sel.value)}catch(e){}};sel.onchange=draw;draw()}
+      const out=mk('div','');
+      const draw=()=>{out.innerHTML='';islamRoza(out)};
+      amarPlacePicker(body,draw);body.appendChild(out);draw()}
     function islamPrayer(body){
-      body.appendChild(mk('p','font-size:11.5px;color:#6ee7b7;line-height:1.7;margin:0 0 8px','🕌 জেলা বেছে নিন — সেই জেলার আনুমানিক নামাজের সময় দেখাবে।'));
-      const sel=document.createElement('select');sel.className='form-field';Object.keys(TM_PTS).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});
-      let d='ঢাকা';try{d=localStorage.getItem(PRAYER_KEY)||state.district||'ঢাকা'}catch(e){}if(!TM_PTS[d])d='ঢাকা';sel.value=d;body.appendChild(sel);
-      const out=mk('div','');body.appendChild(out);
-      const draw=()=>{out.innerHTML='';islamHero(out,sel.value);try{localStorage.setItem(PRAYER_KEY,sel.value)}catch(e){}};sel.onchange=draw;draw();
-    }
+      const out=mk('div','');
+      const draw=()=>{out.innerHTML='';islamHero(out)};
+      amarPlacePicker(body,draw);body.appendChild(out);draw()}
     function islamTasbih(body){
       const P=[['সুবহানাল্লাহ',33],['আলহামদুলিল্লাহ',33],['আল্লাহু আকবার',34],['লা ইলাহা ইল্লাল্লাহ',100],['আস্তাগফিরুল্লাহ',100],['দরূদ শরীফ',100],['মুক্ত গণনা',0]];
       let S=readJSON(TASBIH_KEY,{i:0,n:0,t:0});if(!S||typeof S!=='object'||!(S.i>=0&&S.i<P.length))S={i:0,n:0,t:0};
@@ -3539,7 +3541,7 @@
       (()=>{let lb='';try{const t=+localStorage.getItem('amarLastBackup_v1');if(t)lb=' (সর্বশেষ: '+new Date(t).toLocaleDateString('bn-BD')+')'}catch(e){}
         row('💾 পুরো অ্যাপের ব্যাকআপ নামান'+lb,()=>fullBackup());
         row('♻️ ব্যাকআপ ফাইল থেকে সব ফিরিয়ে আনুন',()=>fullRestore())})();
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৫০'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৫১'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -8043,14 +8045,14 @@
   var DAYS={'1-1':'ইংরেজি নববর্ষ','8-3':'আন্তর্জাতিক নারী দিবস','17-3':'শিশু দিবস','25-3':'গণহত্যা দিবস','26-3':'মহান স্বাধীনতা দিবস','14-4':'পহেলা বৈশাখ','1-5':'মে দিবস','14-6':'বিশ্ব রক্তদাতা দিবস','5-6':'বিশ্ব পরিবেশ দিবস','8-9':'আন্তর্জাতিক সাক্ষরতা দিবস','15-10':'বিশ্ব হাত ধোয়া দিবস','10-12':'মানবাধিকার দিবস','14-12':'শহীদ বুদ্ধিজীবী দিবস','16-12':'মহান বিজয় দিবস','21-2':'শহীদ দিবস ও আন্তর্জাতিক মাতৃভাষা দিবস','7-4':'বিশ্ব স্বাস্থ্য দিবস','20-11':'বিশ্ব শিশু দিবস'};
   var TIPS=['জরুরি প্রয়োজনে ৯৯৯ — পুলিশ, ফায়ার সার্ভিস ও অ্যাম্বুলেন্স একই নম্বরে।','সরকারি যেকোনো সেবার তথ্যের জন্য ৩৩৩ নম্বরে ফোন করা যায়।','নারী ও শিশু নির্যাতনের খবর জানাতে ১০৯ নম্বরে ফোন করুন (বিনা খরচে)।','দিনে অন্তত ৮ গ্লাস পানি পান করুন; ডায়রিয়ায় খাবার স্যালাইন খুব কাজের।','রক্তদানের পর অন্তত ৪ মাস পরে আবার রক্ত দেওয়া যায়।','হাত ধোয়ার সময় সাবান দিয়ে অন্তত ২০ সেকেন্ড ঘষুন।','অজানা নম্বর থেকে ওটিপি বা পিন চাইলে কখনও দেবেন না — এটা প্রতারণা।','বিকাশ/নগদের পিন কাউকে বলবেন না, এমনকি কাস্টমার কেয়ার পরিচয় দিলেও।','দুর্নীতির অভিযোগ জানাতে দুদকের হটলাইন ১০৬।','আইনি সহায়তা দরকার হলে জাতীয় আইনগত সহায়তা হেল্পলাইন ১৬৪৩০।','রাস্তা পার হতে জেব্রা ক্রসিং ব্যবহার করুন; মোবাইলে কথা বলতে বলতে হাঁটবেন না।','বজ্রপাতের সময় খোলা মাঠ ও গাছের নিচ এড়িয়ে পাকা ঘরে আশ্রয় নিন।','দিনের কাজ শেষে ফোনের গুরুত্বপূর্ণ ফাইলের ব্যাকআপ রাখুন।','ডেঙ্গু প্রতিরোধে বাড়ির আশপাশে পানি জমতে দেবেন না।','হঠাৎ বুকে ব্যথা বা শ্বাসকষ্ট হলে দেরি না করে হাসপাতালে যান।','নিজের এনআইডি ও ব্যক্তিগত তথ্যের ছবি অচেনা কাউকে পাঠাবেন না।','সন্তানের সাথে আজ অন্তত ১০ মিনিট গল্প করুন — এটাই সেরা বিনিয়োগ।','প্রতিবেশীর খোঁজ নিন; বিপদে সবার আগে তারাই পাশে দাঁড়ায়।','স্থানীয় দোকান ও কারিগরদের পণ্য কিনলে এলাকার অর্থনীতি শক্ত হয়।','শিশুদের টিকা সময়মতো দিন — ইপিআই কেন্দ্রে বিনামূল্যে পাওয়া যায়।','গরমে বেশি সময় রোদে থাকলে হিটস্ট্রোকের ঝুঁকি থাকে; ছায়ায় বিশ্রাম নিন।','ভোর বা সন্ধ্যায় ১৫ মিনিট হাঁটা হৃদয় ও মন দুটোই ভালো রাখে।','অনলাইনে কেনাকাটায় আগে বিক্রেতার রিভিউ ও যোগাযোগ যাচাই করুন।'];
   var PN=[['fajr','ফজর'],['dhuhr','যোহর'],['asr','আসর'],['maghrib','মাগরিব'],['isha','এশা']];
-  function nextPrayer(){try{var d='ঢাকা';try{d=localStorage.getItem('amarPrayerDist_v1')||state.district||'ঢাকা'}catch(e){}if(!TM_PTS[d])d='ঢাকা';var ll=TM_PTS[d],now=new Date(),pt=prayerTimes(now,ll[1],ll[0],6),h=now.getHours()+now.getMinutes()/60;
+  function nextPrayer(){try{var d=amarPlaceName(),now=new Date(),pt=amarPT(now,false),h=now.getHours()+now.getMinutes()/60;
     for(var i=0;i<PN.length;i++){var v=pt[PN[i][0]];if(v>h)return{n:PN[i][1],h:v,d:d,tm:false}}
-    var t2=prayerTimes(new Date(now.getTime()+864e5),ll[1],ll[0],6);return{n:'ফজর',h:t2.fajr,d:d,tm:true}}catch(e){return null}}
+    var t2=amarPT(new Date(now.getTime()+864e5),false);return{n:'ফজর',h:t2.fajr,d:d,tm:true}}catch(e){return null}}
   function hm(h){var x=Math.round(h*60),H=Math.floor(x/60)%24,M=x%60,ap=H>=12?'দুপুর/বিকাল':'সকাল';var h12=H%12||12;var per=H<4?'রাত':H<6?'ভোর':H<12?'সকাল':H<15?'দুপুর':H<17?'বিকাল':H<19?'সন্ধ্যা':'রাত';return per+' '+B(h12)+':'+B(('0'+M).slice(-2))}
-  function weather(cb){var K='amarWx_v1';try{var c=JSON.parse(localStorage.getItem(K)||'null');if(c&&Date.now()-c.t<3600000){cb(c);return}}catch(e){}
-    var d='ঢাকা';try{d=localStorage.getItem('amarPrayerDist_v1')||state.district||'ঢাকা'}catch(e){}if(!TM_PTS[d])d='ঢাকা';var ll=TM_PTS[d];
+  function weather(cb){var K='amarWx_v1',PK=amarPlaceKey();try{var c=JSON.parse(localStorage.getItem(K)||'null');if(c&&c.pk===PK&&Date.now()-c.t<3600000){cb(c);return}}catch(e){}
+    var pl=amarPlace(),d=pl.n,ll=[pl.lon,pl.lat];
     var ac=new AbortController();setTimeout(function(){ac.abort()},6000);
-    fetch('https://api.open-meteo.com/v1/forecast?latitude='+ll[1]+'&longitude='+ll[0]+'&current=temperature_2m,weather_code&daily=precipitation_probability_max&timezone=Asia%2FDhaka&forecast_days=1',{signal:ac.signal}).then(function(r){return r.json()}).then(function(j){var o={t:Date.now(),temp:Math.round(j.current.temperature_2m),code:j.current.weather_code,rain:(j.daily&&j.daily.precipitation_probability_max||[0])[0],d:d};try{localStorage.setItem(K,JSON.stringify(o))}catch(e){}cb(o)}).catch(function(){try{var c=JSON.parse(localStorage.getItem(K)||'null');if(c)cb(c)}catch(e){}})}
+    fetch('https://api.open-meteo.com/v1/forecast?latitude='+ll[1]+'&longitude='+ll[0]+'&current=temperature_2m,weather_code&daily=precipitation_probability_max&timezone=auto&forecast_days=1',{signal:ac.signal}).then(function(r){return r.json()}).then(function(j){var o={t:Date.now(),temp:Math.round(j.current.temperature_2m),code:j.current.weather_code,rain:(j.daily&&j.daily.precipitation_probability_max||[0])[0],d:d,pk:PK};try{localStorage.setItem(K,JSON.stringify(o))}catch(e){}cb(o)}).catch(function(){try{var c=JSON.parse(localStorage.getItem(K)||'null');if(c&&c.pk===PK)cb(c)}catch(e){}})}
   function wIcon(c){return c===0?'☀️':c<=2?'🌤️':c===3?'☁️':c<=48?'🌫️':c<=67?'🌧️':c<=77?'❄️':c<=82?'🌦️':'⛈️'}
   function build(){var host=document.getElementById('todayCard');if(!host){var q=document.querySelector('.quick-ribbon');if(!q)return;host=el('div');host.id='todayCard';q.parentNode.insertBefore(host,q)}
     host.textContent='';var now=new Date();
@@ -8294,8 +8296,8 @@
   function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
   var PN=[['fajr','ফজর'],['dhuhr','যোহর'],['asr','আসর'],['maghrib','মাগরিব'],['isha','এশা']];
   function cfg(){var c=rd('amarAzan_v1',{});if(!c||typeof c!=='object')c={};c.w=c.w||{fajr:1,dhuhr:1,asr:1,maghrib:1,isha:1};if(c.vol==null)c.vol=1;c.on=!!c.on;return c}
-  function dist(){var d='ঢাকা';try{d=localStorage.getItem('amarPrayerDist_v1')||state.district||'ঢাকা'}catch(e){}if(!TM_PTS[d])d='ঢাকা';return d}
-  function times(date){var d=dist(),ll=TM_PTS[d];return prayerTimes(date,ll[1],ll[0],6)}
+  function dist(){return amarPlaceName()}
+  function times(date){return amarPT(date,false)}
   /* অডিও ফাইল: IndexedDB */
   function db(){return new Promise(function(res,rej){var r=indexedDB.open('amarAzanDB',1);r.onupgradeneeded=function(){r.result.createObjectStore('f')};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}
   function fput(b,name){return db().then(function(d){return new Promise(function(res,rej){var t=d.transaction('f','readwrite');t.objectStore('f').put({blob:b,name:name},'azan');t.oncomplete=res;t.onerror=function(){rej(t.error)}})})}
@@ -8323,7 +8325,7 @@
   window.islamAzan=function(body){var c=cfg();
     function save(){wr('amarAzan_v1',c);window.azanSchedule()}
     var BOX='background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:16px;padding:12px;margin-bottom:10px';
-    body.appendChild(el('p','font-size:12px;color:#6ee7b7;line-height:1.8;margin:0 0 10px','🔔 নামাজের ওয়াক্ত হলে আযান বাজবে। সময় আপনার বেছে নেওয়া জেলার (নামাজের সময় পাতা) হিসাব অনুযায়ী। জামাতের সময়সূচির জন্য নিজের মসজিদের সাথে মিলিয়ে নিন।'));
+    body.appendChild(el('p','font-size:12px;color:#6ee7b7;line-height:1.8;margin:0 0 10px','🔔 নামাজের ওয়াক্ত হলে আযান বাজবে। সময় আপনার বেছে নেওয়া অবস্থানের (নামাজের সময় পাতা) হিসাব অনুযায়ী। জামাতের সময়সূচির জন্য নিজের মসজিদের সাথে মিলিয়ে নিন।'));
     var mb=el('div',BOX+';display:flex;align-items:center;gap:10px');mb.appendChild(el('b','flex:1;font-size:14.5px','আযান চালু'));var tg=el('button','width:52px;height:30px;border-radius:99px;border:0;position:relative;cursor:pointer;background:'+(c.on?'#10b981':'#334155'));var kn=el('i','position:absolute;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;left:'+(c.on?'25px':'3px'));tg.appendChild(kn);tg.onclick=function(){c.on=!c.on;save();tg.style.background=c.on?'#10b981':'#334155';kn.style.left=c.on?'25px':'3px'};mb.appendChild(tg);body.appendChild(mb);
     var pt;try{pt=times(new Date())}catch(e){pt={}}
     var wl=el('div',BOX);PN.forEach(function(p){var r=el('div','display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(16,185,129,.15)');var v=pt[p[0]]||0,H=Math.floor(v),M=Math.round((v%1)*60);if(M===60){H++;M=0}r.appendChild(el('span','flex:1;font-size:14px','🕌 '+p[1]));r.appendChild(el('span','font-size:13px;color:#a7f3d0',B(H%12||12)+':'+B(('0'+M).slice(-2))));var k=el('input','width:22px;height:22px');k.type='checkbox';k.checked=!!c.w[p[0]];k.onchange=function(){c.w[p[0]]=k.checked?1:0;save()};r.appendChild(k);wl.appendChild(r)});body.appendChild(wl);
@@ -9178,6 +9180,114 @@
     try{ss().getVoices();ss().addEventListener&&ss().addEventListener('voiceschanged',function(){})}catch(e){}
     var m=document.getElementById('detailModal');if(m)new MutationObserver(function(){if(!m.classList.contains('active')&&!m.classList.contains('open')&&getComputedStyle(m).display==='none')stop()}).observe(m,{attributes:true})}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+<script>
+/* ===== বিশ্বজুড়ে নামাজ-রোজার সময়: প্রবাসীদের জন্য নিজের অবস্থান অনুযায়ী ===== */
+(function(){
+  var KEY='amarPlace_v1';function TP(){try{return TM_PTS}catch(e){return null}}function ST(){try{return state.district||''}catch(e){return ''}}
+  /* [নাম, lat, lon, IANA টাইমজোন, দেশ-কোড] */
+  var CITIES=[
+  ['রিয়াদ',24.71,46.68,'Asia/Riyadh','SA'],['জেদ্দা',21.54,39.17,'Asia/Riyadh','SA'],['মক্কা',21.42,39.83,'Asia/Riyadh','SA'],['মদিনা',24.47,39.61,'Asia/Riyadh','SA'],['দাম্মাম',26.43,50.10,'Asia/Riyadh','SA'],['আল-খোবার',26.28,50.21,'Asia/Riyadh','SA'],['তায়েফ',21.27,40.42,'Asia/Riyadh','SA'],['তাবুক',28.38,36.57,'Asia/Riyadh','SA'],['আবহা',18.22,42.51,'Asia/Riyadh','SA'],['জুবাইল',27.00,49.66,'Asia/Riyadh','SA'],['ইয়ানবু',24.09,38.06,'Asia/Riyadh','SA'],
+  ['দুবাই',25.20,55.27,'Asia/Dubai','AE'],['আবুধাবি',24.45,54.38,'Asia/Dubai','AE'],['শারজাহ',25.35,55.42,'Asia/Dubai','AE'],['আল আইন',24.21,55.76,'Asia/Dubai','AE'],
+  ['দোহা',25.29,51.53,'Asia/Qatar','QA'],['কুয়েত সিটি',29.38,47.99,'Asia/Kuwait','KW'],['মানামা',26.23,50.59,'Asia/Bahrain','BH'],['মাস্কাট',23.59,58.41,'Asia/Muscat','OM'],['সোহার',24.35,56.71,'Asia/Muscat','OM'],
+  ['আম্মান',31.95,35.93,'Asia/Amman','JO'],['বৈরুত',33.89,35.50,'Asia/Beirut','LB'],['কায়রো',30.04,31.24,'Africa/Cairo','EG'],['ইস্তাম্বুল',41.01,28.98,'Europe/Istanbul','TR'],
+  ['কুয়ালালামপুর',3.14,101.69,'Asia/Kuala_Lumpur','MY'],['জোহর বাহরু',1.49,103.74,'Asia/Kuala_Lumpur','MY'],['সিঙ্গাপুর',1.35,103.82,'Asia/Singapore','SG'],['ব্রুনেই',4.94,114.95,'Asia/Brunei','BN'],['জাকার্তা',-6.21,106.85,'Asia/Jakarta','ID'],
+  ['টোকিও',35.68,139.69,'Asia/Tokyo','JP'],['সিউল',37.57,126.98,'Asia/Seoul','KR'],['হংকং',22.32,114.17,'Asia/Hong_Kong','HK'],
+  ['করাচি',24.86,67.01,'Asia/Karachi','PK'],['লাহোর',31.55,74.34,'Asia/Karachi','PK'],['ইসলামাবাদ',33.68,73.05,'Asia/Karachi','PK'],['দিল্লি',28.61,77.21,'Asia/Kolkata','IN'],['মুম্বাই',19.08,72.88,'Asia/Kolkata','IN'],['কলকাতা',22.57,88.36,'Asia/Kolkata','IN'],['আগরতলা',23.83,91.28,'Asia/Kolkata','IN'],['কলম্বো',6.93,79.86,'Asia/Colombo','LK'],['কাঠমান্ডু',27.72,85.32,'Asia/Kathmandu','NP'],['মালে (মালদ্বীপ)',4.18,73.51,'Indian/Maldives','MV'],
+  ['লন্ডন',51.51,-0.13,'Europe/London','GB'],['ম্যানচেস্টার',53.48,-2.24,'Europe/London','GB'],['বার্মিংহাম',52.49,-1.89,'Europe/London','GB'],['প্যারিস',48.86,2.35,'Europe/Paris','FR'],['রোম',41.90,12.50,'Europe/Rome','IT'],['মিলান',45.46,9.19,'Europe/Rome','IT'],['মাদ্রিদ',40.42,-3.70,'Europe/Madrid','ES'],['বার্লিন',52.52,13.41,'Europe/Berlin','DE'],['আমস্টারডাম',52.37,4.90,'Europe/Amsterdam','NL'],['এথেন্স',37.98,23.73,'Europe/Athens','GR'],['স্টকহোম',59.33,18.07,'Europe/Stockholm','SE'],['মস্কো',55.76,37.62,'Europe/Moscow','RU'],
+  ['নিউ ইয়র্ক',40.71,-74.01,'America/New_York','US'],['ওয়াশিংটন ডিসি',38.91,-77.04,'America/New_York','US'],['শিকাগো',41.88,-87.63,'America/Chicago','US'],['হিউস্টন',29.76,-95.37,'America/Chicago','US'],['লস অ্যাঞ্জেলেস',34.05,-118.24,'America/Los_Angeles','US'],['টরন্টো',43.65,-79.38,'America/Toronto','CA'],['মন্ট্রিয়ল',45.50,-73.57,'America/Toronto','CA'],['ভ্যাঙ্কুভার',49.28,-123.12,'America/Vancouver','CA'],
+  ['সিডনি',-33.87,151.21,'Australia/Sydney','AU'],['মেলবোর্ন',-37.81,144.96,'Australia/Melbourne','AU'],['জোহানেসবার্গ',-26.20,28.05,'Africa/Johannesburg','ZA'],['লাগোস',6.52,3.38,'Africa/Lagos','NG']];
+  /* হিসাব-পদ্ধতি: [নাম, ফজর-কোণ, এশা-কোণ, এশা-মিনিট(সূর্যাস্তের পর; 0 হলে কোণ), রমজানে এশা-মিনিট] */
+  var METHODS={
+    UQ:['উম্মুল কুরা (সৌদি আরব)',18.5,0,90,120],
+    QA:['কাতার',18,0,90,90],
+    AE:['সংযুক্ত আরব আমিরাত',18.2,18.2,0,0],
+    KW:['কুয়েত',18,17.5,0,0],
+    KR:['করাচি / দক্ষিণ এশিয়া (বাংলাদেশ)',18,18,0,0],
+    SEA:['মালয়েশিয়া / সিঙ্গাপুর',20,18,0,0],
+    ISNA:['উত্তর আমেরিকা (ISNA)',15,15,0,0],
+    EG:['মিশর',19.5,17.5,0,0],
+    TR:['তুরস্ক',18,17,0,0],
+    MWL:['মুসলিম ওয়ার্ল্ড লীগ (ইউরোপ ও অন্যান্য)',18,17,0,0]};
+  var CCM={SA:'UQ',QA:'QA',AE:'AE',KW:'KW',BH:'QA',OM:'AE',BD:'KR',IN:'KR',PK:'KR',AF:'KR',LK:'KR',NP:'KR',MV:'KR',MY:'SEA',SG:'SEA',BN:'SEA',ID:'SEA',US:'ISNA',CA:'ISNA',EG:'EG',TR:'TR'};
+  var TZM={'Asia/Riyadh':'SA','Asia/Dubai':'AE','Asia/Qatar':'QA','Asia/Kuwait':'KW','Asia/Bahrain':'BH','Asia/Muscat':'OM','Asia/Dhaka':'BD','Asia/Kolkata':'IN','Asia/Karachi':'PK','Asia/Kuala_Lumpur':'MY','Asia/Singapore':'SG','Asia/Brunei':'BN','Asia/Jakarta':'ID','Africa/Cairo':'EG','Europe/Istanbul':'TR','Asia/Colombo':'LK','Asia/Kathmandu':'NP'};
+  function rj(){try{var v=JSON.parse(localStorage.getItem(KEY));return v&&typeof v==='object'?v:null}catch(e){return null}}
+  function wj(o){try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+  function devTz(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone||''}catch(e){return ''}}
+  function ccOfTz(tz){if(TZM[tz])return TZM[tz];if(/^Europe\//.test(tz))return 'EU';if(/^America\//.test(tz))return 'US';return ''}
+  function mkPlace(c){return{n:c[0],lat:c[1],lon:c[2],tz:c[3],cc:c[4]}}
+  function autoDefault(){
+    var tz=devTz(),dist='';try{dist=localStorage.getItem('amarPrayerDist_v1')||ST()||''}catch(e){}
+    if(tz==='Asia/Dhaka'||!tz){var ll=TP()&&TP()[dist||'ঢাকা'];if(ll)return{n:dist||'ঢাকা',lat:ll[1],lon:ll[0],tz:'Asia/Dhaka',cc:'BD',guess:false}}
+    for(var i=0;i<CITIES.length;i++)if(CITIES[i][3]===tz){var p=mkPlace(CITIES[i]);p.guess=true;return p}
+    return{n:'ঢাকা',lat:23.81,lon:90.41,tz:tz||'Asia/Dhaka',cc:ccOfTz(tz)||'BD',guess:true}}
+  function place(){var p=rj();if(p&&isFinite(p.lat)&&isFinite(p.lon)&&p.n)return p;return autoDefault()}
+  function offset(tz,date){
+    try{var d=new Date(date.getFullYear(),date.getMonth(),date.getDate(),12,0,0);
+      var f=new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric'}).formatToParts(d),g={};f.forEach(function(x){g[x.type]=+x.value});
+      var u=Date.UTC(g.year,g.month-1,g.day,g.hour%24,g.minute,g.second);return(u-Math.floor(d.getTime()/1000)*1000)/36e5}catch(e){return -date.getTimezoneOffset()/60}}
+  function methodOf(p){var m=p.m;if(m&&METHODS[m])return m;return CCM[p.cc]||'MWL'}
+  function asrOf(p){if(p.a==='s'||p.a==='h')return p.a;return 'h'}
+  function ramadan(date){try{var q=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{month:'numeric'}).formatToParts(date).find(function(x){return x.type==='month'});return q&&+q.value===9}catch(e){return false}}
+  /* তারিখ = ডিভাইসের স্থানীয় তারিখ। wall=true হলে বেছে নেওয়া জায়গার ঘড়ির সময়, নইলে ফোনের ঘড়ির সময় */
+  window.amarPT=function(date,wall){
+    var p=place(),M=METHODS[methodOf(p)],off=offset(p.tz,date),dev=-date.getTimezoneOffset()/60;
+    var o={fa:M[1],ia:M[2],im:(ramadan(date)&&M[4])?M[4]:M[3],asr:asrOf(p)==='s'?1:2};
+    var T=prayerTimes(date,p.lat,p.lon,off,o);
+    if(!wall&&dev!==off){var sh=dev-off;Object.keys(T).forEach(function(k){if(T[k]!=null)T[k]+=sh})}
+    return T};
+  /* বেছে নেওয়া জায়গায় এখন কটা বাজে: date-এর স্থানীয় ফিল্ডগুলো ওই জায়গার ঘড়ির সময় দেখায় */
+  window.amarPNow=function(){var p=place(),now=new Date(),d=new Date(now.getTime()+(offset(p.tz,now)+now.getTimezoneOffset()/60)*36e5);return{date:d,h:d.getHours()+d.getMinutes()/60+d.getSeconds()/3600}};
+  window.amarPlace=place;
+  window.amarPlaceName=function(){var p=place();return p.n};
+  window.amarPlaceKey=function(){var p=place();return p.lat.toFixed(2)+','+p.lon.toFixed(2)};
+  function bn(n){return String(n).replace(/[0-9]/g,function(d){return '০১২৩৪৫৬৭৮৯'[d]})}
+  function el(t,c,x){var e=document.createElement(t);if(c)e.style.cssText=c;if(x!=null)e.textContent=x;return e}
+  window.amarPlacePicker=function(box,onChange){
+    var wrap=el('div','background:#0b2b20;border:1px solid rgba(16,185,129,.35);border-radius:16px;padding:12px;margin-bottom:12px');box.appendChild(wrap);
+    function save(p){wj(p);try{localStorage.setItem('amarPrayerDist_v1',(TP()&&TP()[p.n])?p.n:(localStorage.getItem('amarPrayerDist_v1')||'ঢাকা'))}catch(e){}try{localStorage.removeItem('amarWx_v1')}catch(e){}draw();try{window.azanSchedule&&window.azanSchedule()}catch(e){}onChange&&onChange()}
+    function draw(){
+      wrap.textContent='';var p=place(),M=METHODS[methodOf(p)];
+      wrap.appendChild(el('div','font-size:14px;font-weight:800;color:#fde68a','📍 '+p.n));
+      wrap.appendChild(el('div','font-size:11.5px;color:#a7f3d0;margin-top:3px;line-height:1.6','সময়-অঞ্চল: '+p.tz+' · হিসাব: '+M[0]+' · আসর: '+(asrOf(p)==='s'?'শাফেয়ী/জমহুর (ছায়া ১ গুণ)':'হানাফী (ছায়া ২ গুণ)')));
+      if(p.guess)wrap.appendChild(el('div','font-size:11.5px;color:#fcd34d;margin-top:6px;line-height:1.6','⚠️ ফোনের সময়-অঞ্চল দেখে অনুমানে এই শহর ধরা হয়েছে। সঠিক সময়ের জন্য নিচের "আমার বর্তমান অবস্থান" চাপুন বা নিজের শহর খুঁজুন।'));
+      var gps=el('button','width:100%;margin-top:10px;padding:11px;border:0;border-radius:12px;background:#10b981;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit','📍 আমার বর্তমান অবস্থান ধরুন');
+      var st=el('div','font-size:11.5px;color:#fcd34d;margin-top:6px;min-height:14px');
+      gps.onclick=function(){if(!navigator.geolocation){st.textContent='এই ফোনে অবস্থান নেওয়ার সুবিধা নেই। নিচে শহর খুঁজুন।';return}
+        st.textContent='⏳ অবস্থান নেওয়া হচ্ছে…';
+        navigator.geolocation.getCurrentPosition(function(r){var tz=devTz()||p.tz,cc=ccOfTz(tz)||'',nm='আমার অবস্থান';
+          for(var i=0;i<CITIES.length;i++){var c=CITIES[i];if(Math.abs(c[1]-r.coords.latitude)<.35&&Math.abs(c[2]-r.coords.longitude)<.35){nm=c[0];cc=c[4];break}}
+          if(nm==='আমার অবস্থান'){var last=(tz.split('/').pop()||'').replace(/_/g,' ');if(last)nm='আমার অবস্থান ('+last+')'}
+          save({n:nm,lat:+r.coords.latitude.toFixed(4),lon:+r.coords.longitude.toFixed(4),tz:tz,cc:cc,m:p.m,a:p.a})},
+          function(){st.textContent='অবস্থান পাওয়া যায়নি। ফোনের লোকেশন চালু ও অ্যাপকে অনুমতি দিন, অথবা নিচে শহর খুঁজুন।'},{enableHighAccuracy:false,timeout:15000,maximumAge:600000})};
+      wrap.appendChild(gps);wrap.appendChild(st);
+      /* শহর খুঁজুন (বিশ্বের যেকোনো জায়গা) */
+      var row=el('div','display:flex;gap:6px;margin-top:8px');var q=el('input','flex:1;min-width:0;padding:10px;border-radius:10px;border:1px solid rgba(16,185,129,.4);background:#061812;color:#fff;font-size:13.5px;font-family:inherit');q.placeholder='শহরের নাম লিখুন (English-এ ভালো) — যেমন Jeddah';q.setAttribute('aria-label','শহর খুঁজুন');
+      var sb=el('button','padding:10px 14px;border:0;border-radius:10px;background:#0f766e;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit','খুঁজুন');row.appendChild(q);row.appendChild(sb);wrap.appendChild(row);
+      var res=el('div','margin-top:6px');wrap.appendChild(res);
+      function go(){var t=q.value.trim();if(t.length<2)return;res.textContent='⏳ খোঁজা হচ্ছে…';var ac=new AbortController();setTimeout(function(){ac.abort()},8000);
+        fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(t)+'&count=8&language=en&format=json',{signal:ac.signal}).then(function(r){return r.json()}).then(function(j){res.textContent='';var a=(j&&j.results)||[];
+          if(!a.length){res.textContent='কিছু পাওয়া যায়নি। বানান বদলে বা English-এ লিখে দেখুন।';return}
+          a.forEach(function(x){var b=el('button','display:block;width:100%;text-align:left;margin-top:4px;padding:9px 10px;border-radius:10px;border:1px solid rgba(16,185,129,.3);background:#061812;color:#fff;font-size:13px;cursor:pointer;font-family:inherit',x.name+(x.admin1?', '+x.admin1:'')+(x.country?' — '+x.country:''));
+            b.onclick=function(){save({n:x.name+(x.country?' ('+x.country+')':''),lat:+(+x.latitude).toFixed(4),lon:+(+x.longitude).toFixed(4),tz:x.timezone||p.tz,cc:x.country_code||ccOfTz(x.timezone||''),m:p.m,a:p.a})};res.appendChild(b)})}).catch(function(){res.textContent='ইন্টারনেট ছাড়া খোঁজা যাবে না। নিচের তালিকা থেকে বেছে নিন।'})}
+      sb.onclick=go;q.onkeydown=function(e){if(e.key==='Enter')go()};
+      /* তালিকা */
+      var sel=document.createElement('select');sel.className='form-field';sel.style.marginTop='8px';sel.setAttribute('aria-label','তালিকা থেকে শহর বা জেলা বাছুন');
+      var o0=document.createElement('option');o0.value='';o0.textContent='— তালিকা থেকে বাছুন —';sel.appendChild(o0);
+      var g1=document.createElement('optgroup');g1.label='প্রবাস ও বিশ্বের শহর';CITIES.forEach(function(c,i){var o=document.createElement('option');o.value='c'+i;o.textContent=c[0];g1.appendChild(o)});sel.appendChild(g1);
+      if(TP()){var g2=document.createElement('optgroup');g2.label='বাংলাদেশের জেলা';Object.keys(TP()).forEach(function(n){var o=document.createElement('option');o.value='d'+n;o.textContent=n;g2.appendChild(o)});sel.appendChild(g2)}
+      sel.onchange=function(){var v=sel.value;if(!v)return;if(v[0]==='c')save(Object.assign(mkPlace(CITIES[+v.slice(1)]),{m:p.m,a:p.a}));else{var n=v.slice(1),ll=TP()[n];save({n:n,lat:ll[1],lon:ll[0],tz:'Asia/Dhaka',cc:'BD',m:p.m,a:p.a})}};
+      wrap.appendChild(sel);
+      /* আসর ও পদ্ধতি */
+      var r2=el('div','display:flex;gap:6px;margin-top:8px');
+      var as=document.createElement('select');as.className='form-field';as.setAttribute('aria-label','আসরের হিসাব');[['h','আসর: হানাফী (ছায়া ২ গুণ)'],['s','আসর: শাফেয়ী/জমহুর (ছায়া ১ গুণ)']].forEach(function(x){var o=document.createElement('option');o.value=x[0];o.textContent=x[1];as.appendChild(o)});as.value=asrOf(p);
+      as.onchange=function(){var q2=place();q2.a=as.value;save(q2)};
+      var ms=document.createElement('select');ms.className='form-field';ms.setAttribute('aria-label','হিসাব পদ্ধতি');var oa=document.createElement('option');oa.value='';oa.textContent='পদ্ধতি: স্বয়ংক্রিয়';ms.appendChild(oa);Object.keys(METHODS).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=METHODS[k][0];ms.appendChild(o)});ms.value=p.m||'';
+      ms.onchange=function(){var q2=place();if(ms.value)q2.m=ms.value;else delete q2.m;save(q2)};
+      r2.appendChild(as);r2.appendChild(ms);wrap.appendChild(r2);
+      wrap.appendChild(el('div','font-size:10.5px;color:#6ee7b7;margin-top:8px;line-height:1.6','আপনার স্থানীয় মসজিদ বা সরকারি সময়সূচির সঙ্গে ১-৩ মিনিট পার্থক্য হতে পারে। দরকার হলে আসর ও পদ্ধতি বদলে মিলিয়ে নিন। শীতপ্রধান দেশে (উচ্চ অক্ষাংশ) ফজর/এশা আনুমানিক।'))}
+    draw()};
 })();
 </script>
 <script>
