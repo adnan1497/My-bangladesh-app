@@ -606,7 +606,10 @@
           <h3 id="modalTitle" style="font-size: 18px; font-weight: 700;">সেবা তালিকা</h3>
           <p id="modalSub" style="font-size: 11px; color: #6ee7b7;">নির্বাচিত এলাকার ডিরেক্টরি</p>
         </div>
-        <button class="close-btn" onclick="closeModal('detailModal')">✕</button>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="close-btn" id="ttsBtn" type="button" aria-label="পড়ে শোনান" title="পড়ে শোনান" style="font-size:16px">🔊</button>
+          <button class="close-btn" onclick="closeModal('detailModal')">✕</button>
+        </div>
       </div>
       <div id="modalList"></div>
     </div>
@@ -3518,7 +3521,7 @@
     function fullRestore(){const fi=document.createElement('input');fi.type='file';fi.accept='.json,application/json';fi.onchange=()=>{const f=fi.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const o=JSON.parse(rd.result);if(!o||o.app!=='amar-bangladesh'||!o.data||typeof o.data!=='object')throw 0;
       const ks=Object.keys(o.data).filter(k=>k.indexOf('amar')===0&&!BK_SKIP.test(k)&&typeof o.data[k]==='string');if(!ks.length)throw 0;
       if(!confirm('এই ফাইলে '+fmt(ks.length)+'টি তথ্য-অংশ আছে'+(o.t?' ('+new Date(o.t).toLocaleDateString('bn-BD')+'-এর ব্যাকআপ)':'')+'। এখনকার একই ধরনের তথ্য ফাইলের তথ্য দিয়ে বদলে যাবে। চালিয়ে যাবেন?'))return;
-      let bad=0;ks.forEach(k=>{try{localStorage.setItem(k,o.data[k])}catch(e){bad++}});alert(bad?'কিছু অংশ ফেরানো যায়নি (জায়গা কম)। বাকি সব ফিরেছে।':'✅ সব ফিরে এসেছে। অ্যাপ নতুন করে চালু হচ্ছে।');location.reload()}catch(e){alert('ফাইলটি আমার বাংলাদেশের ব্যাকআপ ফাইল নয় বা নষ্ট।')}};rd.readAsText(f)};fi.click()}
+      let bad=0;ks.forEach(k=>{try{localStorage.setItem(k,o.data[k])}catch(e){bad++}});window.amarAlert(bad?'কিছু অংশ ফেরানো যায়নি (জায়গা কম)। বাকি সব ফিরেছে।':'✅ সব ফিরে এসেছে। অ্যাপ নতুন করে চালু হচ্ছে।',()=>location.reload())}catch(e){alert('ফাইলটি আমার বাংলাদেশের ব্যাকআপ ফাইল নয় বা নষ্ট।')}};rd.readAsText(f)};fi.click()}
     function openSettings(){let m=document.getElementById('settingsModal');if(!m){m=document.createElement('div');m.className='modal-overlay';m.id='settingsModal';m.innerHTML='<div class="modal-content"><div id="settingsBody"></div></div>';m.addEventListener('click',e=>{if(e.target===m)closeModal('settingsModal')});document.body.appendChild(m)}drawSettings();m.classList.add('active')}
     function drawSettings(){const b=document.getElementById('settingsBody');b.innerHTML='';const p=prefs();const h=mk('div','');h.className='modal-header';h.appendChild(mk('h3','font-size:18px','⚙️ সেটিংস'));const x=mk('button','','✕');x.className='close-btn';x.onclick=()=>closeModal('settingsModal');h.appendChild(x);b.appendChild(h);
       const sec=t=>{const c=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:12px;margin-bottom:10px');c.appendChild(mk('div','font-weight:700;margin-bottom:8px;font-size:14px',t));b.appendChild(c);return c};
@@ -3536,7 +3539,7 @@
       (()=>{let lb='';try{const t=+localStorage.getItem('amarLastBackup_v1');if(t)lb=' (সর্বশেষ: '+new Date(t).toLocaleDateString('bn-BD')+')'}catch(e){}
         row('💾 পুরো অ্যাপের ব্যাকআপ নামান'+lb,()=>fullBackup());
         row('♻️ ব্যাকআপ ফাইল থেকে সব ফিরিয়ে আনুন',()=>fullRestore())})();
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৪৯'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৫০'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -9090,6 +9093,91 @@
   try{if(!CATEGORIES.some(function(c){return c.id==='medrem'})){var k=CATEGORIES.findIndex(function(c){return c.id==='healthlog'});CATEGORIES.splice(k<0?CATEGORIES.length:k+1,0,{id:'medrem',name:'ওষুধ রিমাইন্ডার (সকাল-দুপুর-রাত)',icon:'💊'});try{renderCategories()}catch(e){}}}catch(e){}
   var _o=window.openCategoryModal;window.openCategoryModal=function(id){if(id==='medrem'){window.medremOpen();return}return _o.apply(this,arguments)};
   setTimeout(function(){try{load();if(D.meds.length)sync()}catch(e){}},5000);setInterval(tick,15000);document.addEventListener('visibilitychange',function(){if(!document.hidden){try{load();if(D.meds.length){sync();tick()}}catch(e){}}});
+})();
+</script>
+<script>
+/* ===== অ্যাপের নিজস্ব বার্তা-ডায়ালগ (alert-এর বদলে) ===== */
+(function(){
+  var nativeAlert=window.alert.bind(window),Q=[],open=false;
+  function show(){
+    if(open||!Q.length)return;var it=Q.shift();open=true;
+    var ov=document.createElement('div');ov.setAttribute('role','alertdialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','বার্তা');
+    ov.style.cssText='position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px;font-family:inherit';
+    var bx=document.createElement('div');bx.style.cssText='background:#0b2b20;border:1px solid rgba(52,211,153,.5);border-radius:18px;max-width:420px;width:100%;padding:18px;color:#fff;box-shadow:0 10px 40px rgba(0,0,0,.5)';
+    var t=document.createElement('div');t.style.cssText='font-size:14.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word;max-height:60vh;overflow-y:auto';t.textContent=it.m;
+    var b=document.createElement('button');b.type='button';b.textContent='ঠিক আছে';b.style.cssText='margin-top:14px;width:100%;padding:12px;border:0;border-radius:12px;background:#10b981;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit';
+    function close(){document.removeEventListener('keydown',kd,true);ov.remove();open=false;try{it.cb&&it.cb()}catch(e){}show()}
+    function kd(e){if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();close()}}
+    b.onclick=close;document.addEventListener('keydown',kd,true);bx.appendChild(t);bx.appendChild(b);ov.appendChild(bx);document.body.appendChild(ov);try{b.focus()}catch(e){}
+  }
+  window.amarAlert=function(m,cb){
+    if(!document.body){nativeAlert(String(m));cb&&cb();return}
+    Q.push({m:String(m==null?'':m),cb:cb});show();
+  };
+  window.alert=function(m){window.amarAlert(m)};
+})();
+</script>
+<script>
+/* ===== অ্যাক্সেসিবিলিটি: স্ক্রিন-রিডারের জন্য নাম/লেবেল নিজে থেকে বসানো ===== */
+(function(){
+  var NM={'✕':'বন্ধ করুন','×':'বন্ধ করুন','✖':'বন্ধ করুন','←':'পেছনে যান','⬅':'পেছনে যান','🔍':'খুঁজুন','⚙️':'সেটিংস','🔔':'নোটিফিকেশন','➕':'যোগ করুন','+':'যোগ করুন','−':'কমান','-':'কমান','🗑️':'মুছুন','🗑':'মুছুন','✏️':'সম্পাদনা','📤':'শেয়ার','📞':'ফোন করুন','🔄':'নতুন করুন','▶':'চালান','⏸':'থামান'};
+  function lab(el){
+    if(el.getAttribute('aria-label')||el.getAttribute('aria-labelledby'))return;
+    var tag=el.tagName;
+    if(tag==='BUTTON'||el.getAttribute('role')==='button'){
+      var tx=(el.textContent||'').trim();
+      if(NM[tx])el.setAttribute('aria-label',NM[tx]);
+      else if(el.title)el.setAttribute('aria-label',el.title);
+    }else if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'){
+      if(el.type==='hidden'||el.type==='checkbox'&&el.closest('label'))return;
+      if(el.id&&document.querySelector('label[for="'+el.id.replace(/"/g,'')+'"]'))return;
+      if(el.closest('label'))return;
+      var l=el.getAttribute('placeholder')||el.title||'';
+      if(!l&&tag==='SELECT'&&el.options&&el.options[0])l=(el.options[0].textContent||'').trim();
+      if(!l){var pv=el.previousElementSibling;if(pv&&pv.textContent&&pv.textContent.length<60)l=pv.textContent.trim()}
+      if(l)el.setAttribute('aria-label',l);
+    }else if(tag==='IMG'&&!el.hasAttribute('alt')){el.setAttribute('alt',el.title||'')}
+  }
+  function pass(root){
+    try{
+      (root||document).querySelectorAll('button,[role=button],input,textarea,select,img:not([alt])').forEach(lab);
+      document.querySelectorAll('.modal,[id$="Modal"]').forEach(function(m){
+        if(!m.getAttribute('role')){m.setAttribute('role','dialog');m.setAttribute('aria-modal','true')}
+        if(!m.getAttribute('aria-label')&&!m.getAttribute('aria-labelledby')){var h=m.querySelector('h1,h2,h3,[id$="Title"],[id$="title"]');if(h&&h.textContent)m.setAttribute('aria-label',h.textContent.trim().slice(0,60))}
+      });
+      document.querySelectorAll('[onclick]:not(button):not(a):not(input):not([role])').forEach(function(e){
+        if(e.children.length<6&&(e.textContent||'').trim()){e.setAttribute('role','button');if(!e.hasAttribute('tabindex'))e.tabIndex=0}
+      });
+    }catch(e){}
+  }
+  var t=null;function sched(){clearTimeout(t);t=setTimeout(pass,400)}
+  function start(){pass();try{new MutationObserver(sched).observe(document.body,{childList:true,subtree:true})}catch(e){}
+    document.addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target&&e.target.getAttribute&&e.target.getAttribute('role')==='button'&&e.target.tagName!=='BUTTON'){e.preventDefault();e.target.click()}},true)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+</script>
+<script>
+/* ===== পড়ে শোনান (ফোনের নিজস্ব কণ্ঠ; ইন্টারনেট লাগে না, তথ্য কোথাও যায় না) ===== */
+(function(){
+  var on=false;
+  function ss(){return window.speechSynthesis}
+  function stop(){try{ss().cancel()}catch(e){}on=false;var b=document.getElementById('ttsBtn');if(b){b.textContent='🔊';b.setAttribute('aria-label','পড়ে শোনান')}}
+  function pick(){var v=ss().getVoices()||[];return v.find(function(x){return /^bn/i.test(x.lang)})||null}
+  window.amarSpeak=function(text){
+    if(!ss()||!window.SpeechSynthesisUtterance){alert('এই ফোন/ব্রাউজারে পড়ে শোনানোর সুবিধা নেই।');return}
+    if(on){stop();return}
+    text=String(text||'').replace(/\s+/g,' ').trim().slice(0,3500);if(!text)return;
+    var v=pick();
+    if(!v){var vs=ss().getVoices();if(vs&&vs.length||true){alert('আপনার ফোনে বাংলা কণ্ঠ ইনস্টল নেই। ফোনের সেটিংস > ভাষা > টেক্সট-টু-স্পিচ থেকে "বাংলা" ভয়েস নামিয়ে নিলে এটি চালু হবে।')}return}
+    var u=new SpeechSynthesisUtterance(text);u.voice=v;u.lang=v.lang||'bn-BD';u.rate=.95;
+    u.onend=u.onerror=stop;on=true;var b=document.getElementById('ttsBtn');if(b){b.textContent='⏹';b.setAttribute('aria-label','থামান')}
+    ss().speak(u);
+  };
+  function init(){var b=document.getElementById('ttsBtn');if(!b)return;
+    b.onclick=function(){var l=document.getElementById('modalList');var t=(document.getElementById('modalTitle').innerText||'')+'। '+(l?l.innerText:'');window.amarSpeak(t)};
+    try{ss().getVoices();ss().addEventListener&&ss().addEventListener('voiceschanged',function(){})}catch(e){}
+    var m=document.getElementById('detailModal');if(m)new MutationObserver(function(){if(!m.classList.contains('active')&&!m.classList.contains('open')&&getComputedStyle(m).display==='none')stop()}).observe(m,{attributes:true})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
 <script>
