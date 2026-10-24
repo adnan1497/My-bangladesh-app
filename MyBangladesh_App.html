@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>My Bangladesh | আমার বাংলাদেশ</title>
   <meta name="theme-color" content="#061a14">
   <link rel="manifest" href="manifest.webmanifest">
@@ -11,10 +11,12 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    /* ফন্ট অ্যাপের নিজের (ইন্টারনেট ছাড়াও ঠিক থাকে); ১ম পথ = পাশের fonts ফোল্ডার, ২য় = GitHub Pages (APK-র জন্য) */
+    @font-face{font-family:'Hind Siliguri';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/hind-siliguri-400.woff') format('woff'),url('https://adnan1497.github.io/My-bangladesh-app/fonts/hind-siliguri-400.woff') format('woff')}
+    @font-face{font-family:'Hind Siliguri';font-weight:500;font-style:normal;font-display:swap;src:url('fonts/hind-siliguri-500.woff') format('woff'),url('https://adnan1497.github.io/My-bangladesh-app/fonts/hind-siliguri-500.woff') format('woff')}
+    @font-face{font-family:'Hind Siliguri';font-weight:600;font-style:normal;font-display:swap;src:url('fonts/hind-siliguri-600.woff') format('woff'),url('https://adnan1497.github.io/My-bangladesh-app/fonts/hind-siliguri-600.woff') format('woff')}
+    @font-face{font-family:'Hind Siliguri';font-weight:700;font-style:normal;font-display:swap;src:url('fonts/hind-siliguri-700.woff') format('woff'),url('https://adnan1497.github.io/My-bangladesh-app/fonts/hind-siliguri-700.woff') format('woff')}
     * {
       box-sizing: border-box;
       margin: 0;
@@ -907,7 +909,7 @@
 
   <script>
     // Full bilingual Bangladesh location tree. The dataset is cached on this device after first successful load.
-    const LOCATION_DATA_URL = 'https://iqbalhasandev.github.io/bangladesh-geo-json/bangladesh-geo.json';
+    const LOCATION_DATA_URLS = ['bangladesh-geo.json','https://adnan1497.github.io/My-bangladesh-app/bangladesh-geo.json','https://iqbalhasandev.github.io/bangladesh-geo-json/bangladesh-geo.json'];
     const LOCATION_CACHE_KEY = 'amarBangladeshLocationTree_v1';
     let DIVISIONS = [];
     let state = { level: 'country', division: '', district: '', upazila: '', union: '' };
@@ -2897,7 +2899,7 @@
     }
     function renderIslamic(list,start){
       const root=mk('div','');list.appendChild(root);
-      const TABS=[['🕌','নামাজের সময়','prayer'],['🔔','আযান','azan'],['📖','কুরআন','quran'],['📚','হাদিস','hadith'],['🤲','দোয়া','dua'],['📿','তাসবিহ','tasbih'],['🔤','পড়তে শিখুন','learn'],['🔗','ইসলামিক সাইট','links']];
+      const TABS=[['🕌','নামাজের সময়','prayer'],['🌙','রোজার সময়সূচি','roza'],['🔔','আযান','azan'],['📖','কুরআন','quran'],['📚','হাদিস','hadith'],['🤲','দোয়া','dua'],['📿','তাসবিহ','tasbih'],['🔤','পড়তে শিখুন','learn'],['🔗','ইসলামিক সাইট','links']];
       const show=tab=>{
         root.innerHTML='';
         if(tab!=='home'){const b=gBtn('← ইসলামিক হোম',()=>show('home'));b.style.marginBottom='10px';root.appendChild(b)}
@@ -2912,6 +2914,7 @@
         if(tab==='quran')renderQuran(body);
         else if(tab==='hadith')renderHadith(body);
         else if(tab==='prayer')islamPrayer(body);
+        else if(tab==='roza')islamRozaTab(body);
         else if(tab==='azan')islamAzan(body);
         else if(tab==='dua'){body.appendChild(mk('p','font-size:11.5px;color:#6ee7b7;line-height:1.7;margin:0 0 10px','🤲 দৈনন্দিন জীবনের দোয়া — আরবি ও বাংলা অর্থসহ। শুদ্ধ উচ্চারণ কোনো আলেম বা শিক্ষকের কাছে শুনে শিখুন।'));
           DUAS.forEach(([t,a,m])=>{const c=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.25);border-radius:14px;padding:12px;margin-bottom:10px');c.appendChild(mk('b','font-size:14px;display:block',t));c.appendChild(mk('div',arStyle+'font-size:23px;color:#fff;margin-top:6px',a));c.appendChild(mk('p','font-size:13px;line-height:1.7;color:#d1fae5;margin-top:4px',m));body.appendChild(c)})}
@@ -2926,6 +2929,41 @@
       };
       show(start&&start!=='home'?start:'home');
     }
+    // ===== রোজার সময়সূচি: সেহরির শেষ ও ইফতারের সময় =====
+    function hijriMD(d){try{const p=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{day:'numeric',month:'numeric',year:'numeric'}).formatToParts(d),g=t=>+(p.find(x=>x.type===t)||{}).value;return{d:g('day'),m:g('month'),y:g('year')}}catch(e){return null}}
+    function islamRoza(box,distName){
+      const pt=TM_PTS[distName]||TM_PTS['ঢাকা'],now=new Date();const H=hijriMD(now);
+      const f=h=>{h=((h%24)+24)%24;const m=Math.round(h*60);let hh=Math.floor(m/60)%24;const mm=m%60,ap=hh>=12?'PM':'AM';hh=hh%12||12;return fmt(hh)+':'+fmt(mm<10?0:Math.floor(mm/10))+(mm<10?fmt(mm):fmt(mm%10))+' '+ap};
+      const day=dt=>{const T=prayerTimes(dt,pt[1],pt[0],6);return{s:T.fajr,i:T.maghrib+2/60}};
+      const wrap=mk('div','background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:18px;padding:14px;margin-bottom:12px');
+      wrap.appendChild(mk('div','font-size:15px;font-weight:800;color:#fde68a','🌙 রোজার সময়সূচি'));
+      const t0=day(now),nowH=now.getHours()+now.getMinutes()/60;
+      let nxt,lab;if(nowH<t0.s){nxt=t0.s;lab='সেহরির শেষ সময়'}else if(nowH<t0.i){nxt=t0.i;lab='ইফতারের সময়'}else{nxt=day(new Date(now.getTime()+864e5)).s+24;lab='পরের সেহরির শেষ সময়'}
+      const diff=Math.max(0,nxt-nowH),dh=Math.floor(diff),dm=Math.round((diff-dh)*60);
+      wrap.appendChild(mk('div','font-size:12.5px;color:#e0e7ff;margin-top:6px',lab+' · আর '+fmt(dh)+' ঘণ্টা '+fmt(dm)+' মিনিট'));
+      const two=mk('div','display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px');
+      [['🍚 সেহরি শেষ',f(t0.s)],['🌇 ইফতার',f(t0.i)]].forEach(x=>{const c=mk('div','text-align:center;background:rgba(0,0,0,.25);border-radius:12px;padding:9px 4px');c.appendChild(mk('div','font-size:11.5px;color:#c7d2fe',x[0]));c.appendChild(mk('div','font-size:18px;font-weight:800;color:#fff;margin-top:2px',x[1]));two.appendChild(c)});wrap.appendChild(two);
+      const fl=t0.i-t0.s;wrap.appendChild(mk('div','font-size:11.5px;color:#c7d2fe;margin-top:8px','আজ রোজার দৈর্ঘ্য প্রায় '+fmt(Math.floor(fl))+' ঘণ্টা '+fmt(Math.round((fl%1)*60))+' মিনিট'));
+      // রমজানের শুরু খুঁজি (আজ রমজান হলে আজকের মাসের ১ তারিখ)
+      let st=null;if(H){for(let k=0;k<400;k++){const dt=new Date(now.getTime()+(k-(H.m===9?H.d-1:0))*864e5),h=hijriMD(dt);if(h&&h.m===9&&h.d===1){st=dt;break}}}
+      if(st){const inR=H&&H.m===9;const tb=mk('div','margin-top:12px');
+        tb.appendChild(mk('div','font-size:12px;color:#fde68a;font-weight:700;margin-bottom:6px',(inR?'এই বছরের রমজান':'পরবর্তী রমজান')+' (আনুমানিক শুরু '+st.toLocaleDateString('bn-BD',{day:'numeric',month:'long',year:'numeric'})+')'));
+        const hd=mk('div','display:grid;grid-template-columns:34px 1fr 1fr 1fr;gap:4px;font-size:10.5px;color:#a5b4fc;padding:0 4px 4px');['রোজা','তারিখ','সেহরি শেষ','ইফতার'].forEach(x=>hd.appendChild(mk('div','text-align:center',x)));tb.appendChild(hd);
+        const sc=mk('div','max-height:300px;overflow-y:auto;border-radius:10px');
+        for(let i=0;i<30;i++){const dt=new Date(st.getTime()+i*864e5),T=day(dt),today=dt.toDateString()===now.toDateString();
+          const r=mk('div','display:grid;grid-template-columns:34px 1fr 1fr 1fr;gap:4px;font-size:12px;color:#fff;padding:6px 4px;text-align:center;background:'+(today?'rgba(253,230,138,.25)':(i%2?'rgba(0,0,0,.18)':'rgba(0,0,0,.3)')));
+          r.appendChild(mk('b','',fmt(i+1)));r.appendChild(mk('span','',dt.toLocaleDateString('bn-BD',{day:'numeric',month:'short',weekday:'short'})));r.appendChild(mk('span','',f(T.s)));r.appendChild(mk('span','',f(T.i)));sc.appendChild(r);if(today)setTimeout(()=>{try{sc.scrollTop=Math.max(0,r.offsetTop-80)}catch(e){}},50)}
+        tb.appendChild(sc);wrap.appendChild(tb)}
+      const du=mk('div','margin-top:12px;background:rgba(0,0,0,.25);border-radius:12px;padding:10px;font-size:12px;color:#e0e7ff;line-height:1.8');
+      du.appendChild(mk('div','color:#fde68a;font-weight:700','🤲 সেহরির নিয়ত'));du.appendChild(mk('div','','نَوَيْتُ أَنْ أَصُومَ غَدًا مِنْ شَهْرِ رَمَضَانَ — "নাওয়াইতু আন আসুমা গাদাম মিন শাহরি রমাদান"। বাংলায় মনে মনে: "আগামীকাল রমজানের রোজা রাখার নিয়ত করলাম।"'));
+      du.appendChild(mk('div','color:#fde68a;font-weight:700;margin-top:8px','🌇 ইফতারের দোয়া'));du.appendChild(mk('div','','اللَّهُمَّ لَكَ صُمْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ — "আল্লাহুম্মা লাকা সুমতু ওয়া আলা রিযকিকা আফতারতু"। অর্থ: হে আল্লাহ, আপনারই জন্য রোজা রেখেছি এবং আপনার দেওয়া রিযিক দিয়েই ইফতার করছি।'));wrap.appendChild(du);
+      wrap.appendChild(mk('div','font-size:10.5px;color:#a5b4fc;margin-top:8px;line-height:1.6','সময় গাণিতিক হিসাবে আনুমানিক (সেহরির শেষ = ফজরের শুরু, ইফতার = সূর্যাস্তের ২ মিনিট পর)। সতর্কতার জন্য সেহরি ২-৩ মিনিট আগে শেষ করা ভালো। রমজানের তারিখ চাঁদ দেখার উপর নির্ভর করে, বাংলাদেশে সৌদির চেয়ে এক দিন পরেও হতে পারে। স্থানীয় মসজিদ বা ইসলামিক ফাউন্ডেশনের ক্যালেন্ডার মিলিয়ে নিন।'));
+      box.appendChild(wrap)}
+    function islamRozaTab(body){
+      const sel=document.createElement('select');sel.className='form-field';Object.keys(TM_PTS).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});
+      let d='ঢাকা';try{d=localStorage.getItem(PRAYER_KEY)||state.district||'ঢাকা'}catch(e){}if(!TM_PTS[d])d='ঢাকা';sel.value=d;body.appendChild(sel);
+      const out=mk('div','margin-top:10px');body.appendChild(out);
+      const draw=()=>{out.innerHTML='';islamRoza(out,sel.value);try{localStorage.setItem(PRAYER_KEY,sel.value)}catch(e){}};sel.onchange=draw;draw()}
     function islamPrayer(body){
       body.appendChild(mk('p','font-size:11.5px;color:#6ee7b7;line-height:1.7;margin:0 0 8px','🕌 জেলা বেছে নিন — সেই জেলার আনুমানিক নামাজের সময় দেখাবে।'));
       const sel=document.createElement('select');sel.className='form-field';Object.keys(TM_PTS).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o)});
@@ -3469,6 +3507,18 @@
     function setCookieT(v){const d=location.hostname;const e=v?'/bn/'+v:'';['','; domain='+d,'; domain=.'+d].forEach(x=>{document.cookie='googtrans='+(v?e:'')+'; path=/'+x+(v?'':'; expires=Thu, 01 Jan 1970 00:00:00 GMT')})}
     function loadTranslate(){if(window.__gtLoaded)return;window.__gtLoaded=1;window.googleTranslateElementInit=()=>{try{new google.translate.TranslateElement({pageLanguage:'bn',autoDisplay:false},'gt_el')}catch(e){}};let box=document.getElementById('gt_el');if(!box){box=document.createElement('div');box.id='gt_el';box.style.display='none';document.body.appendChild(box)}const sc=document.createElement('script');sc.src='https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';sc.async=true;document.head.appendChild(sc)}
     if((prefs().lang||'bn')!=='bn'){try{setCookieT(prefs().lang)}catch(e){}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadTranslate);else loadTranslate()}
+    // ===== পুরো অ্যাপের ব্যাকআপ / ফেরানো =====
+    const BK_SKIP=/^(amarSbAdminTok|amarOtpSess|amarOwnerKey|amarFcm|amarAdminFail|amarAdminLock|amarBangladeshAdminIn|amarAccEmH|amarLastBackup|amarMedFired|amarFxCache|amarWx|amarShopCache|amarGrpCache|amarBangladeshLocationTree|amarNotified|amarAzanPlayed|amarSharedMig|amarSharedPrune|amarBakedApplied)/;
+    function bkCollect(){const d={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(!k||k.indexOf('amar')!==0||BK_SKIP.test(k))continue;try{d[k]=localStorage.getItem(k)}catch(e){}}return d}
+    async function fullBackup(){try{const data=bkCollect(),n=Object.keys(data).length;if(!n){alert('ব্যাকআপ করার মতো কোনো তথ্য এখনো নেই।');return}
+      const pack={app:'amar-bangladesh',v:1,t:Date.now(),n,data},blob=new Blob([JSON.stringify(pack)],{type:'application/json'});const d=new Date(),nm='amar-bangladesh-backup-'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'.json';
+      try{localStorage.setItem('amarLastBackup_v1',String(Date.now()))}catch(e){}
+      if(typeof amarFiles==='function')amarFiles([{blob,name:nm}],'আমার বাংলাদেশ — ব্যাকআপ');else tmShareBlob(blob,nm,'ব্যাকআপ');
+      alert('✅ ব্যাকআপ তৈরি হয়েছে ('+fmt(n)+'টি তথ্য-অংশ)। ফাইলটি নিজের ইমেইল/ড্রাইভ/অন্য ফোনে সেভ করে রাখুন। লগইন-টোকেন, গোপন কী ও অস্থায়ী ক্যাশ এতে থাকে না; আযানের অডিও ও কুরআনের অফলাইন ডেটা আলাদা, ওগুলো দরকার হলে আবার নামাতে হবে।')}catch(e){alert('ব্যাকআপ তৈরি করা যায়নি।')}}
+    function fullRestore(){const fi=document.createElement('input');fi.type='file';fi.accept='.json,application/json';fi.onchange=()=>{const f=fi.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const o=JSON.parse(rd.result);if(!o||o.app!=='amar-bangladesh'||!o.data||typeof o.data!=='object')throw 0;
+      const ks=Object.keys(o.data).filter(k=>k.indexOf('amar')===0&&!BK_SKIP.test(k)&&typeof o.data[k]==='string');if(!ks.length)throw 0;
+      if(!confirm('এই ফাইলে '+fmt(ks.length)+'টি তথ্য-অংশ আছে'+(o.t?' ('+new Date(o.t).toLocaleDateString('bn-BD')+'-এর ব্যাকআপ)':'')+'। এখনকার একই ধরনের তথ্য ফাইলের তথ্য দিয়ে বদলে যাবে। চালিয়ে যাবেন?'))return;
+      let bad=0;ks.forEach(k=>{try{localStorage.setItem(k,o.data[k])}catch(e){bad++}});alert(bad?'কিছু অংশ ফেরানো যায়নি (জায়গা কম)। বাকি সব ফিরেছে।':'✅ সব ফিরে এসেছে। অ্যাপ নতুন করে চালু হচ্ছে।');location.reload()}catch(e){alert('ফাইলটি আমার বাংলাদেশের ব্যাকআপ ফাইল নয় বা নষ্ট।')}};rd.readAsText(f)};fi.click()}
     function openSettings(){let m=document.getElementById('settingsModal');if(!m){m=document.createElement('div');m.className='modal-overlay';m.id='settingsModal';m.innerHTML='<div class="modal-content"><div id="settingsBody"></div></div>';m.addEventListener('click',e=>{if(e.target===m)closeModal('settingsModal')});document.body.appendChild(m)}drawSettings();m.classList.add('active')}
     function drawSettings(){const b=document.getElementById('settingsBody');b.innerHTML='';const p=prefs();const h=mk('div','');h.className='modal-header';h.appendChild(mk('h3','font-size:18px','⚙️ সেটিংস'));const x=mk('button','','✕');x.className='close-btn';x.onclick=()=>closeModal('settingsModal');h.appendChild(x);b.appendChild(h);
       const sec=t=>{const c=mk('div','background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:12px;margin-bottom:10px');c.appendChild(mk('div','font-weight:700;margin-bottom:8px;font-size:14px',t));b.appendChild(c);return c};
@@ -3483,7 +3533,10 @@
       row('📤 বন্ধুকে অ্যাপ শেয়ার করুন',()=>{const u='https://adnan1497.github.io/My-bangladesh-app/MyBangladesh_App.html';const t='আমার বাংলাদেশ — জরুরি সেবা, হাসপাতাল, রক্ত, ব্যবসা হিসাব, সরকারি সেবা সব এক অ্যাপে।';if(navigator.share)navigator.share({title:'আমার বাংলাদেশ',text:t,url:u}).catch(()=>{});else{try{navigator.clipboard.writeText(t+' '+u);alert('লিংক কপি হয়েছে')}catch(e){prompt('কপি করুন:',t+' '+u)}}try{amTrack('share')}catch(e){}});
       row('📝 কাস্টমার কেয়ারকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৪৭'));
+      (()=>{let lb='';try{const t=+localStorage.getItem('amarLastBackup_v1');if(t)lb=' (সর্বশেষ: '+new Date(t).toLocaleDateString('bn-BD')+')'}catch(e){}
+        row('💾 পুরো অ্যাপের ব্যাকআপ নামান'+lb,()=>fullBackup());
+        row('♻️ ব্যাকআপ ফাইল থেকে সব ফিরিয়ে আনুন',()=>fullRestore())})();
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৪৯'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -5412,7 +5465,7 @@
         card.onclick = () => { if (Date.now() < (window.__catDragUntil || 0)) return; openCategoryModal(cat.id, title); };
         card.innerHTML = `
           <div class="cat-icon-box">${cat.icon}</div>
-          <div class="cat-title">${title}</div>
+          <div class="cat-title">${escapeHtml(title)}</div>
         `;
         card.dataset.cid = cat.id; card.style.position = 'relative';
         if (!catFilter) enableCatDrag(card, grid);
@@ -6915,7 +6968,7 @@
       else{x.fillStyle='#cbd5e1';x.beginPath();x.arc(px+pw/2,py+95,48,0,7);x.fill();x.beginPath();x.ellipse(px+pw/2,py+215,78,70,0,Math.PI,0);x.fill()}
       x.strokeStyle=th[2];x.lineWidth=4;stuRR(x,px,py,pw,ph,18);x.stroke();
       // তথ্য
-      const ix=262,qr=o.qr!==false,mw=(qr?848:975)-ix;
+      const ix=262,qr=o.back===false,mw=(qr?848:975)-ix;
       x.fillStyle='#0f172a';const nm=(st.name||'শিক্ষার্থীর নাম');stuFit(x,nm,mw,46,true);x.fillText(nm,ix,262);
       const rows=[['রোল',st.roll?stuBd(st.roll):''],['শ্রেণি',[o.cls?stuBd(o.cls):'',o.sec?'· শাখা '+o.sec:''].filter(Boolean).join(' ')],['শিক্ষাবর্ষ',o.session?stuBd(o.session):''],['পিতার নাম',st.father||''],['রক্তের গ্রুপ',st.blood||''],['মোবাইল',st.phone?stuBd(st.phone):'']].filter(r=>r[1]);
       let y=312;rows.forEach(r=>{x.fillStyle='#64748b';x.font='400 23px '+PG_FONT;x.fillText(r[0],ix,y);x.fillStyle='#111827';stuFit(x,r[1],mw-175,28,true);x.fillText(r[1],ix+175,y);y+=44});
@@ -6926,12 +6979,30 @@
       if(st.dob){x.fillStyle='#64748b';x.font='400 20px '+PG_FONT;x.fillText('জন্ম: '+stuBd(st.dob),36,610)}
       x.fillStyle=th[2];x.fillRect(0,626,1012,12);x.restore();
       x.strokeStyle='#d1d5db';x.lineWidth=2;stuRR(x,1,1,1010,636,30);x.stroke();x.restore()}
-    function stuLoad(o){const out={logo:null,photos:{}},ph=stuPh(),jobs=[];const ld=(src,cb)=>jobs.push(new Promise(r=>{const i=new Image();i.onload=()=>{cb(i);r()};i.onerror=()=>r();i.src=src}));if(ph['logo_'+o.id])ld(ph['logo_'+o.id],i=>out.logo=i);o.students.forEach(s=>{if(ph[s.id])ld(ph[s.id],i=>out.photos[s.id]=i)});return Promise.all(jobs).then(()=>out)}
+    function stuQrText(o,st){const L=[o.school||'','শিক্ষার্থী: '+(st.name||'-')];[['রোল',st.roll],['শ্রেণি',[o.cls,o.sec].filter(Boolean).join(' ')],['শিক্ষাবর্ষ',o.session],['পিতা',st.father],['মাতা',st.mother],['জন্ম',st.dob],['রক্ত',st.blood],['মোবাইল',st.phone],['ঠিকানা',st.addr],['আরও',st.more]].forEach(r=>{const v=String(r[1]==null?'':r[1]).trim();if(v)L.push(r[0]+': '+v)});return L.join('\n')}
+    function stuBack(x,X,Y,k,o,st,im){
+      const th=STU_TH[o.theme||0]||STU_TH[0];x.save();x.translate(X,Y);x.scale(k,k);x.textBaseline='alphabetic';
+      stuRR(x,0,0,1012,638,30);x.save();x.clip();x.fillStyle='#fff';x.fillRect(0,0,1012,638);
+      const g=x.createLinearGradient(0,0,1012,0);g.addColorStop(0,th[1]);g.addColorStop(1,th[2]);x.fillStyle=g;x.fillRect(0,0,1012,96);
+      x.fillStyle='#fff';x.textAlign='center';stuFit(x,o.school||'প্রতিষ্ঠানের নাম',900,36,true);x.fillText(o.school||'প্রতিষ্ঠানের নাম',506,60);x.textAlign='left';
+      // বড় QR
+      const qs=410,qx=44,qy=134;x.fillStyle='#fff';x.fillRect(qx,qy,qs,qs);const q=window.amarQR?window.amarQR(stuQrText(o,st)):null;
+      if(q){const b=3,N=q.n+2*b,sc=qs/N;x.fillStyle='#000';for(let r=0;r<q.n;r++)for(let c=0;c<q.n;c++)if(q.get(r,c))x.fillRect(qx+(c+b)*sc,qy+(r+b)*sc,Math.ceil(sc),Math.ceil(sc))}else{x.fillStyle='#b91c1c';x.font='400 24px '+PG_FONT;x.fillText('তথ্য বেশি বড় — কমান',qx+40,qy+qs/2)}
+      x.strokeStyle='#e2e8f0';x.lineWidth=3;x.strokeRect(qx,qy,qs,qs);
+      x.fillStyle=th[1];x.font='700 34px '+PG_FONT;x.fillText('স্ক্যান করে পূর্ণ তথ্য দেখুন',500,176);
+      x.fillStyle='#475569';x.font='400 24px '+PG_FONT;const tx=['এই কার্ড হারিয়ে গেলে বা কুড়িয়ে পেলে','অনুগ্রহ করে নিচের ঠিকানায় ফেরত দিন:'];tx.forEach((t,i)=>x.fillText(t,500,226+i*38));
+      x.fillStyle='#0f172a';let y=330;stuFit(x,o.school||'',470,30,true);x.fillText(o.school||'',500,y);y+=42;
+      if(o.addr){x.fillStyle='#334155';stuFit(x,o.addr,470,24,false);x.fillText(o.addr,500,y);y+=38}
+      if(o.phone){x.fillStyle='#334155';x.font='700 28px '+PG_FONT;x.fillText('📞 '+stuBd(o.phone),500,y);y+=42}
+      x.fillStyle='#64748b';x.font='400 22px '+PG_FONT;const nm=(st.name||'')+(st.roll?' · রোল '+stuBd(st.roll):'');stuFit(x,nm,470,22,false);x.fillText(nm,500,586);
+      x.fillStyle=th[2];x.fillRect(0,626,1012,12);x.restore();x.strokeStyle='#d1d5db';x.lineWidth=2;stuRR(x,1,1,1010,636,30);x.stroke();x.restore()}
+    function stuLoad(o){const out={logo:null,photos:{}},ph=stuPh(),jobs=[];try{[400,700].forEach(w=>jobs.push(document.fonts.load(w+' 24px "Hind Siliguri"','আঅ').catch(()=>{})))}catch(e){}const ld=(src,cb)=>jobs.push(new Promise(r=>{const i=new Image();i.onload=()=>{cb(i);r()};i.onerror=()=>r();i.src=src}));if(ph['logo_'+o.id])ld(ph['logo_'+o.id],i=>out.logo=i);o.students.forEach(s=>{if(ph[s.id])ld(ph[s.id],i=>out.photos[s.id]=i)});return Promise.all(jobs).then(()=>out)}
     // A4, ৩০০ ডিপিআই (২৪৮০×৩৫০৮), পাতায় ১০টি কার্ড
-    function stuSheets(o,im){const W=2480,H=3508,CW=1012,CH=638,gx=60,gy=24,x0=Math.round((W-2*CW-gx)/2),y0=Math.round((H-5*CH-4*gy)/2),pages=[];const sts=o.students.length?o.students:[{id:'_',name:''}];
-      for(let i=0;i<sts.length;i+=10){const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);
-        sts.slice(i,i+10).forEach((st,j)=>{const c=j%2,r=Math.floor(j/2);stuCard(x,x0+c*(CW+gx),y0+r*(CH+gy),1,o,st,im)});
-        x.fillStyle='#9ca3af';x.font='400 26px '+PG_FONT;x.fillText('কার্ডের মাপ ৮৫.৬×৫৪ মিমি (স্ট্যান্ডার্ড) · প্রিন্ট করার সময় "প্রকৃত আকার / ১০০%" বাছুন',x0,H-40);pages.push(cv)}return pages}
+    function stuSheets(o,im){const W=2480,H=3508,CW=1012,CH=638,gx=60,gy=24,x0=Math.round((W-2*CW-gx)/2),y0=Math.round((H-5*CH-4*gy)/2),pages=[];const sts=o.students.length?o.students:[{id:'_',name:''}],hasBack=o.back!==false;
+      const note=(x,t)=>{x.fillStyle='#9ca3af';x.font='400 26px '+PG_FONT;x.fillText(t,x0,H-40)};
+      for(let i=0;i<sts.length;i+=10){const grp=sts.slice(i,i+10);const mk1=()=>{const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);return[cv,x]};
+        let [cv,x]=mk1();grp.forEach((st,j)=>{const c=j%2,r=Math.floor(j/2);stuCard(x,x0+c*(CW+gx),y0+r*(CH+gy),1,o,st,im)});note(x,'সামনের পাশ · কার্ডের মাপ ৮৫.৬×৫৪ মিমি · প্রিন্টে "প্রকৃত আকার / ১০০%" বাছুন'+(hasBack?' · দুই পাশে প্রিন্ট: "লম্বা কিনারায় উল্টান"':''));pages.push(cv);
+        if(hasBack){[cv,x]=mk1();grp.forEach((st,j)=>{const c=1-(j%2),r=Math.floor(j/2);stuBack(x,x0+c*(CW+gx),y0+r*(CH+gy),1,o,st,im)});note(x,'পেছনের পাশ (সামনের পাতার উল্টো পিঠে প্রিন্ট হবে)');pages.push(cv)}}return pages}
     function schIdCardEditor(root,o,back){
       if(!Array.isArray(o.students))o.students=[];let tm=null;const flush=()=>{clearTimeout(tm);const d=schData();o.t=Date.now();const i=d.idcards.findIndex(x=>x.id===o.id);if(i<0)d.idcards.unshift(o);else d.idcards[i]=o;schSave(d)};const save=()=>{clearTimeout(tm);tm=setTimeout(flush,300)};
       const pickImg=(max,cb)=>{const fi=document.createElement('input');fi.type='file';fi.accept='image/*';fi.onchange=()=>{const f=fi.files[0];if(!f)return;const u=URL.createObjectURL(f),I=new Image();I.onload=()=>{const k=Math.min(1,max/Math.max(I.width,I.height)),c=document.createElement('canvas');c.width=Math.round(I.width*k);c.height=Math.round(I.height*k);c.getContext('2d').drawImage(I,0,0,c.width,c.height);URL.revokeObjectURL(u);cb(c.toDataURL('image/jpeg',.9))};I.src=u};fi.click()};
@@ -6942,13 +7013,13 @@
         const g=mk('div','display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px');box.appendChild(g);schField(g,'শ্রেণি',o.cls,{on:v=>{o.cls=v;save()}});schField(g,'শাখা',o.sec,{on:v=>{o.sec=v;save()}});schField(g,'শিক্ষাবর্ষ',o.session,{inputmode:'numeric',on:v=>{o.session=v;save()}});
         schField(box,'স্বাক্ষরের নিচে লেখা',o.sign,{ph:'প্রধান শিক্ষক / অধ্যক্ষ',on:v=>{o.sign=v;save()}});
         schSelect(box,'কার্ডের রঙ',STU_TH.map((t,i)=>[String(i),t[0]]),String(o.theme||0),v=>{o.theme=+v;save()});
-        const ql=mk('label','display:flex;gap:8px;align-items:center;font-size:12.5px;color:#d1fae5;margin:4px 0 8px');const qc=document.createElement('input');qc.type='checkbox';qc.checked=o.qr!==false;qc.onchange=()=>{o.qr=qc.checked;save()};ql.appendChild(qc);ql.appendChild(document.createTextNode('কার্ডে QR কোড দিন (নাম, রোল, শ্রেণি)'));box.appendChild(ql);
+        schField(box,'স্কুলের ফোন নম্বর (কার্ডের পেছনে থাকবে)',o.phone,{type:'tel',on:v=>{o.phone=v;save()}});const ql=mk('label','display:flex;gap:8px;align-items:center;font-size:12.5px;color:#d1fae5;margin:4px 0 8px;line-height:1.5');const qc=document.createElement('input');qc.type='checkbox';qc.checked=o.back!==false;qc.onchange=()=>{o.back=qc.checked;save()};ql.appendChild(qc);ql.appendChild(document.createTextNode('কার্ডের পেছনের পাশও বানান — বড় QR-এ শিক্ষার্থীর পূর্ণ তথ্য (পিতা, মাতা, ঠিকানা, মোবাইল…) থাকবে, সামনে শুধু মূল তথ্য'));box.appendChild(ql);
         const lr=mk('div','display:flex;gap:8px;align-items:center');const li=mk('img','width:44px;height:44px;border-radius:50%;object-fit:cover;background:#061812;border:1px solid rgba(16,185,129,.4)');const pl=stuPh()['logo_'+o.id];if(pl)li.src=pl;lr.appendChild(li);schBtn(lr,pl?'🔄 স্কুলের লোগো বদলান':'🏫 স্কুলের লোগো দিন (ঐচ্ছিক)',()=>pickImg(500,u=>{stuPhSet('logo_'+o.id,u);redraw()}),'change-btn','flex:1;padding:10px;font-size:12.5px');if(pl)schBtn(lr,'✕',()=>{stuPhSet('logo_'+o.id,null);redraw()},'danger-btn','padding:10px 12px');box.appendChild(lr);
         root.appendChild(mk('div','font-size:14px;font-weight:700;margin:6px 0',' 🧑‍🎓 শিক্ষার্থী ('+bnn(o.students.length)+' জন)'));
         o.students.forEach((s,i)=>{const c=mk('div','background:#0b2b20;border:1px solid rgba(250,204,21,.35);border-radius:14px;padding:11px;margin-bottom:9px');root.appendChild(c);
-          const hd=mk('div','display:flex;justify-content:space-between;align-items:center;margin-bottom:6px');hd.appendChild(mk('b','font-size:12.5px;color:#fcd34d','শিক্ষার্থী '+bnn(i+1)));const hb=mk('div','display:flex;gap:6px');schBtn(hb,'🖼️ এই কার্ড',async()=>{flush();const im=await stuLoad(o),cv=document.createElement('canvas');cv.width=2024;cv.height=1276;const x=cv.getContext('2d');stuCard(x,0,0,2,o,s,im);cv.toBlob(b=>tmShareBlob(b,'student-card-'+(s.roll||i+1)+'.png','শিক্ষার্থী কার্ড'),'image/png')},'change-btn','padding:5px 9px;font-size:11.5px');schBtn(hb,'✕',()=>{if(!confirm('এই শিক্ষার্থী মুছবেন?'))return;stuPhSet(s.id,null);o.students.splice(i,1);flush();redraw()},'danger-btn','padding:5px 9px;font-size:12px');hd.appendChild(hb);c.appendChild(hd);
-          const r1=mk('div','display:grid;grid-template-columns:2fr 1fr;gap:8px');c.appendChild(r1);schField(r1,'নাম *',s.name,{on:v=>{s.name=v;save()}});schField(r1,'রোল',s.roll,{inputmode:'numeric',on:v=>{s.roll=v;save()}});
-          const r2=mk('div','display:grid;grid-template-columns:1fr 1fr;gap:8px');c.appendChild(r2);schField(r2,'পিতার নাম',s.father,{on:v=>{s.father=v;save()}});schField(r2,'রক্তের গ্রুপ',s.blood,{ph:'B+',on:v=>{s.blood=v;save()}});schField(r2,'মোবাইল',s.phone,{type:'tel',on:v=>{s.phone=v;save()}});schField(r2,'জন্ম তারিখ',s.dob,{ph:'০১-০১-২০১০',on:v=>{s.dob=v;save()}});
+          const hd=mk('div','display:flex;justify-content:space-between;align-items:center;margin-bottom:6px');hd.appendChild(mk('b','font-size:12.5px;color:#fcd34d','শিক্ষার্থী '+bnn(i+1)));const hb=mk('div','display:flex;gap:6px');schBtn(hb,'🖼️ এই কার্ড',async()=>{flush();const im=await stuLoad(o),mkc=()=>{const c=document.createElement('canvas');c.width=2024;c.height=1276;return c},cf=mkc();stuCard(cf.getContext('2d'),0,0,2,o,s,im);const ps=[cf];if(o.back!==false){const cb=mkc();stuBack(cb.getContext('2d'),0,0,2,o,s,im);ps.push(cb)}pgImages({pages:ps},'student-card-'+(s.roll||i+1))},'change-btn','padding:5px 9px;font-size:11.5px');schBtn(hb,'✕',()=>{if(!confirm('এই শিক্ষার্থী মুছবেন?'))return;stuPhSet(s.id,null);o.students.splice(i,1);flush();redraw()},'danger-btn','padding:5px 9px;font-size:12px');hd.appendChild(hb);c.appendChild(hd);
+          const r1=mk('div','display:grid;grid-template-columns:2fr 1fr;gap:8px');c.appendChild(r1);schField(r1,'নাম *',s.name,{on:v=>{s.name=v;save();capUp()}});schField(r1,'রোল',s.roll,{inputmode:'numeric',on:v=>{s.roll=v;save();capUp()}});
+          const r2=mk('div','display:grid;grid-template-columns:1fr 1fr;gap:8px');c.appendChild(r2);schField(r2,'পিতার নাম',s.father,{on:v=>{s.father=v;save();capUp()}});schField(r2,'রক্তের গ্রুপ',s.blood,{ph:'B+',on:v=>{s.blood=v;save()}});schField(r2,'মাতার নাম',s.mother,{on:v=>{s.mother=v;save();capUp()}});schField(r2,'অভিভাবকের মোবাইল',s.phone,{type:'tel',on:v=>{s.phone=v;save();capUp()}});schField(r2,'জন্ম তারিখ',s.dob,{ph:'০১-০১-২০১০',on:v=>{s.dob=v;save();capUp()}});schField(c,'গ্রাম ও পূর্ণ ঠিকানা',s.addr,{on:v=>{s.addr=v;save();capUp()}});schField(c,'আরও তথ্য (ঐচ্ছিক — যেমন: দাদার নাম, জরুরি যোগাযোগ)',s.more,{on:v=>{s.more=v;save();capUp()}});const capEl=mk('div','font-size:11.5px;color:#fcd34d;margin:0 0 8px');c.appendChild(capEl);function capUp(){const by=unescape(encodeURIComponent(stuQrText(o,s))).length,pc=Math.round(by*100/520);capEl.textContent='🔳 QR-এ জায়গা ভরেছে: প্রায় '+bnn(Math.min(pc,999))+'%'+(pc>100?' — তথ্য একটু বেশি, সহজে স্ক্যান হতে কিছু কমান':'')}capUp();
           const pr=mk('div','display:flex;gap:8px;align-items:center');const pi=mk('img','width:42px;height:52px;border-radius:8px;object-fit:cover;background:#061812;border:1px solid rgba(16,185,129,.4)');const sp=stuPh()[s.id];if(sp)pi.src=sp;pr.appendChild(pi);schBtn(pr,sp?'🔄 ছবি বদলান':'📷 ছবি দিন',()=>pickImg(600,u=>{stuPhSet(s.id,u);redraw()}),'change-btn','flex:1;padding:9px;font-size:12.5px');if(sp)schBtn(pr,'✕',()=>{stuPhSet(s.id,null);redraw()},'danger-btn','padding:9px 12px');c.appendChild(pr)});
         const ab=mk('div','display:flex;gap:6px;flex-wrap:wrap');schBtn(ab,'➕ শিক্ষার্থী যোগ',()=>{o.students.push({id:schId(),name:'',roll:o.students.length?String((parseInt(String(o.students[o.students.length-1].roll).replace(/[০-৯]/g,c=>'০১২৩৪৫৬৭৮৯'.indexOf(c)))||o.students.length)+1):'1'});flush();redraw();root.lastChild&&root.lastChild.scrollIntoView&&root.lastChild.scrollIntoView({block:'center'})},'call-btn','border:0;padding:10px 14px;font-size:12.5px');
         schBtn(ab,'📋 একসাথে নাম বসান',()=>{const t=prompt('প্রতি লাইনে একজন: রোল, নাম  (যেমন: ১, রহিম উদ্দিন)\nরোল না দিলে শুধু নাম লিখুন।');if(!t)return;t.split(/\n/).map(l=>l.trim()).filter(Boolean).forEach((l,k)=>{const p=l.split(/[,،\t]/).map(z=>z.trim());let roll='',name=l;if(p.length>=2&&/^[0-9০-৯]+$/.test(p[0])){roll=p[0];name=p.slice(1).join(', ')}else if(p.length>=2&&/^[0-9০-৯]+$/.test(p[p.length-1])){roll=p[p.length-1];name=p.slice(0,-1).join(', ')}o.students.push({id:schId(),name,roll:roll||String(o.students.length+1)})});flush();redraw()},'change-btn','padding:10px 14px;font-size:12.5px');root.appendChild(ab)};
@@ -7156,7 +7227,7 @@
         else if(S.v==='routines')mkList('routines','রুটিন','🗓️',()=>({id:schId(),type:'class',school:P.name||'',addr:P.addr||'',title:'',cls:'',note:'',days:DAYS.slice(0,6).filter(d=>d!=='শুক্রবার'),periods:['০৯:০০–০৯:৪৫','০৯:৪৫–১০:৩০','১০:৩০–১১:১৫','১১:৪৫–১২:৩০','১২:৩০–০১:১৫'],cells:{},rows:[],t:Date.now()}),null,o=>[o.type==='exam'?'পরীক্ষার রুটিন':'ক্লাস রুটিন',o.cls?'শ্রেণি '+o.cls:'',o.title].filter(Boolean).join(' · '));
         else if(S.v==='routines_edit')edit('routines',schRoutineEditor);
         else if(S.v==='syllabi')mkList('syllabi','সিলেবাস','📚',()=>({id:schId(),school:P.name||'',addr:P.addr||'',title:'',exam:'',cls:'',items:[{sub:'',text:''}],t:Date.now()}),null,o=>[o.title||'সিলেবাস',o.cls?'শ্রেণি '+o.cls:''].filter(Boolean).join(' · '));
-        else if(S.v==='idcards')mkList('idcards','স্টুডেন্ট কার্ড','🪪',()=>({id:schId(),school:P.name||'',addr:P.addr||'',cls:'',sec:'',session:yr,sign:'প্রধান শিক্ষক',theme:0,qr:true,students:[{id:schId(),name:'',roll:'1'}],t:Date.now()}),null,o=>[o.cls?'শ্রেণি '+o.cls:'',o.sec?'শাখা '+o.sec:'',o.school,fmt(o.students.length)+' জন'].filter(Boolean).join(' · '));
+        else if(S.v==='idcards')mkList('idcards','স্টুডেন্ট কার্ড','🪪',()=>({id:schId(),school:P.name||'',addr:P.addr||'',cls:'',sec:'',session:yr,sign:'প্রধান শিক্ষক',theme:0,back:true,phone:P.phone||'',students:[{id:schId(),name:'',roll:'1'}],t:Date.now()}),null,o=>[o.cls?'শ্রেণি '+o.cls:'',o.sec?'শাখা '+o.sec:'',o.school,fmt(o.students.length)+' জন'].filter(Boolean).join(' · '));
         else if(S.v==='idcards_edit')edit('idcards',schIdCardEditor);
         else if(S.v==='syllabi_edit')edit('syllabi',schSyllabusEditor)}
       draw()}
@@ -7261,13 +7332,18 @@
       refreshLocationUi();
       // ২) ইন্টারনেট থাকলে পূর্ণ ইউনিয়ন তালিকা এনে সংরক্ষণ (কম হলে বদলানো হবে না)
       try {
-        const response=await fetch(LOCATION_DATA_URL,{cache:'no-cache'});
-        if(!response.ok) throw new Error('ডেটা পাওয়া যায়নি');
-        const data=await response.json();
-        if(Array.isArray(data)&&data.length===8&&listedUnions(data)>=listedUnions(EMBED_GEO)){
-          DIVISIONS=data;
-          try{localStorage.setItem(LOCATION_CACHE_KEY,JSON.stringify(data));}catch(e){}
-          refreshLocationUi();
+        for(const u of LOCATION_DATA_URLS){
+          try{
+            const response=await fetch(u,{cache:'no-cache'});
+            if(!response.ok) continue;
+            const data=await response.json();
+            if(Array.isArray(data)&&data.length===8&&listedUnions(data)>=listedUnions(EMBED_GEO)){
+              DIVISIONS=data;
+              try{localStorage.setItem(LOCATION_CACHE_KEY,JSON.stringify(data));}catch(e){}
+              refreshLocationUi();
+              break;
+            }
+          }catch(e){}
         }
       } catch(err) {}
     }
@@ -8149,7 +8225,7 @@
         if(S.blood){x.fillStyle='#f42a41';rr(x,50,265,190,90,22);x.fill();x.fillStyle='#fff';x.font='700 24px '+FONT;x.fillText('রক্তের গ্রুপ',68,296);x.font='700 40px '+FONT;x.fillText(S.blood,68,340)}
         x.fillStyle='#fff';x.font='400 26px '+FONT;var y=410;if(S.phone){x.fillStyle='rgba(255,255,255,.75)';x.font='400 22px '+FONT;x.fillText('জরুরি যোগাযোগ',50,y);x.fillStyle='#fff';x.font='700 38px '+FONT;x.fillText(B(S.phone),50,y+46);y+=100}
         if(S.area){x.fillStyle='rgba(255,255,255,.85)';x.font='400 26px '+FONT;x.fillText('📍 '+S.area,50,y+10)}
-        var qt=qrText(),qb=unescape(encodeURIComponent(qt)).length,pc=Math.round(qb*100/665);cap.textContent='QR-এ জায়গা ভরেছে: প্রায় '+B(Math.min(pc,999))+'%'+(pc>100?' — তথ্য বেশি বড়, কিছু কমান':'');var ok=big?drawQR(x,qt,555,130,400):drawQR(x,qt,620,170,330);if(!ok){x.fillStyle='#fff';x.font='400 20px '+FONT;x.fillText('তথ্য বেশি বড় — কমিয়ে দিন',620,330)}
+        var qt=qrText(),qb=unescape(encodeURIComponent(qt)).length,pc=Math.round(qb*100/520);cap.textContent='QR-এ জায়গা ভরেছে: প্রায় '+B(Math.min(pc,999))+'%'+(pc>100?' — তথ্য একটু বেশি, সহজে স্ক্যান হতে কিছু কমান':'');var ok=big?drawQR(x,qt,555,130,400):drawQR(x,qt,620,170,330);if(!ok){x.fillStyle='#fff';x.font='400 20px '+FONT;x.fillText('তথ্য বেশি বড় — কমিয়ে দিন',620,330)}
         x.fillStyle='rgba(255,255,255,.7)';x.font='400 20px '+FONT;x.fillText(big?'স্ক্যান করলে পূর্ণ বায়োডাটা দেখা যাবে':'স্ক্যান করলে তথ্য দেখা যাবে',big?575:650,big?555:535);x.fillText('আমার বাংলাদেশ অ্যাপ',50,585);wr('amarIdCard_v1',S)}
       draw();var bt=el('button','width:100%;padding:14px;border-radius:14px;border:0;background:#10b981;color:#fff;font-size:15px;font-weight:800;cursor:pointer','📤 কার্ড শেয়ার / সেভ করুন');bt.onclick=function(){toBlob(cv).then(function(b){amarFiles([{blob:b,name:'amar-porichoy-card.png'}],'পরিচয় কার্ড')})};w.appendChild(bt);
       var pb=el('button','width:100%;padding:14px;border-radius:14px;border:1px solid #10b981;background:#061812;color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin-top:8px','📕 পিডিএফ নামান / শেয়ার করুন');
