@@ -1,5 +1,5 @@
 // সার্ভিস ওয়ার্কার: অ্যাপের মূল ফাইল ক্যাশ করে, যাতে ইন্টারনেট ছাড়াও খোলে। Supabase ও অন্য API সবসময় নেটওয়ার্ক থেকে।
-const V = 'amar-bd-v51';
+const V = 'amar-bd-v52';
 const SHELL = ['./MyBangladesh_App.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 // ঐচ্ছিক (না থাকলেও ইনস্টল আটকাবে না): নিজের ফন্ট ও লোকেশন-ডেটা
 const EXTRA = ['./bangladesh-geo.json', './fonts/hind-siliguri-400.woff', './fonts/hind-siliguri-500.woff', './fonts/hind-siliguri-600.woff', './fonts/hind-siliguri-700.woff'];
