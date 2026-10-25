@@ -3541,7 +3541,7 @@
       (()=>{let lb='';try{const t=+localStorage.getItem('amarLastBackup_v1');if(t)lb=' (সর্বশেষ: '+new Date(t).toLocaleDateString('bn-BD')+')'}catch(e){}
         row('💾 পুরো অ্যাপের ব্যাকআপ নামান'+lb,()=>fullBackup());
         row('♻️ ব্যাকআপ ফাইল থেকে সব ফিরিয়ে আনুন',()=>fullRestore())})();
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৫৩'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৫৪'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -9007,6 +9007,15 @@
   function endOf(m){if(m.days>0)return addDays(m.start,m.days-1);return m.end||''}
   function active(m,d){return !m.paused&&m.start<=d&&(!endOf(m)||d<=endOf(m))}
   function dosesOn(d,pid){var L=[];D.meds.forEach(function(m){if(pid&&pid!=='all'&&m.pid!==pid)return;if(!active(m,d))return;m.times.forEach(function(t){var k=d+'|'+m.id+'|'+t.id;L.push({k:k,m:m,t:t,time:t.t,s:D.log[k]?D.log[k].s:null})})});L.sort(function(a,b){return a.time<b.time?-1:a.time>b.time?1:0});return L}
+  async function testNotif(){var ln=LN();if(!ln){alert('এই পরীক্ষা শুধু APK অ্যাপে চলে।');return}
+    try{var info=[];var p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();info.push('নোটিফিকেশন অনুমতি: '+(p.display==='granted'?'চালু ✅':'বন্ধ ❌ (ফোন সেটিংসে অ্যাপের নোটিফিকেশন চালু করুন)'));
+      try{if(ln.checkExactNotificationSetting){var e=await ln.checkExactNotificationSetting();info.push('ঠিক-সময়ের অ্যালার্ম অনুমতি: '+(e&&e.exact_alarm==='granted'?'চালু ✅':'বন্ধ ❌ (সেটিংস > অ্যাপ > আমার বাংলাদেশ > "অ্যালার্ম ও রিমাইন্ডার" চালু করুন)'))}}catch(_){}
+      await nativeSync();
+      var pend=await ln.getPending(),mine=(pend&&pend.notifications||[]).filter(function(n){return n.id>=7200000&&n.id<7299999});info.push('ফোনে জমা ওষুধের নোটিফিকেশন: '+bn(mine.length)+'টি');
+      try{await ln.createChannel({id:'med2',name:'ওষুধের সময় (জোরে বাজে)',description:'ওষুধ খাওয়ার রিমাইন্ডার',importance:5,visibility:1,sound:'alarm.wav',vibration:true,lights:true})}catch(_){}
+      await ln.schedule({notifications:[{id:7299999,title:'💊 পরীক্ষা: ওষুধের নোটিফিকেশন',body:'এটি দেখলে ও শুনলে রিমাইন্ডার ঠিক আছে।',channelId:'med2',schedule:{at:new Date(Date.now()+60000),allowWhileIdle:true}}]});
+      info.push('','এখন অ্যাপটি পুরো বন্ধ করে দিন (Recent থেকে সরিয়ে) এবং ফোন সাইলেন্ট/ডু-নট-ডিস্টার্ব না রেখে ১ মিনিট অপেক্ষা করুন। একটি পরীক্ষামূলক নোটিফিকেশন আসা উচিত।');
+      alert(info.join('\n'))}catch(e){alert('পরীক্ষা চালানো যায়নি: '+String((e&&e.message)||e).slice(0,100))}}
   function nowHM(){var n=new Date();return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}
   /* কাজ: খেলাম / বাদ / ফেরান */
   function mark(k,s){var p=k.split('|'),m=med(p[1]);if(!m)return;var old=D.log[k];if(old&&old.s==='taken'&&m.stock!==''&&m.stock!=null)m.stock=Math.round((m.stock+(m.per||1))*100)/100;
@@ -9017,11 +9026,11 @@
   async function nativeSync(){var ln=LN();if(!ln)return;
     try{var p=await ln.checkPermissions();if(p.display!=='granted')p=await ln.requestPermissions();if(p.display!=='granted')return;
       try{if(ln.checkExactNotificationSetting){var e=await ln.checkExactNotificationSetting();if(e&&e.exact_alarm&&e.exact_alarm!=='granted'&&ln.requestExactNotificationSetting)await ln.requestExactNotificationSetting()}}catch(_){}
-      try{await ln.createChannel({id:'med',name:'ওষুধের সময়',description:'ওষুধ খাওয়ার রিমাইন্ডার',importance:5,visibility:1,vibration:true,lights:true})}catch(_){}
+      try{await ln.deleteChannel({id:'med'})}catch(_){}try{await ln.createChannel({id:'med2',name:'ওষুধের সময় (জোরে বাজে)',description:'ওষুধ খাওয়ার রিমাইন্ডার',importance:5,visibility:1,sound:'alarm.wav',vibration:true,lights:true})}catch(_){}
       var pend=await ln.getPending(),old=(pend&&pend.notifications||[]).filter(function(n){return n.id>=7200000&&n.id<7300000}).map(function(n){return{id:n.id}});if(old.length)await ln.cancel({notifications:old});
       var list=[],now=new Date(),idx=0;
       for(var d=0;d<7&&list.length<380;d++){var ds=addDays(today(),d);dosesOn(ds).forEach(function(x){if(x.s)return;var hm=x.time.split(':'),at=new Date(+ds.slice(0,4),+ds.slice(5,7)-1,+ds.slice(8,10),+hm[0],+hm[1],0,0);
-        [[0,'💊 ওষুধের সময় হয়েছে'],[15,'⏰ ওষুধ খেয়েছেন? (মনে করিয়ে দিচ্ছি)'],[30,'⏰ ওষুধ এখনো বাকি!']].forEach(function(f){var t=new Date(at.getTime()+f[0]*60000);if(t<=now)return;list.push({id:7200000+(idx++),title:f[1],body:x.m.name+(x.m.dose?' — '+x.m.dose:'')+' · '+MEAL[x.m.meal||'any']+(D.people.length>1?' ('+pName(x.m.pid)+')':''),channelId:'med',extra:{med:1,k:x.k},schedule:{at:t,allowWhileIdle:true}})})})}
+        [[0,'💊 ওষুধের সময় হয়েছে'],[15,'⏰ ওষুধ খেয়েছেন? (মনে করিয়ে দিচ্ছি)'],[30,'⏰ ওষুধ এখনো বাকি!']].forEach(function(f){var t=new Date(at.getTime()+f[0]*60000);if(t<=now)return;list.push({id:7200000+(idx++),title:f[1],body:x.m.name+(x.m.dose?' — '+x.m.dose:'')+' · '+MEAL[x.m.meal||'any']+(D.people.length>1?' ('+pName(x.m.pid)+')':''),channelId:'med2',extra:{med:1,k:x.k},schedule:{at:t,allowWhileIdle:true}})})})}
       if(list.length)await ln.schedule({notifications:list.slice(0,380)})}catch(e){try{console.warn('med sync',e)}catch(_){}}}
   /* অ্যাপ খোলা থাকলে ভেতরের রিমাইন্ডার */
   function fired(){try{var o=JSON.parse(localStorage.getItem(FK)||'{}');if(o.d!==today())o={d:today(),f:{},z:{}};return o}catch(e){return{d:today(),f:{},z:{}}}}
@@ -9048,6 +9057,7 @@
     else if(!nx){nc.appendChild(el('b','','🎉 আজকের সব ওষুধ শেষ!'));nc.appendChild(el('div','mr-h','আজ '+bn(done)+'টি খেয়েছেন'+(skip?', '+bn(skip)+'টি বাদ গেছে':'')+'। ভালো থাকুন।'))}
     else{nc.appendChild(el('div','mr-h',nowM-tMin(nx.time)>0?'⏰ এখনই খাওয়ার কথা:':'পরের ওষুধ:'));nc.appendChild(el('b','',nx.m.name+(nx.m.dose?' — '+nx.m.dose:'')));nc.appendChild(el('div','mr-h',tLbl(nx.time)+' · '+MEAL[nx.m.meal||'any']))}
     W.appendChild(nc);
+    if(LN()){var tr=el('div','mr-r');tr.style.margin='6px 0';btn(tr,'🔔 নোটিফিকেশন ঠিক আছে কি না পরীক্ষা করুন',function(){testNotif()}).style.flex='1';W.appendChild(tr)}
     var pcnt=L.length?Math.round((done)*100/L.length):0;var s=el('div','mr-sum');[[bn(done)+'/'+bn(L.length),'আজ খেয়েছেন'],[bn(left.length),'বাকি'],[bn(lateN),'দেরি হচ্ছে']].forEach(function(a){var x=el('div');x.appendChild(el('b','',a[0]));x.appendChild(el('span','',a[1]));s.appendChild(x)});W.appendChild(s);var bar=el('div','mr-bar');bar.appendChild(el('i'));bar.firstChild.style.width=pcnt+'%';W.appendChild(bar);
     var last='';L.forEach(function(x){var pr=period(x.time);if(pr[1]!==last){last=pr[1];W.appendChild(el('div','mr-pt',pr[0]+' '+pr[1]))}
       var late=!x.s&&nowM-tMin(x.time)>30,c=el('div','mr-d'+(late?' late':'')+(x.s?' ok':''));c.appendChild(el('div','mr-tm',tLbl(x.time).replace(/ (সকাল|দুপুর|বিকাল|রাত)$/,'')));var t=el('div');t.style.flex='1';t.appendChild(el('div','',x.m.name+(x.m.dose?' — '+x.m.dose:'')));t.appendChild(el('div','mr-h',MEAL[x.m.meal||'any']+(D.people.length>1?' · '+pName(x.m.pid):'')));c.appendChild(t);
