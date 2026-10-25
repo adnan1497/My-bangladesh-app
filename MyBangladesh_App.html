@@ -3059,6 +3059,12 @@
         getAlarms().filter(a=>a.on).forEach(a=>{const [h,m]=a.time.split(':').map(Number);const base={title:'⏰ '+(a.label||'অ্যালার্ম'),body:a.time+' — বন্ধ করতে চাপুন',channelId:'alarm2',extra:{alarmId:a.id,label:a.label||'',time:a.time},ongoing:false,autoCancel:true};
           if(a.days&&a.days.length){a.days.forEach(d=>list.push(Object.assign({id:natId(a.id+'d'+d)},base,{schedule:{on:{weekday:d+1,hour:h,minute:m},allowWhileIdle:true}})))}
           else{const at=new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0,0);if(at<=now)at.setDate(at.getDate()+1);list.push(Object.assign({id:natId(a.id)},base,{schedule:{at,allowWhileIdle:true}}))}});
+        const nat=[];
+        getAlarms().filter(a=>a.on).forEach(a=>{const [h,m]=a.time.split(':').map(Number);const ttl='⏰ '+(a.label||'অ্যালার্ম'),bd=a.time+' — অ্যালার্ম';
+          if(a.days&&a.days.length){for(let k=0;k<30;k++){const t=new Date(now.getFullYear(),now.getMonth(),now.getDate()+k,h,m,0,0);if(t<=now)continue;if(a.days.includes(t.getDay()))nat.push({id:natId(a.id+'n'+k),at:t.getTime(),title:ttl,body:bd})}}
+          else{const t=new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0,0);if(t<=now)t.setDate(t.getDate()+1);nat.push({id:natId(a.id+'o'),at:t.getTime(),title:ttl,body:bd})}});
+        const nr=await window.amarNativeSchedule('alarm',nat);
+        if(nr.ok)return;
         if(list.length)await LN.schedule({notifications:list})}catch(e){try{console.warn('native alarm',e)}catch(_){}}}
     try{const LN0=CAPN();if(LN0){LN0.addListener('localNotificationActionPerformed',ev=>{try{const x=(ev.notification&&ev.notification.extra)||{};if(x.med){try{window.medremOpen&&window.medremOpen()}catch(e){}return}alarmRingNow({time:x.time||'',label:x.label||'অ্যালার্ম'})}catch(e){}});setTimeout(nativeAlarmSync,2500)}}catch(e){}
     function alarmTick(now){
@@ -3086,11 +3092,13 @@
         const r=mk('div','display:flex;align-items:center;gap:10px;background:#0b2b20;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:12px;margin-bottom:8px');
         const m=mk('div','flex:1;min-width:0');m.appendChild(mk('b','font-size:22px;display:block',fmt(+a.time.slice(0,2))+':'+a.time.slice(3)));m.appendChild(mk('span','font-size:12px;color:#a7f3d0;word-break:break-word',(a.label||'অ্যালার্ম')+' · '+((a.days&&a.days.length)?(a.days.length===7?'প্রতিদিন':a.days.map(d=>DAYS_BN[d]).join(', ')):'একবার')));r.appendChild(m);
         const sw=mk('button','',a.on?'চালু':'বন্ধ');sw.style.cssText=`padding:7px 14px;border-radius:999px;border:0;font-size:12px;font-weight:700;cursor:pointer;color:#fff;background:${a.on?'#059669':'#475569'}`;sw.onclick=()=>{const l=getAlarms();const x=l.find(y=>y.id===a.id);if(x){x.on=!x.on;writeJSON(ALARM_KEY,l);drawAlarms()}};r.appendChild(sw);
+        if(window.amarClockOK&&amarClockOK()){const ck=mk('button','','📲');ck.title='ফোনের ঘড়িতেও বসান';ck.setAttribute('aria-label','ফোনের ঘড়িতেও বসান');ck.style.cssText='padding:7px 10px;border-radius:10px;border:1px solid rgba(52,211,153,.5);background:#064e3b;color:#fff;font-size:15px;cursor:pointer';
+          ck.onclick=async()=>{const [hh,mm]=a.time.split(':').map(Number);const dd=(a.days&&a.days.length)?a.days.map(x=>x+1):[];const res=await amarClockAlarm(hh,mm,'⏰ '+(a.label||'অ্যালার্ম'),dd);alert(res.ok?'✅ ফোনের ঘড়িতে '+a.time+' এর অ্যালার্ম বসানো হয়েছে। অ্যাপ বন্ধ থাকলেও (এমনকি Recent থেকে সরালেও) এটি বাজবে। দরকার শেষ হলে ফোনের ঘড়ি অ্যাপ থেকে এটি মুছে দিন।':amarClockMsg(res))};r.appendChild(ck)}
         const d=mk('button','','🗑️');d.className='danger-btn';d.onclick=()=>{writeJSON(ALARM_KEY,getAlarms().filter(y=>y.id!==a.id));drawAlarms()};r.appendChild(d);box.appendChild(r);
       });
     }
     function renderAlarm(list){
-      list.appendChild(mk('div','font-size:11px;color:#fcd34d;line-height:1.7;background:#2b2410;border:1px solid rgba(251,191,36,.4);border-radius:12px;padding:9px 11px;margin-bottom:12px','⏰ অ্যালার্ম অ্যাপ খোলা থাকলে বাজে। APK অ্যাপে অ্যাপ বন্ধ থাকলেও বাজে।'));
+      list.appendChild(mk('div','font-size:11px;color:#fcd34d;line-height:1.7;background:#2b2410;border:1px solid rgba(251,191,36,.4);border-radius:12px;padding:9px 11px;margin-bottom:12px','⏰ অ্যালার্ম অ্যাপ খোলা থাকলে বাজে। APK-তে অ্যাপ Recent-এ থাকলে বন্ধ থাকলেও বাজে। কিছু ফোন Recent থেকে সরালে অ্যালার্ম বন্ধ করে দেয়, বাড়তি নিরাপত্তার জন্য প্রতিটি অ্যালার্মের পাশের 📲 বাটনে ফোনের নিজস্ব ঘড়িতেও বসাতে পারেন।'));
       const f=mk('div','background:#0a251c;border:1px solid rgba(16,185,129,.35);border-radius:14px;padding:12px;margin-bottom:12px');
       f.appendChild(mk('b','font-size:14px;display:block;margin-bottom:6px','➕ নতুন অ্যালার্ম'));
       const tm=document.createElement('input');tm.type='time';tm.className='form-field';tm.id='alTime';tm.value='05:00';f.appendChild(tm);
@@ -3541,7 +3549,7 @@
       (()=>{let lb='';try{const t=+localStorage.getItem('amarLastBackup_v1');if(t)lb=' (সর্বশেষ: '+new Date(t).toLocaleDateString('bn-BD')+')'}catch(e){}
         row('💾 পুরো অ্যাপের ব্যাকআপ নামান'+lb,()=>fullBackup());
         row('♻️ ব্যাকআপ ফাইল থেকে সব ফিরিয়ে আনুন',()=>fullRestore())})();
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৫৪'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৫৬'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -9031,10 +9039,13 @@
       var list=[],now=new Date(),idx=0;
       for(var d=0;d<7&&list.length<380;d++){var ds=addDays(today(),d);dosesOn(ds).forEach(function(x){if(x.s)return;var hm=x.time.split(':'),at=new Date(+ds.slice(0,4),+ds.slice(5,7)-1,+ds.slice(8,10),+hm[0],+hm[1],0,0);
         [[0,'💊 ওষুধের সময় হয়েছে'],[15,'⏰ ওষুধ খেয়েছেন? (মনে করিয়ে দিচ্ছি)'],[30,'⏰ ওষুধ এখনো বাকি!']].forEach(function(f){var t=new Date(at.getTime()+f[0]*60000);if(t<=now)return;list.push({id:7200000+(idx++),title:f[1],body:x.m.name+(x.m.dose?' — '+x.m.dose:'')+' · '+MEAL[x.m.meal||'any']+(D.people.length>1?' ('+pName(x.m.pid)+')':''),channelId:'med2',extra:{med:1,k:x.k},schedule:{at:t,allowWhileIdle:true}})})})}
+      var nat=await window.amarNativeSchedule('med',list.map(function(n){return{id:n.id,at:n.schedule.at.getTime(),title:n.title,body:n.body}}));
+      if(nat.ok){window.__amarNatMed=true;return}
+      window.__amarNatMed=false;
       if(list.length)await ln.schedule({notifications:list.slice(0,380)})}catch(e){try{console.warn('med sync',e)}catch(_){}}}
   /* অ্যাপ খোলা থাকলে ভেতরের রিমাইন্ডার */
   function fired(){try{var o=JSON.parse(localStorage.getItem(FK)||'{}');if(o.d!==today())o={d:today(),f:{},z:{}};return o}catch(e){return{d:today(),f:{},z:{}}}}
-  function beep(){try{var C=window.AudioContext||window.webkitAudioContext,c=new C();[0,.35,.7].forEach(function(t){var o=c.createOscillator(),g=c.createGain();o.frequency.value=880;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.0001,c.currentTime+t);g.gain.exponentialRampToValueAtTime(.4,c.currentTime+t+.03);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+t+.3);o.start(c.currentTime+t);o.stop(c.currentTime+t+.32)});setTimeout(function(){try{c.close()}catch(e){}},1500)}catch(e){}}
+  function beep(){if(window.__amarNatMed)return;try{var C=window.AudioContext||window.webkitAudioContext,c=new C();[0,.35,.7].forEach(function(t){var o=c.createOscillator(),g=c.createGain();o.frequency.value=880;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.0001,c.currentTime+t);g.gain.exponentialRampToValueAtTime(.4,c.currentTime+t+.03);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+t+.3);o.start(c.currentTime+t);o.stop(c.currentTime+t+.32)});setTimeout(function(){try{c.close()}catch(e){}},1500)}catch(e){}}
   function webNotify(title,body,tag){try{if(!('Notification' in window)||Notification.permission!=='granted')return;if(navigator.serviceWorker&&navigator.serviceWorker.ready){navigator.serviceWorker.ready.then(function(r){r.showNotification(title,{body:body,icon:'icon-192.png',badge:'icon-192.png',tag:tag,vibrate:[300,150,300,150,300],requireInteraction:true})}).catch(function(){try{new Notification(title,{body:body,tag:tag})}catch(e){}})}else new Notification(title,{body:body,tag:tag})}catch(e){}}
   function banner(x,n){var b=document.getElementById('mrBanner');if(b)b.remove();b=el('div');b.id='mrBanner';b.appendChild(el('div','','💊 ওষুধের সময়'+(n>0?' (আবার মনে করানো)':'')));b.firstChild.style.cssText='font-size:12px;color:#a7f3d0;margin-bottom:4px';var t=el('div','',x.m.name+(x.m.dose?' — '+x.m.dose:''));t.style.cssText='font-size:19px;font-weight:800';b.appendChild(t);b.appendChild(el('div','mr-h',tLbl(x.time)+' · '+MEAL[x.m.meal||'any']+(D.people.length>1?' · '+pName(x.m.pid):'')));var r=el('div','mr-r');r.style.marginTop='10px';
     btn(r,'✅ খেয়েছি',function(){mark(x.k,'taken');b.remove();if(V.t==='home'&&document.getElementById('mrModal')&&document.getElementById('mrModal').classList.contains('active'))draw()},'p').style.flex='1';btn(r,'⏰ ১৫ মিনিট পরে',function(){var f=fired();f.z[x.k]=Date.now()+15*60000;try{localStorage.setItem(FK,JSON.stringify(f))}catch(e){}b.remove()}).style.flex='1';btn(r,'বাদ',function(){mark(x.k,'skip');b.remove()});b.appendChild(r);document.body.appendChild(b);beep();try{navigator.vibrate&&navigator.vibrate([400,200,400,200,400])}catch(e){}}
@@ -9093,7 +9104,10 @@
     back('home');if(!D.meds.length)W.appendChild(el('div','mr-hd','এখনো কোনো ওষুধ যোগ করা হয়নি।'));var d=today();
     D.meds.forEach(function(m){var c=el('div','mr-c'),e=endOf(m),over=e&&e<d,wait=m.start>d;c.appendChild(el('b','','💊 '+m.name+(m.dose?' — '+m.dose:'')));c.appendChild(el('div','mr-h',m.form+' · '+MEAL[m.meal||'any']+(D.people.length>1?' · '+pName(m.pid):'')));c.appendChild(el('div','mr-h','🕒 '+schedTxt(m)));
       c.appendChild(el('div','mr-h',(m.paused?'⏸ বিরতিতে':(over?'✔ কোর্স শেষ':(wait?'শুরু: '+dLbl(m.start):'▶ চলছে')))+(e&&!over?' · শেষ: '+dLbl(e):'')+(m.stock!==''&&m.stock!=null?' · হাতে: '+bn(m.stock):'')));if(m.note)c.appendChild(el('div','mr-h','📝 '+m.note));
-      var r=el('div','mr-r');r.style.marginTop='8px';btn(r,'✏️ বদলান',function(){go('form',{mid:m.id})}).style.flex='1';btn(r,m.paused?'▶ চালু করুন':'⏸ বিরতি',function(){m.paused=!m.paused;save();sync();draw()},'w').style.flex='1';btn(r,'🗑️',function(){if(confirm('"'+m.name+'" মুছবেন?')){D.meds=D.meds.filter(function(x){return x.id!==m.id});save();sync();draw()}},'d');c.appendChild(r);W.appendChild(c)});
+      var r=el('div','mr-r');r.style.marginTop='8px';btn(r,'✏️ বদলান',function(){go('form',{mid:m.id})}).style.flex='1';btn(r,m.paused?'▶ চালু করুন':'⏸ বিরতি',function(){m.paused=!m.paused;save();sync();draw()},'w').style.flex='1';btn(r,'🗑️',function(){if(confirm('"'+m.name+'" মুছবেন?')){D.meds=D.meds.filter(function(x){return x.id!==m.id});save();sync();draw()}},'d');c.appendChild(r);
+      if(window.amarClockOK&&amarClockOK()){var r3=el('div','mr-r');r3.style.marginTop='6px';btn(r3,'📲 ফোনের ঘড়িতেও বসান (অতিরিক্ত নিরাপত্তা)',async function(){var n=0,bad=null;for(var i=0;i<m.times.length;i++){var hm=m.times[i].t.split(':');var res=await amarClockAlarm(+hm[0],+hm[1],'💊 '+m.name+(m.dose?' — '+m.dose:''),[1,2,3,4,5,6,7]);if(res.ok)n++;else{bad=amarClockMsg(res);break}}
+        alert(bad?bad:'✅ ফোনের ঘড়িতে '+bn(n)+'টি অ্যালার্ম বসানো হয়েছে (প্রতিদিন)। অ্যাপ বন্ধ থাকলেও বাজবে। তবে এগুলো নিজে নিজে বন্ধ হয় না: কোর্স শেষ হলে বা ওষুধ বদলালে ফোনের ঘড়ি অ্যাপ থেকে মুছে দিন, আর "খেয়েছি" চাপলেও ঘড়ির অ্যালার্ম থামবে না।')}).style.flex='1';c.appendChild(r3)}
+      W.appendChild(c)});
     var r2=el('div','mr-r');btn(r2,'📤 তালিকা শেয়ার',function(){var L=['💊 ওষুধের তালিকা'];D.people.forEach(function(p){var ms=D.meds.filter(function(m){return m.pid===p.id&&!m.paused});if(!ms.length)return;if(D.people.length>1)L.push('','👤 '+p.name);ms.forEach(function(m){L.push('• '+m.name+(m.dose?' — '+m.dose:'')+' ('+schedTxt(m)+', '+MEAL[m.meal||'any']+')')})});L.push('','— "আমার বাংলাদেশ" অ্যাপ');var tx=L.join('\n');if(navigator.share)navigator.share({text:tx}).catch(function(){});else{try{navigator.clipboard.writeText(tx);alert('কপি হয়েছে।')}catch(e){prompt('কপি করুন:',tx)}}}).style.flex='1';btn(r2,'👥 সদস্য যোগ',function(){var n=(prompt('সদস্যের নাম (যেমন: আম্মু, বাবা)')||'').trim();if(n){D.people.push({id:uid(),name:n.slice(0,30)});save();alert('"'+n+'" যোগ হয়েছে। এখন ওষুধ যোগ করার সময় কার জন্য তা বাছতে পারবেন।')}}).style.flex='1';W.appendChild(r2)}
   /* ৭ দিনের হিসাব */
   function hist(){
@@ -9315,6 +9329,20 @@
       r2.appendChild(as);r2.appendChild(ms);wrap.appendChild(r2);
       wrap.appendChild(el('div','font-size:10.5px;color:#6ee7b7;margin-top:8px;line-height:1.6','আপনার স্থানীয় মসজিদ বা সরকারি সময়সূচির সঙ্গে ১-৩ মিনিট পার্থক্য হতে পারে। দরকার হলে আসর ও পদ্ধতি বদলে মিলিয়ে নিন। শীতপ্রধান দেশে (উচ্চ অক্ষাংশ) ফজর/এশা আনুমানিক।'))}
     draw()};
+})();
+</script>
+<script>
+/* ===== ফোনের নিজস্ব ঘড়ির অ্যাপে অ্যালার্ম বসানো (APK; অ্যাপ বন্ধ থাকলেও বাজে, সাইলেন্ট মোডেও অ্যালার্ম-শব্দে) ===== */
+(function(){
+  function P(){try{if(!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()))return null;return Capacitor.Plugins.AmarAlarm||(Capacitor.registerPlugin&&Capacitor.registerPlugin('AmarAlarm'))||null}catch(e){return null}}
+  window.amarClockOK=function(){return !!P()};
+  /* অ্যাপের নিজস্ব নেটিভ অ্যালার্ম: group 'med'|'alarm', items [{id,at(ms),title,body}] */
+  window.amarNativeSchedule=async function(group,items){var p=P();if(!p||!p.scheduleAll)return{ok:false};
+    try{var r=await p.scheduleAll({group:group,items:items});window.__amarNat=true;return{ok:true,count:r&&r.count}}catch(e){return{ok:false,why:String((e&&e.message)||e)}}};
+  /* days: Calendar.DAY_OF_WEEK (১=রবি … ৭=শনি); ফাঁকা হলে একবার */
+  window.amarClockAlarm=async function(h,m,label,days){var p=P();if(!p)return{ok:false,why:'web'};
+    try{await p.setAlarm({hour:+h,minute:+m,label:String(label||'').slice(0,60),days:days||[]});return{ok:true}}catch(e){var t=String((e&&e.message)||e);return{ok:false,why:/not implemented|unimplemented/i.test(t)?'noplugin':t}}};
+  window.amarClockMsg=function(r){if(r.ok)return null;if(r.why==='web')return 'এটি শুধু APK অ্যাপে চলে।';if(r.why==='noplugin')return 'এই APK-তে ফোনের-ঘড়ি সুবিধা নেই। নতুন APK বানিয়ে ইনস্টল করুন।';return 'ঘড়িতে অ্যালার্ম বসানো যায়নি: '+r.why.slice(0,80)};
 })();
 </script>
 <script>
