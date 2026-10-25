@@ -3541,7 +3541,7 @@
       (()=>{let lb='';try{const t=+localStorage.getItem('amarLastBackup_v1');if(t)lb=' (সর্বশেষ: '+new Date(t).toLocaleDateString('bn-BD')+')'}catch(e){}
         row('💾 পুরো অ্যাপের ব্যাকআপ নামান'+lb,()=>fullBackup());
         row('♻️ ব্যাকআপ ফাইল থেকে সব ফিরিয়ে আনুন',()=>fullRestore())})();
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৫২'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৫৩'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -9163,7 +9163,11 @@
 (function(){
   var on=false;
   function ss(){return window.speechSynthesis}
-  function NT(){try{return(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())?Capacitor.Plugins.TextToSpeech:null}catch(e){return null}}
+  var NTc=null;
+  function isNat(){try{return !!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())}catch(e){return false}}
+  function NT(){if(!isNat())return null;if(NTc)return NTc;try{NTc=Capacitor.Plugins.TextToSpeech||(Capacitor.registerPlugin&&Capacitor.registerPlugin('TextToSpeech'))||null}catch(e){NTc=null}return NTc}
+  function plugNames(){try{return (Capacitor.PluginHeaders||[]).map(function(h){return h.name}).join(', ')||'(খালি)'}catch(e){return '?'}}
+  function noPlug(e){var m=String((e&&(e.message||e.code))||e||'');return /unimplemented|not implemented|not available|undefined/i.test(m)}
   function btn(a){var b=document.getElementById('ttsBtn');if(b){b.textContent=a?'⏹':'🔊';b.setAttribute('aria-label',a?'থামান':'পড়ে শোনান')}}
   function stop(){try{var n=NT();if(n)n.stop();else if(ss())ss().cancel()}catch(e){}on=false;btn(false)}
   function pick(){var v=ss().getVoices()||[];return v.find(function(x){return /^bn/i.test(x.lang)})||null}
@@ -9175,11 +9179,11 @@
       if(on){stop();return}
       if(!text)return;
       var lang='bn-BD';
-      try{var r=await nt.isLanguageSupported({lang:'bn-BD'});if(!(r&&r.supported)){var r2=await nt.isLanguageSupported({lang:'bn-IN'});if(r2&&r2.supported)lang='bn-IN';else{alert(NOVOICE);return}}}catch(e){}
+      try{var r=await nt.isLanguageSupported({lang:'bn-BD'});if(!(r&&r.supported)){var r2=await nt.isLanguageSupported({lang:'bn-IN'});if(r2&&r2.supported)lang='bn-IN';else{alert(NOVOICE);return}}}catch(e){if(noPlug(e)){alert('এই APK-তে "পড়ে শোনান" প্লাগিনটি ঢোকেনি। APK-রিপোর package.json-এ @capacitor-community/text-to-speech আছে কি না দেখে APK আবার বানান। (ফোনের প্লাগিন-তালিকা: '+plugNames()+')');return}}
       on=true;btn(true);
-      try{await nt.speak({text:text,lang:lang,rate:0.95,pitch:1,volume:1,category:'ambient'})}catch(e){if(on)alert('পড়ে শোনানো যায়নি। '+NOVOICE)}
+      try{await nt.speak({text:text,lang:lang,rate:0.95,pitch:1,volume:1,category:'ambient'})}catch(e){if(on)alert('পড়ে শোনানো যায়নি। '+NOVOICE+' ('+String((e&&e.message)||e).slice(0,80)+')')}
       stop();return}
-    if(!ss()||!window.SpeechSynthesisUtterance){alert('এই ফোন/ব্রাউজারে পড়ে শোনানোর সুবিধা নেই।');return}
+    if(!ss()||!window.SpeechSynthesisUtterance){alert(isNat()?'এই APK-তে "পড়ে শোনান" প্লাগিনটি ঢোকেনি। APK-রিপোর package.json-এ @capacitor-community/text-to-speech আছে কি না দেখে APK আবার বানান। (ফোনের প্লাগিন-তালিকা: '+plugNames()+')':'এই ফোন/ব্রাউজারে পড়ে শোনানোর সুবিধা নেই।');return}
     if(on){stop();return}
     if(!text)return;
     var v=pick();
