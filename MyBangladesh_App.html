@@ -2333,6 +2333,7 @@
     function socMe(){try{return SOCN.tok&&SOCN.me?SOCN.me:null}catch(e){return null}}
     const socRpc=(fn,body,tok)=>sbReq('/rest/v1/rpc/'+fn,{method:'POST',body:body||{},token:tok});
     function socErrText(e){const m=String((e&&e.message)||e||'');if(/slow/.test(m))return 'একটু অপেক্ষা করে আবার চেষ্টা করুন।';if(/friends only/.test(m))return 'এই ব্যক্তি শুধু বন্ধুদের কাছ থেকে কথা নেন। আগে বন্ধুত্বের অনুরোধ পাঠান।';if(/bad target/.test(m))return 'এই ব্যক্তিকে পাওয়া যায়নি।';if(/too many/.test(m))return 'অনেক অনুরোধ পাঠানো হয়ে গেছে।';if(/abort|fetch|network|Failed/i.test(m))return 'ইন্টারনেট সংযোগ নেই বা সার্ভারে পৌঁছানো যাচ্ছে না।';return 'ব্যর্থ: '+m}
+    window.amarSocDelete=async function(){if(SOCN&&SOCN.tok)await socRpc('soc_delete_account',{p_tok:SOCN.tok});return true};
     function socDrop(){try{setTimeout(()=>{if(!SOCN.tok)entryShow('login')},300)}catch(e){}SOCN.tok='';SOCN.me=null;SOCN.users={};SOCN.posts=[];SOCN.fr=[];SOCN.cur=0;SOCN.loaded={};try{localStorage.removeItem(SOCN_KEY)}catch(e){}msgPeer=null;try{msgInit()}catch(e){}}
     function socUiRefresh(){if(!socBox||!socBox.isConnected)return;const a=document.activeElement;if(a&&socBox.contains(a)&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA')&&a.value)return;socRender()}
     async function socPull(force){
@@ -3547,9 +3548,12 @@
       row('📝 কাস্টমার কেয়ারকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
       (()=>{let lb='';try{const t=+localStorage.getItem('amarLastBackup_v1');if(t)lb=' (সর্বশেষ: '+new Date(t).toLocaleDateString('bn-BD')+')'}catch(e){}
+        row('🗑️ আমার অ্যাকাউন্ট ও সব তথ্য মুছুন',()=>{closeModal('settingsModal');amarDeleteAll()});
         row('💾 পুরো অ্যাপের ব্যাকআপ নামান'+lb,()=>fullBackup());
-        row('♻️ ব্যাকআপ ফাইল থেকে সব ফিরিয়ে আনুন',()=>fullRestore())})();
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৫৬'));
+        row('♻️ ব্যাকআপ ফাইল থেকে সব ফিরিয়ে আনুন',()=>fullRestore());
+        if(window.amarClockOK&&amarClockOK())row('🔔 অ্যালার্ম ঠিকঠাক রাখুন (গাইড)',()=>{closeModal('settingsModal');window.amarAlarmGuide('manual')})})();
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৬০'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:4px;line-height:1.7;padding:0 8px','এটি কোনো সরকারি সংস্থার অ্যাপ নয়, এবং কোনো সরকারি সংস্থার সঙ্গে যুক্ত নয়। সরকারি সেবার তথ্য শুধু সহায়তার জন্য, চূড়ান্ত নিয়ম অফিসিয়াল সাইটে দেখুন। স্বাস্থ্য ও ওষুধের তথ্য চিকিৎসকের পরামর্শের বিকল্প নয়।'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
         const lo=mk('button','',u?'🚪 লগআউট'+(u.name?' ('+String(u.name).slice(0,20)+')':''):'🔑 লগইন / নতুন অ্যাকাউন্ট');lo.className=u?'danger-btn':'primary-btn';lo.style.cssText='width:100%;padding:12px;margin-top:4px';
@@ -8532,7 +8536,7 @@
   var GROUPS=[
    ['🚑 জরুরি ও স্বাস্থ্য',['emergency','sos','hospital','doctor','pharmacy','ambulance','blood','firstaid','healthlog','medrem','maternal','police','fire','disaster','shelter','water','disability']],
    ['🎓 শিক্ষা ও ক্যারিয়ার',['school','education','coaching','results','scholarship','skills','jobs','labor','gk','quiz']],
-   ['🏛️ সরকারি ও আইনি',['govservice','government','passport','land','publicservices','localgov','complaint','consumer','rights','lawyer','tax','womenChild','socialSafety','cybersafety','postal','eservices']],
+   ['🏛️ সরকারি ও আইনি',['govhub','govservice','government','passport','land','publicservices','localgov','complaint','consumer','rights','lawyer','tax','womenChild','socialSafety','cybersafety','postal','eservices']],
    ['💰 অর্থ ও ব্যবসা',['bank','mobilebank','currency','pension','mymoney','bizacc','messhisab','business','shop','market','mall','remittance','probashi','farming','cropx','fisheries','livestock','rent']],
    ['🧭 জীবনযাপন ও ভ্রমণ',['travel','travelmap','maps','fuel','utility','restaurant','hotel','resort','parks','tourist','environment','notice','lost','events','news','about']],
    ['🕌 ধর্ম',['islamic','religious']],
@@ -9338,11 +9342,167 @@
   window.amarClockOK=function(){return !!P()};
   /* অ্যাপের নিজস্ব নেটিভ অ্যালার্ম: group 'med'|'alarm', items [{id,at(ms),title,body}] */
   window.amarNativeSchedule=async function(group,items){var p=P();if(!p||!p.scheduleAll)return{ok:false};
-    try{var r=await p.scheduleAll({group:group,items:items});window.__amarNat=true;return{ok:true,count:r&&r.count}}catch(e){return{ok:false,why:String((e&&e.message)||e)}}};
+    try{var r=await p.scheduleAll({group:group,items:items});window.__amarNat=true;
+      try{if(items.length&&!localStorage.getItem('amarAlarmGuide_v1'))setTimeout(function(){window.amarAlarmGuide('first')},2500)}catch(e){}
+      return{ok:true,count:r&&r.count}}catch(e){return{ok:false,why:String((e&&e.message)||e)}}};
+  /* ফোন অ্যালার্ম মেরে ফেললে ধরা + ইউজারকে এক চাপে ঠিক সেটিংসে পৌঁছে দেওয়া */
+  function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+  function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+  function hm(t){var d=new Date(t);return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
+  window.amarAlarmGuide=async function(reason,missed){
+    var p=P();if(!p||!p.openSettings)return;if(document.getElementById('alGuide'))return;
+    var info={};try{info=await p.deviceInfo()}catch(e){}
+    lsSet('amarAlarmGuide_v1',{t:Date.now(),r:reason});
+    var ov=document.createElement('div');ov.id='alGuide';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','অ্যালার্ম ঠিকঠাক রাখুন');
+    ov.style.cssText='position:fixed;inset:0;z-index:2147482000;background:rgba(0,0,0,.65);display:flex;align-items:flex-end;justify-content:center;font-family:inherit';
+    var bx=document.createElement('div');bx.style.cssText='background:#0b2b20;border:1px solid rgba(52,211,153,.5);border-radius:20px 20px 0 0;max-width:480px;width:100%;max-height:92vh;overflow-y:auto;padding:18px;color:#fff';
+    function E(t,c,x){var e=document.createElement(t);if(c)e.style.cssText=c;if(x!=null)e.textContent=x;return e}
+    bx.appendChild(E('div','font-size:17px;font-weight:800;color:#fde68a',reason==='missed'?'⏰ একটি অ্যালার্ম বাজেনি — চলুন ঠিক করি':'🔔 অ্যালার্ম ঠিকঠাক রাখুন'));
+    if(missed&&missed.length){var ml=E('div','margin-top:8px;font-size:12.5px;color:#fcd34d;line-height:1.7','বাজার কথা ছিল: '+missed.slice(0,4).map(function(m){return hm(m.at)+' '+String(m.title||'').replace(/^[^ ]+ /,'')}).join(' · '));bx.appendChild(ml)}
+    bx.appendChild(E('div','margin-top:8px;font-size:13px;color:#d1fae5;line-height:1.85','কিছু ফোন (Realme, Oppo, Xiaomi, Vivo, Infinix, Samsung ইত্যাদি) ব্যাটারি বাঁচাতে অ্যাপ বন্ধ করে দেয়, তখন অ্যালার্ম ও ওষুধের রিমাইন্ডার বাজে না। নিচের কাজগুলো শুধু একবার করে নিলেই ঠিক থাকবে।'));
+    if(info&&info.brand)bx.appendChild(E('div','margin-top:6px;font-size:11.5px;color:#6ee7b7','আপনার ফোন: '+info.brand+' '+(info.model||'')));
+    function step(n,t,d,label,type){var r=E('div','margin-top:12px;background:#061812;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:11px');r.appendChild(E('div','font-weight:700;font-size:14px',n+' '+t));r.appendChild(E('div','font-size:12.5px;color:#a7f3d0;line-height:1.7;margin-top:3px',d));
+      if(label){var b=E('button','margin-top:8px;width:100%;padding:11px;border:0;border-radius:11px;background:#10b981;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit',label);b.type='button';b.onclick=async function(){try{var x=await p.openSettings({type:type});if(!x||!x.ok)alert('সেটিংস-পাতা সরাসরি খোলা যায়নি। ফোনের সেটিংস → অ্যাপস → আমার বাংলাদেশ-এ গিয়ে ব্যাটারি ও অটো-স্টার্ট ঠিক করুন।')}catch(e){alert('সেটিংস খোলা যায়নি।')}};r.appendChild(b)}bx.appendChild(r)}
+    var exOK=true;try{if(p.exactAllowed){var xr=await p.exactAllowed();exOK=!xr||xr.ok!==false}}catch(e){}
+    if(!exOK)step('⏰','"অ্যালার্ম ও রিমাইন্ডার" অনুমতি দিন','এটি না দিলে অ্যালার্ম ঠিক সময়ে না-ও বাজতে পারে। যে পাতা খুলবে সেখানে "আমার বাংলাদেশ"-এর সুইচ চালু করুন।','⚙️ অনুমতির পাতা খুলুন','exact');
+    step('১️⃣','অটো-স্টার্ট / ব্যাকগ্রাউন্ডে চলা চালু করুন','যে পাতা খুলবে সেখানে "আমার বাংলাদেশ" খুঁজে সুইচ চালু (ON) করুন।','⚙️ পাতা খুলুন','autostart');
+    step('২️⃣','ব্যাটারি সীমাহীন করুন','তালিকায় "আমার বাংলাদেশ" বেছে "অপ্টিমাইজ করবেন না / Unrestricted" দিন। না পেলে অ্যাপের তথ্য-পাতা থেকে ব্যাটারি → সীমাহীন।','🔋 ব্যাটারি সেটিংস খুলুন','battery');
+    step('৩️⃣','Recent-এ অ্যাপ লক করুন','ফোনের চৌকো (Recent) বাটন চাপুন, "আমার বাংলাদেশ"-এর কার্ডে চেপে ধরে 🔒 লক বেছে নিন। তাহলে "সব বন্ধ করুন" চাপলেও অ্যাপ থাকবে।',null,null);
+    bx.appendChild(E('div','margin-top:12px;font-size:11.5px;color:#6ee7b7;line-height:1.7','এই ৩টি করার পরেও না বাজলে, অ্যালার্মের পাশের 📲 বাটনে ফোনের নিজস্ব ঘড়িতেও বসিয়ে নিতে পারেন। এই গাইড আবার পেতে: সেটিংস → "🔔 অ্যালার্ম ঠিকঠাক রাখুন"।'));
+    var c=E('button','margin-top:14px;width:100%;padding:12px;border:1px solid rgba(52,211,153,.5);border-radius:12px;background:transparent;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit','ঠিক আছে, বুঝেছি');c.type='button';c.onclick=function(){ov.remove()};bx.appendChild(c);
+    ov.appendChild(bx);document.body.appendChild(ov)};
+  async function health(){var p=P();if(!p||!p.takeMissed)return;try{var r=await p.takeMissed();var it=(r&&r.items)||[];if(!it.length)return;var g=lsGet('amarAlarmGuide_v1');if(g&&Date.now()-g.t<6*3600000)return;window.amarAlarmGuide('missed',it)}catch(e){}}
+  setTimeout(health,2500);document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(health,1200)});
   /* days: Calendar.DAY_OF_WEEK (১=রবি … ৭=শনি); ফাঁকা হলে একবার */
   window.amarClockAlarm=async function(h,m,label,days){var p=P();if(!p)return{ok:false,why:'web'};
     try{await p.setAlarm({hour:+h,minute:+m,label:String(label||'').slice(0,60),days:days||[]});return{ok:true}}catch(e){var t=String((e&&e.message)||e);return{ok:false,why:/not implemented|unimplemented/i.test(t)?'noplugin':t}}};
   window.amarClockMsg=function(r){if(r.ok)return null;if(r.why==='web')return 'এটি শুধু APK অ্যাপে চলে।';if(r.why==='noplugin')return 'এই APK-তে ফোনের-ঘড়ি সুবিধা নেই। নতুন APK বানিয়ে ইনস্টল করুন।';return 'ঘড়িতে অ্যালার্ম বসানো যায়নি: '+r.why.slice(0,80)};
+})();
+</script>
+<script>
+/* ===== সরকারি সেবা কেন্দ্র: নিজের এনআইডি, পাসপোর্ট, সিম, হারানো ফোন, জন্ম-মৃত্যু নিবন্ধন, টিআইএন ===== */
+(function(){
+  var KEY='amarGovHub_v1',CHK={};
+  function el(t,c,x){var e=document.createElement(t);if(c)e.style.cssText=c;if(x!=null)e.textContent=x;return e}
+  function bn(n){return String(n).replace(/[0-9]/g,function(d){return '০১২৩৪৫৬৭৮৯'[d]})}
+  function load(){try{CHK=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){CHK={}}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(CHK))}catch(e){}}
+  var SV=[
+  {id:'nid',ic:'🪪',t:'এনআইডি (নিজের)',sub:'ডিজিটাল কপি, সংশোধন, হারালে',
+   intro:'নিজের জাতীয় পরিচয়পত্রের সেবা নির্বাচন কমিশনের অফিসিয়াল সেবাতেই পাওয়া যায়, নিজে করলে খরচ ও ঝুঁকি দুটোই কম।',
+   steps:['নির্বাচন কমিশনের অফিসিয়াল এনআইডি ওয়ালেট অ্যাপ বা nidw.gov.bd পোর্টালে নিজের এনআইডি নম্বর, জন্ম তারিখ ও নিজের মোবাইল নম্বর দিয়ে নিবন্ধন করুন। মুখ যাচাইয়ের ধাপ থাকতে পারে।','নিবন্ধন শেষে লগইন করে সাধারণত নিজের এনআইডির ডিজিটাল কপি দেখা ও নামানো যায়।','নাম, ঠিকানা বা জন্ম তারিখে ভুল থাকলে পোর্টালে সংশোধনের আবেদন করুন। কাগজ জমা বা সাক্ষাৎকারে ডাকলে উপজেলা/থানা নির্বাচন অফিসে যান।','কার্ড হারালে প্রথমে থানায় জিডি করুন, তারপর ডুপ্লিকেট কার্ডের জন্য আবেদন করুন।','১৮ বছর পূর্ণ হলে প্রথমবার নিবন্ধনের জন্য উপজেলা/থানা নির্বাচন অফিসে যেতে হয়।'],
+   docs:['এনআইডি নম্বর ও জন্ম তারিখ','নিজের নামে নিবন্ধিত মোবাইল নম্বর','সংশোধনের জন্য: জন্ম নিবন্ধন / শিক্ষা সনদ','হারালে: থানার জিডি কপি'],
+   links:[['এনআইডি অফিসিয়াল পোর্টাল','https://nidw.gov.bd'],['এনআইডি ওয়ালেট অ্যাপ (প্লে স্টোরে খুঁজুন)','https://play.google.com/store/search?q=NID%20Wallet&c=apps']],dial:[]},
+  {id:'passport',ic:'🛂',t:'ই-পাসপোর্ট',sub:'আবেদন, নবায়ন, ফি',
+   intro:'ই-পাসপোর্ট নিজে অনলাইনে আবেদন করা যায়। দালাল ছাড়াই করা সম্ভব।',
+   steps:['epassport.gov.bd অফিসিয়াল সাইটে গিয়ে অনলাইন আবেদন ফর্ম পূরণ করুন।','সরকারি ফি ব্যাংক বা অনুমোদিত মাধ্যমে জমা দিন এবং রসিদ রাখুন।','আবেদনের কপি ও নির্ধারিত তারিখ নিয়ে আঞ্চলিক পাসপোর্ট অফিসে গিয়ে ছবি ও আঙুলের ছাপ দিন।','নবায়নে আগের পাসপোর্টটিও সঙ্গে নিন।','ফি, পৃষ্ঠা সংখ্যা ও সময় (সাধারণ/জরুরি) সরকারি সাইটে দেখে নিন। এগুলো বদলাতে পারে।'],
+   docs:['এনআইডি (বা অপ্রাপ্তবয়স্কদের জন্য জন্ম নিবন্ধন)','আগের পাসপোর্ট (নবায়নে)','ফি জমার রসিদ','আবেদনের প্রিন্ট কপি'],
+   links:[['ই-পাসপোর্ট অফিসিয়াল সাইট','https://www.epassport.gov.bd']],dial:[]},
+  {id:'sim',ic:'📱',t:'নিজের নামে কয়টি সিম',sub:'১৬০০১ কোডে সহজ যাচাই',
+   intro:'আপনার এনআইডিতে কয়টি সিম নিবন্ধিত তা মোবাইলেই ইন্টারনেট ছাড়া জানা যায়। বিনামূল্যে।',
+   steps:['যে সিমটি আপনার এনআইডির নামে নিবন্ধিত, সেটি থেকে *১৬০০১# ডায়াল করুন (নিচের বাটনেও চাপা যায়)।','চাইলে এনআইডি নম্বরের শেষ ৪ সংখ্যা দিন।','কিছুক্ষণের মধ্যে এসএমএসে সিমের সংখ্যা ও আংশিক নম্বর আসবে।','অচেনা কোনো সিম দেখলে সংশ্লিষ্ট মোবাইল অপারেটরের কাস্টমার কেয়ারে জানিয়ে সেটি বন্ধ বা নিজের নামে বাতিল করার আবেদন করুন।','প্রয়োজন না থাকলে অতিরিক্ত সিম আগেভাগে বাতিল করে রাখা ভালো।'],
+   docs:['এনআইডির শেষ ৪ সংখ্যা','নিজের নামে নিবন্ধিত একটি সিম'],
+   links:[],dial:[['📞 *১৬০০১# ডায়াল করুন','*16001%23']],
+   note:'পদ্ধতি বা কোড বদলালে সংশ্লিষ্ট অপারেটর বা বিটিআরসির ঘোষণা দেখুন। সময় ও এসএমএসের ধরন অপারেটরভেদে ভিন্ন হতে পারে।'},
+  {id:'lost',ic:'🔍',t:'হারানো ফোন',sub:'নিজের ফোন খুঁজুন ও সুরক্ষিত করুন',
+   intro:'ফোন হারালে ঘাবড়াবেন না। নিজের ফোন খুঁজে পাওয়ার জন্য ফোনের নিজস্ব সুবিধা কাজে লাগান। এটি শুধু নিজের ফোনের জন্য।',
+   steps:['অন্য কোনো ফোন বা কম্পিউটার থেকে যেই গুগল অ্যাকাউন্ট হারানো ফোনে ছিল, সেটি দিয়ে গুগলের "ফাইন্ড হাব / ফাইন্ড মাই ডিভাইস" পাতায় ঢুকুন। এখানে ফোনের শেষ অবস্থান দেখা, রিং বাজানো, লক করা বা ডেটা মুছে ফেলা যায়।','স্যামসাং ফোনে "ফাইন্ড মাই মোবাইল" সুবিধাও আছে।','নিকটস্থ থানায় জিডি করুন। জিডিতে ফোনের মডেল ও আইএমইআই নম্বর লিখুন।','নিজের মোবাইল অপারেটরের কাস্টমার কেয়ারে জানিয়ে সিম বন্ধ করে একই নম্বরে নতুন সিম নিন।','বিকাশ-নগদ-রকেট থাকলে হটলাইনে (বিকাশ ১৬২৪৭, নগদ ১৬১৬৭, রকেট ১৬২১৬) জানিয়ে অ্যাকাউন্ট সুরক্ষিত করুন।','ইমেইল, ফেসবুক ও ব্যাংকিংয়ের পাসওয়ার্ড অন্য ডিভাইস থেকে বদলে ফেলুন।','অন্য কারও অবস্থান জানার জন্য গোপনে ট্র্যাক করা বেআইনি। পরিবারের কেউ চাইলে নিজে সম্মতি দিয়ে অবস্থান শেয়ার করতে পারেন।'],
+   docs:['ফোনের আইএমইআই নম্বর (ফোনের বাক্সে বা *#06# ডায়ালে দেখা যায়, আগে থেকে লিখে রাখুন)','সিমের নম্বর','গুগল অ্যাকাউন্টের ইমেইল ও পাসওয়ার্ড','থানার জিডি কপি'],
+   links:[['গুগল ফাইন্ড হাব / ফাইন্ড মাই ডিভাইস','https://www.google.com/android/find'],['স্যামসাং ফাইন্ড মাই মোবাইল','https://findmymobile.samsung.com']],dial:[],
+   note:'এই পাতার ধাপগুলো শুধু নিজের ফোন খুঁজতে। কারও অনুমতি ছাড়া তার অবস্থান জানার চেষ্টা আইনত অপরাধ।'},
+  {id:'birth',ic:'👶',t:'জন্ম ও মৃত্যু নিবন্ধন',sub:'আবেদন, যাচাই, সংশোধন',
+   intro:'জন্ম ও মৃত্যু নিবন্ধনের তথ্য সরকারের নিবন্ধন সাইটে (বিডিআরআইএস) যাচাই করা যায়।',
+   steps:['bdris.gov.bd সাইটে অনলাইন আবেদন ফর্ম পূরণ করুন। স্থায়ী ও বর্তমান ঠিকানা সঠিকভাবে লিখুন।','ফর্ম জমা দেওয়ার পর আবেদনের প্রিন্ট কপি ও প্রয়োজনীয় কাগজ নিয়ে সংশ্লিষ্ট ইউনিয়ন পরিষদ / পৌরসভা / সিটি করপোরেশনের ওয়ার্ড বা নিবন্ধন কার্যালয়ে জমা দিন।','অনুমোদনের পর ১৭ ডিজিটের জন্ম নিবন্ধন নম্বর হয়। সনদ বাংলা ও ইংরেজিতে পাওয়া যায়। এতে কয়েক দিন থেকে কয়েক সপ্তাহ লাগতে পারে।','সনদ আসল কি না যাচাই করতে everify.bdris.gov.bd সাইটে নিবন্ধন নম্বর ও জন্ম তারিখ দিন।','নামে বা তারিখে ভুল থাকলে নিবন্ধকের কার্যালয়ে সংশোধনের আবেদন করুন।','অনলাইনের পদ্ধতি কখনো কখনো বদলায় বা সাময়িক বন্ধ থাকে। সমস্যা হলে সরাসরি স্থানীয় নিবন্ধন কার্যালয়ে যোগাযোগ করুন।'],
+   docs:['হাসপাতালের জন্মসনদ / টিকা কার্ড','বাবা-মায়ের এনআইডি বা জন্ম নিবন্ধন','ঠিকানার প্রমাণ (বিল বা হোল্ডিং ট্যাক্সের রসিদ)','মৃত্যু নিবন্ধনে: মৃত ব্যক্তির এনআইডি ও মৃত্যুসনদ বা ডাক্তারের প্রত্যয়ন'],
+   links:[['জন্ম-মৃত্যু নিবন্ধন (বিডিআরআইএস)','https://bdris.gov.bd'],['জন্ম নিবন্ধন সনদ যাচাই','https://everify.bdris.gov.bd']],dial:[]},
+  {id:'tin',ic:'🧾',t:'টিআইএন সার্টিফিকেট',sub:'ই-টিআইএন নিবন্ধন ও নামানো',
+   intro:'ই-টিআইএন নিজে অনলাইনে করা যায় এবং সার্টিফিকেট সাধারণত সঙ্গে সঙ্গেই নামানো যায়। এটি বিনামূল্যে।',
+   steps:['এনবিআরের আয়কর পোর্টালে (incometax.gov.bd) "নিবন্ধন" বেছে ইউজারনেম, পাসওয়ার্ড ও নিজের মোবাইল নম্বর দিন।','মোবাইলে আসা কোড দিয়ে অ্যাকাউন্ট চালু করুন।','লগইন করে "টিআইএন আবেদন" বেছে করদাতার ধরন (সাধারণত ব্যক্তি) ও আয়ের উৎস দিন।','এনআইডি নম্বর, জন্ম তারিখ ও অন্যান্য তথ্য এনআইডির সঙ্গে হুবহু মিলিয়ে লিখুন।','জমা দিলে ১২ সংখ্যার টিআইএন তৈরি হয়। সার্টিফিকেট দেখে পিডিএফ নামিয়ে রাখুন।','ব্যাংক হিসাব খোলা, গাড়ি বা জমি নিবন্ধনসহ কিছু কাজে টিআইএন লাগে। আয়কর রিটার্নের সময়সীমা এনবিআরের ঘোষণায় দেখুন।'],
+   docs:['এনআইডি','নিজের নামে নিবন্ধিত মোবাইল নম্বর','ইমেইল (থাকলে)'],
+   links:[['এনবিআর আয়কর পোর্টাল (ই-টিআইএন)','https://secure.incometax.gov.bd']],dial:[],
+   note:'পোর্টালের ধাপ ও নাম বদলাতে পারে। অফিসিয়াল সাইটের নির্দেশনা সবসময় আগে।'},
+  {id:'land',ic:'🏞️',t:'ভূমি সেবা',sub:'নামজারি, ভূমি উন্নয়ন কর, হেল্পলাইন',
+   intro:'জমির নামজারি ও ভূমি উন্নয়ন কর (খাজনা) অনলাইনে নিজে করা যায়। কোনো দালালের দরকার নেই।',
+   steps:['নামজারির আবেদন করুন mutation.land.gov.bd সাইটে। প্রয়োজনীয় কাগজ স্ক্যান করে যুক্ত করুন।','আবেদনের পর পাওয়া ট্র্যাকিং নম্বর সংরক্ষণ করুন, এতে অগ্রগতি দেখা যাবে।','ভূমি উন্নয়ন কর (খাজনা) land.gov.bd-এর অনলাইন সেবায় নিজের হোল্ডিং নম্বর দিয়ে পরিশোধ করুন।','সমস্যা হলে ভূমি হেল্পলাইন ১৬১২২-এ ফোন করুন।'],
+   docs:['জমির দলিল ও পর্চার কপি','এনআইডি','আগের খাজনার রসিদ (থাকলে)'],
+   links:[['ই-নামজারি','https://mutation.land.gov.bd'],['ভূমি মন্ত্রণালয়','https://land.gov.bd']],dial:[['📞 ১৬১২২ (ভূমি হেল্পলাইন)','16122']],
+   note:'ফি, সময় ও ধাপ বদলাতে পারে। অফিসিয়াল সাইটের তথ্য সবসময় আগে।'},
+  {id:'dl',ic:'🚗',t:'ড্রাইভিং লাইসেন্স',sub:'বিআরটিএ সেবা',
+   intro:'ড্রাইভিং লাইসেন্সের আবেদন, নবায়ন ও অবস্থা বিআরটিএর অফিসিয়াল সাইটে দেখা যায়।',
+   steps:['bsp.brta.gov.bd সাইটে নিজের তথ্য দিয়ে নিবন্ধন করুন।','শিক্ষানবিশ বা নবায়নের ধরন বেছে আবেদন ফর্ম পূরণ করুন।','সরকারি ফি অনলাইনে বা অনুমোদিত মাধ্যমে দিন এবং রসিদ রাখুন।','পরীক্ষা বা বায়োমেট্রিকের তারিখে নির্ধারিত বিআরটিএ অফিসে যান।'],
+   docs:['এনআইডি বা জন্ম নিবন্ধন','ছবি','আগের লাইসেন্স (নবায়নে)'],
+   links:[['বিআরটিএ সেবা পোর্টাল','https://bsp.brta.gov.bd'],['বিআরটিএ','https://brta.gov.bd']],dial:[],
+   note:'ফি ও ধাপ বদলাতে পারে। অফিসিয়াল সাইট দেখে নিন।'},
+  {id:'bill',ic:'💡',t:'বিদ্যুৎ ও ইউটিলিটি বিল',sub:'বিল দেওয়ার নিরাপদ পথ',
+   intro:'বিদ্যুৎ বিল সাধারণত মোবাইল ব্যাংকিং অ্যাপ বা নিজের বিদ্যুৎ সংস্থার অ্যাপে দেওয়া যায়।',
+   steps:['নিজের সংস্থার (যেমন ডিপিডিসি, ডেসকো, পল্লী বিদ্যুৎ) অফিসিয়াল অ্যাপ বা সাইট খুলুন।','অথবা বিকাশ/নগদ অ্যাপে "বিল পে" থেকে সংস্থা বেছে গ্রাহক নম্বর দিন।','পরিশোধের আগে নাম ও পরিমাণ মিলিয়ে নিন এবং রসিদ রাখুন।','কেউ ফোনে বা এসএমএসে লিংক পাঠিয়ে বিল চাইলে বিশ্বাস করবেন না।'],
+   docs:['গ্রাহক নম্বর','মিটার নম্বর'],links:[],dial:[],
+   note:'এই অ্যাপ থেকে কোনো টাকা লেনদেন হয় না। শুধু নির্দেশনা দেওয়া হয়।'},
+  {id:'safe',ic:'🛡️',t:'তথ্য-সুরক্ষা ও প্রতারণা',sub:'নিজের তথ্য নিরাপদ রাখুন',
+   intro:'নিজের কাগজপত্রের সেবা নিজে অফিসিয়াল সাইট বা অ্যাপে নেওয়াই সবচেয়ে নিরাপদ ও সস্তা। কিছু কথা মনে রাখলে ঝামেলা এড়ানো যায়।',
+   steps:['কেউ টাকার বিনিময়ে অন্য মানুষের এনআইডি তথ্য ("সার্ভার কপি"), কল-লিস্ট বা অবস্থান বের করে দেওয়ার কথা বললে তা বেআইনি। এই অ্যাপ এ ধরনের কোনো সেবা দেয় না।','ফেসবুক বিজ্ঞাপনের অচেনা সাইটে নিজের এনআইডি, সেলফি বা ওটিপি দেবেন না। এতে নিজের তথ্য অন্যের হাতে চলে যেতে পারে।','ওটিপি, পিন ও পাসওয়ার্ড কাউকে বলবেন না। সরকারি কর্মকর্তা বা ব্যাংক কখনো ফোনে এগুলো চায় না।','"টাকা দিলে আজই হবে" ধরনের কথায় ভুলবেন না। সরকারি ফি শুধু অফিসিয়াল মাধ্যমে নির্ধারিত।','কোনো ঝামেলায় পড়লে ৯৯৯ বা সরকারি তথ্যের জন্য ৩৩৩-এ ফোন করুন।'],
+   docs:[],links:[],dial:[['📞 ৩৩৩ (সরকারি সেবা ও তথ্য)','333'],['🚨 ৯৯৯ (জাতীয় জরুরি সেবা)','999']]}
+  ];
+  var V={t:'home',id:null},W=null;
+  function css(){if(document.getElementById('ghCss'))return;var s=document.createElement('style');s.id='ghCss';s.textContent='.gh-g{display:grid;grid-template-columns:1fr 1fr;gap:10px}.gh-t{background:#0b2b20;border:1px solid rgba(16,185,129,.35);border-radius:16px;padding:14px 10px;text-align:left;color:#fff;cursor:pointer;font-family:inherit}.gh-t b{display:block;font-size:14px;margin-top:6px}.gh-t span{display:block;font-size:11px;color:#6ee7b7;margin-top:3px;line-height:1.5}.gh-c{background:#0a251c;border:1px solid rgba(16,185,129,.3);border-radius:14px;padding:12px;margin-top:10px}.gh-b{display:block;width:100%;padding:12px;border:0;border-radius:12px;background:#10b981;color:#fff;font-size:14px;font-weight:700;text-align:center;text-decoration:none;margin-top:8px;cursor:pointer;font-family:inherit;box-sizing:border-box}.gh-b.o{background:#064e3b;border:1px solid rgba(52,211,153,.5)}';document.head.appendChild(s)}
+  function mkModal(){var m=document.getElementById('ghModal');if(!m){m=document.createElement('div');m.className='modal-overlay';m.id='ghModal';m.innerHTML='<div class="modal-content"><div class="modal-header"><h3 style="font-size:18px">🏛️ সরকারি সেবা কেন্দ্র</h3><button class="close-btn" onclick="closeModal(\'ghModal\')" aria-label="বন্ধ করুন">✕</button></div><div id="ghW"></div></div>';document.body.appendChild(m)}W=document.getElementById('ghW');return m}
+  function draw(){W.textContent='';if(V.t==='home')home();else detail(V.id)}
+  function home(){
+    W.appendChild(el('p','font-size:12.5px;color:#d1fae5;line-height:1.8;margin:0 0 12px','নিজের কাগজপত্রের কাজ কীভাবে নিজে করবেন, কী কী লাগবে আর কোন অফিসিয়াল সাইটে যাবেন, এক জায়গায়। যে সেবাটি চান সেটি চাপুন।'));
+    var g=el('div','');g.className='gh-g';
+    SV.forEach(function(s){var b=el('button','');b.className='gh-t';b.type='button';b.appendChild(el('div','font-size:26px',s.ic));b.appendChild(el('b','',s.t));b.appendChild(el('span','',s.sub));b.onclick=function(){V={t:'d',id:s.id};draw();try{W.parentNode.scrollTop=0}catch(e){}};g.appendChild(b)});
+    W.appendChild(g);
+    W.appendChild(el('p','font-size:11px;color:#a7f3d0;line-height:1.7;margin-top:14px','তথ্য সর্বশেষ মিলিয়ে দেখা হয়েছে নভেম্বর ২০২৬-এ। সরকারি নিয়ম, ফি ও ওয়েবসাইটের ঠিকানা বদলাতে পারে। আবেদনের আগে অফিসিয়াল সাইটে মিলিয়ে নিন। এই অ্যাপ কোনো সরকারি প্রতিষ্ঠান নয়।'))}
+  function detail(id){
+    var s=SV.filter(function(x){return x.id===id})[0];if(!s){V={t:'home'};return home()}
+    var bk=el('button','background:none;border:0;color:#34d399;font-size:14px;font-weight:700;cursor:pointer;padding:0 0 8px;font-family:inherit','← সব সেবা');bk.type='button';bk.onclick=function(){V={t:'home'};draw()};W.appendChild(bk);
+    W.appendChild(el('div','font-size:20px;font-weight:800',s.ic+' '+s.t));
+    W.appendChild(el('p','font-size:13px;color:#d1fae5;line-height:1.8;margin:6px 0 4px',s.intro));
+    var c=el('div','');c.className='gh-c';c.appendChild(el('div','font-weight:800;font-size:14px;color:#fde68a','📋 ধাপে ধাপে'));
+    s.steps.forEach(function(t,i){var r=el('div','display:flex;gap:8px;margin-top:8px;font-size:13px;line-height:1.75');r.appendChild(el('b','color:#34d399;min-width:20px',bn(i+1)+'.'));r.appendChild(el('div','flex:1',t));c.appendChild(r)});W.appendChild(c);
+    if(s.docs.length){var d=el('div','');d.className='gh-c';d.appendChild(el('div','font-weight:800;font-size:14px;color:#fde68a','🗂️ কাগজের ফর্দ (সাধারণত যা লাগে)'));d.appendChild(el('div','font-size:11px;color:#6ee7b7;margin-top:2px','ঠিক চিহ্ন দিলে আপনার ফোনে মনে থাকবে।'));
+      var st=CHK[s.id]||{};s.docs.forEach(function(t,i){var lb=el('label','display:flex;gap:10px;align-items:flex-start;margin-top:9px;font-size:13px;line-height:1.7;cursor:pointer');var cb=document.createElement('input');cb.type='checkbox';cb.checked=!!st[i];cb.style.cssText='width:20px;height:20px;margin-top:2px;accent-color:#10b981;flex-shrink:0';cb.onchange=function(){CHK[s.id]=CHK[s.id]||{};if(cb.checked)CHK[s.id][i]=1;else delete CHK[s.id][i];save()};lb.appendChild(cb);lb.appendChild(el('span','',t));d.appendChild(lb)});W.appendChild(d)}
+    (s.dial||[]).forEach(function(x){var a=el('a','',x[0]);a.className='gh-b';a.href='tel:'+x[1];W.appendChild(a)});
+    (s.links||[]).forEach(function(x){var a=el('a','','🔗 '+x[0]);a.className='gh-b o';a.href=x[1];a.target='_blank';a.rel='noopener noreferrer';W.appendChild(a)});
+    if(s.note)W.appendChild(el('p','font-size:11.5px;color:#fcd34d;line-height:1.7;margin-top:12px','ℹ️ '+s.note));
+    W.appendChild(el('p','font-size:11px;color:#a7f3d0;line-height:1.7;margin-top:10px','নিয়ম, ফি ও সাইটের ঠিকানা বদলাতে পারে। আবেদনের আগে অফিসিয়াল সাইটে মিলিয়ে নিন।'))}
+  window.govhubOpen=function(){css();mkModal();load();V={t:'home'};draw();document.getElementById('ghModal').classList.add('active')};
+  try{if(!CATEGORIES.some(function(c){return c.id==='govhub'})){var k=CATEGORIES.findIndex(function(c){return c.id==='govservice'});CATEGORIES.splice(k<0?CATEGORIES.length:k,0,{id:'govhub',name:'সরকারি সেবা কেন্দ্র (এনআইডি, পাসপোর্ট, সিম…)',icon:'🏛️'});try{renderCategories()}catch(e){}}}catch(e){}
+  var _o=window.openCategoryModal;window.openCategoryModal=function(id){if(id==='govhub'){window.govhubOpen();return}return _o.apply(this,arguments)};
+})();
+</script>
+<script>
+/* ===== অ্যাকাউন্ট ও সব তথ্য মুছুন (Play Store-এর জন্য বাধ্যতামূলক সুবিধা) ===== */
+(function(){
+  function E(t,c,x){var e=document.createElement(t);if(c)e.style.cssText=c;if(x!=null)e.textContent=x;return e}
+  async function wipeLocal(){
+    try{localStorage.clear()}catch(e){}
+    try{sessionStorage.clear()}catch(e){}
+    try{if(indexedDB.databases){var ds=await indexedDB.databases();ds.forEach(function(d){try{indexedDB.deleteDatabase(d.name)}catch(e){}})}else{indexedDB.deleteDatabase('amarIslamDB')}}catch(e){}
+    try{if(window.caches){var ks=await caches.keys();for(var i=0;i<ks.length;i++)await caches.delete(ks[i])}}catch(e){}
+    try{var rs=await navigator.serviceWorker.getRegistrations();for(var j=0;j<rs.length;j++)await rs[j].unregister()}catch(e){}
+    try{var P=window.Capacitor&&Capacitor.Plugins;if(P&&P.AmarAlarm){await P.AmarAlarm.cancelGroup({group:'med'});await P.AmarAlarm.cancelGroup({group:'alarm'})}}catch(e){}
+    try{var L=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;if(L){var pn=await L.getPending();if(pn&&pn.notifications&&pn.notifications.length)await L.cancel({notifications:pn.notifications})}}catch(e){}
+  }
+  window.amarDeleteAll=function(){
+    if(document.getElementById('delAll'))return;
+    var ov=E('div','position:fixed;inset:0;z-index:2147482500;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:16px;font-family:inherit');ov.id='delAll';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');
+    var bx=E('div','background:#0b2b20;border:1px solid rgba(248,113,113,.6);border-radius:18px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto;padding:18px;color:#fff');
+    bx.appendChild(E('div','font-size:18px;font-weight:800;color:#fca5a5','🗑️ অ্যাকাউন্ট ও সব তথ্য মুছুন'));
+    bx.appendChild(E('div','white-space:pre-line;margin-top:10px;font-size:13px;line-height:1.85;color:#d1fae5','এতে যা যা মুছে যাবে:\n• "কথা"-র প্রোফাইল, আপনার পোস্ট ও বার্তা (সার্ভার থেকে)\n• এই ফোনের সব জমা তথ্য: ওষুধ, অ্যালার্ম, স্বাস্থ্য-নোট, সেটিংস, সেভ করা সবকিছু\n• ফোনে বসানো সব অ্যালার্ম ও রিমাইন্ডার\n\nএটি আর ফেরানো যাবে না। চাইলে আগে সেটিংস থেকে "ব্যাকআপ" নামিয়ে রাখুন।'));
+    bx.appendChild(E('div','margin-top:10px;font-size:12px;line-height:1.8;color:#a7f3d0','ইমেইল/ফোন দিয়ে লগইনের রেকর্ডও সার্ভার থেকে সরাতে চাইলে মুছে ফেলার পর কাস্টমার কেয়ারকে জানান। মুছে ফেলার অনুরোধ জানানোর পাতা: adnan1497.github.io/My-bangladesh-app/delete-account.html'));
+    var st=E('div','margin-top:10px;font-size:13px;color:#fde68a;min-height:18px');bx.appendChild(st);
+    var go=E('button','margin-top:12px;width:100%;padding:12px;border:0;border-radius:12px;background:#dc2626;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit','হ্যাঁ, সব মুছে ফেলুন');go.type='button';
+    var no=E('button','margin-top:8px;width:100%;padding:12px;border:1px solid rgba(52,211,153,.5);border-radius:12px;background:transparent;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit','না, থাক');no.type='button';no.onclick=function(){ov.remove()};
+    go.onclick=async function(){
+      if(!confirm('শেষবার নিশ্চিত করুন: সব তথ্য চিরতরে মুছে যাবে।'))return;
+      go.disabled=true;no.disabled=true;st.textContent='মুছে ফেলা হচ্ছে…';
+      var srv='ok';
+      try{if(window.amarSocDelete)await window.amarSocDelete()}catch(e){srv='fail'}
+      await wipeLocal();
+      st.textContent=srv==='ok'?'✅ সব মুছে গেছে। অ্যাপ নতুন করে খুলছে…':'⚠️ ফোনের তথ্য মুছেছে, কিন্তু সার্ভারের প্রোফাইল মোছা যায়নি (ইন্টারনেট দেখুন)। লগইন করে আবার চেষ্টা করুন বা কাস্টমার কেয়ারকে জানান।';
+      setTimeout(function(){location.reload()},srv==='ok'?1500:4500)};
+    bx.appendChild(go);bx.appendChild(no);ov.appendChild(bx);document.body.appendChild(ov)};
 })();
 </script>
 <script>
