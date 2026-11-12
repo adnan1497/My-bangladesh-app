@@ -3548,11 +3548,12 @@
       row('📝 কাস্টমার কেয়ারকে তথ্য/সমস্যা জানান',()=>{closeModal('settingsModal');openAdminChat()});
       row('🔒 গোপনীয়তা নীতি',()=>{closeModal('settingsModal');openCategoryModal('privacy')});
       (()=>{let lb='';try{const t=+localStorage.getItem('amarLastBackup_v1');if(t)lb=' (সর্বশেষ: '+new Date(t).toLocaleDateString('bn-BD')+')'}catch(e){}
+        if(window.amarClockOK&&amarClockOK()){const on=localStorage.getItem('amarClockAuto_v1')!=='0';row((on?'✅':'⬜')+' নতুন ওষুধ নিজে থেকে ফোনের ঘড়িতেও বসান: '+(on?'চালু':'বন্ধ'),()=>{try{localStorage.setItem('amarClockAuto_v1',on?'0':'1')}catch(e){}closeModal('settingsModal');setTimeout(()=>openSettings&&openSettings(),50)})}
         row('🗑️ আমার অ্যাকাউন্ট ও সব তথ্য মুছুন',()=>{closeModal('settingsModal');amarDeleteAll()});
         row('💾 পুরো অ্যাপের ব্যাকআপ নামান'+lb,()=>fullBackup());
         row('♻️ ব্যাকআপ ফাইল থেকে সব ফিরিয়ে আনুন',()=>fullRestore());
         if(window.amarClockOK&&amarClockOK())row('🔔 অ্যালার্ম ঠিকঠাক রাখুন (গাইড)',()=>{closeModal('settingsModal');window.amarAlarmGuide('manual')})})();
-      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৬১'));
+      c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:6px','আমার বাংলাদেশ · সংস্করণ ৬২'));
       c.appendChild(mk('p','font-size:11px;color:#a7f3d0;text-align:center;margin-top:4px;line-height:1.7;padding:0 8px','এটি কোনো সরকারি সংস্থার অ্যাপ নয়, এবং কোনো সরকারি সংস্থার সঙ্গে যুক্ত নয়। সরকারি সেবার তথ্য শুধু সহায়তার জন্য, চূড়ান্ত নিয়ম অফিসিয়াল সাইটে দেখুন। স্বাস্থ্য ও ওষুধের তথ্য চিকিৎসকের পরামর্শের বিকল্প নয়।'));
       {const u=(typeof socMe==='function')?socMe():null;
         if(u){const em=mk('button','','📧 জিমেইল যোগ করুন (ভুলে গেলে কোড পাবেন)');em.className='change-btn';em.style.cssText='width:100%;padding:12px;margin-top:10px;cursor:pointer';em.onclick=accAddEmail;b.appendChild(em)}
@@ -9102,7 +9103,8 @@
       var num=function(v){var x=parseFloat(String(v).replace(/[০-৯]/g,function(c){return BN.indexOf(c)}));return isFinite(x)?x:null};var stv=sk.value.trim()===''?'':num(sk.value);
       var o={id:m?m.id:uid(),pid:pp?pp.value:D.people[0].id,name:n,form:fm.value,dose:ds.value.trim(),meal:ml.value,times:tm,start:st.value||today(),days:dy,stock:stv===null?'':stv,per:num(pe.value)||1,note:nt.value.trim(),paused:m?!!m.paused:false};
       if(m)D.meds[D.meds.indexOf(m)]=o;else D.meds.push(o);save();sync();go('home');
-        if(!m&&window.amarClockOK&&amarClockOK()){setTimeout(async function(){try{if(!confirm('ফোন অ্যাপ বন্ধ করে দিলেও যেন এই ওষুধের অ্যালার্ম নিশ্চিত বাজে, সেজন্য ফোনের নিজস্ব ঘড়িতেও বসিয়ে দেব?\n\n(ফোনের ঘড়ির অ্যালার্ম কখনও বন্ধ হয় না। কোর্স শেষ বা ওষুধ বদলালে ঘড়ি থেকে অ্যালার্মটি মুছে দেবেন।)'))return;var n=0,bad=null;for(var i=0;i<o.times.length;i++){var hm=o.times[i].t.split(':');var res=await amarClockAlarm(+hm[0],+hm[1],'💊 '+o.name+(o.dose?' — '+o.dose:''),[1,2,3,4,5,6,7]);if(res.ok)n++;else{bad=amarClockMsg(res);break}await new Promise(function(r){setTimeout(r,700)})}alert(bad?bad:'✅ ফোনের ঘড়িতে '+bn(n)+'টি অ্যালার্ম বসানো হয়েছে।')}catch(e){}},500)}},'p').style.width='100%';W.appendChild(c)}
+        if(!m&&window.amarClockOK&&amarClockOK()&&localStorage.getItem('amarClockAuto_v1')!=='0'){setTimeout(async function(){try{var n=0,bad=null;for(var i=0;i<o.times.length;i++){var hm=o.times[i].t.split(':');var res=await amarClockAlarm(+hm[0],+hm[1],'💊 '+o.name+(o.dose?' — '+o.dose:''),[1,2,3,4,5,6,7]);if(res.ok)n++;else{bad=amarClockMsg(res);break}await new Promise(function(r){setTimeout(r,700)})}
+          var t=document.createElement('div');t.setAttribute('role','status');t.style.cssText='position:fixed;left:12px;right:12px;bottom:90px;z-index:2147483000;background:#064e3b;color:#fff;border:1px solid #34d399;border-radius:12px;padding:11px 13px;font-size:13px;line-height:1.7;text-align:center';t.textContent=bad?bad:'📲 ফোনের ঘড়িতেও '+bn(n)+'টি অ্যালার্ম বসানো হয়েছে। কোর্স শেষে বা ওষুধ বদলালে ঘড়ি থেকে মুছে দেবেন।';document.body.appendChild(t);setTimeout(function(){t.remove()},6000)}catch(e){}},500)}},'p').style.width='100%';W.appendChild(c)}
   /* তালিকা */
   function schedTxt(m){return m.times.slice().sort(function(a,b){return a.t<b.t?-1:1}).map(function(t){return tLbl(t.t)}).join(', ')}
   function listV(){
